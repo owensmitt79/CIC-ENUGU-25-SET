@@ -1,0 +1,1105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Administrator Portal | CIC Alumni 1995 Set</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-standalone">
+
+  <!-- Admin Page Header -->
+  <header class="admin-standalone-header">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <a href="index.html" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit;">
+        <img src="logo.png" alt="CIC Alumni 1995 Crest" style="height: 42px; width: auto; object-fit: contain;">
+        <div>
+          <div style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; letter-spacing: 0.05em; color: var(--white); line-height: 1.1;">CIC ALUMNI 1995 SET</div>
+          <div style="font-size: 0.75rem; color: var(--cic-blue-300); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Executive Administrator System</div>
+        </div>
+      </a>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <a href="index.html" class="btn btn-sm btn-outline-light" style="display: inline-flex; align-items: center; gap: 0.4rem;">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        Return to Website
+      </a>
+      <a href="admin.html#" class="btn btn-sm btn-danger btn-admin-logout" style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5;">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        Sign Out
+      </a>
+    </div>
+  </header>
+
+  <main class="admin-standalone-container">
+    <!-- Admin Security Passcode Gate -->
+    <div id="adminAuthGate" style="padding: 5rem 1.5rem; display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 120px);">
+      <div class="admin-login-box" style="width: 100%; max-width: 440px; background: var(--white); border-radius: var(--radius-xl); box-shadow: var(--shadow-xl); padding: 2.5rem; text-align: center; border: 1px solid var(--slate-200);">
+        <div style="width: 68px; height: 68px; border-radius: 50%; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto;">
+          <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        </div>
+        <span class="section-badge" style="font-size: 0.75rem; margin-bottom: 0.5rem;">Executive Security</span>
+        <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.4rem; margin-top: 0.25rem; margin-bottom: 0.5rem;">Administrator Access</h3>
+        <p style="font-size: 0.88rem; color: var(--slate-600); margin-bottom: 1.75rem;">Please enter your authorized administrative security PIN to access the management portal and live project controls.</p>
+        
+        <form id="adminLoginForm">
+          <div class="form-group" style="margin-bottom: 1.25rem;">
+            <input type="password" id="adminPinInput" class="form-control" placeholder="Enter Security PIN (Default: admin123)" required style="text-align: center; font-size: 1.15rem; letter-spacing: 0.2em; height: 50px;">
+          </div>
+          <div id="adminAuthError" style="color: var(--danger); font-size: 0.85rem; margin-bottom: 1rem; display: none;"></div>
+          <button type="submit" class="btn btn-primary" style="width: 100%; height: 48px; font-size: 1rem; font-weight: 700;">
+            Authenticate &amp; Open Dashboard
+          </button>
+        </form>
+        <div style="margin-top: 1.5rem; font-size: 0.8rem; color: var(--slate-400);">Default system PIN: <code style="color: var(--cic-blue-600); font-weight: 700;">admin123</code></div>
+        <div style="margin-top: 1rem;">
+          <a href="login.html" style="font-size: 0.85rem; color: var(--cic-blue-600); text-decoration: none; font-weight: 600;">Open Dedicated Admin Login Portal &rarr;</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Authenticated Admin Interface -->
+    <div id="adminMainDashboard" style="display: none;">
+      <!-- Executive Sidebar Navigation -->
+      <aside class="admin-nav-bar">
+        <div class="admin-sidebar-header">
+          <span class="admin-sidebar-title">Admin Management</span>
+        </div>
+
+        <button class="admin-tab-btn active" data-pane="adminPane_Overview">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <span>Overview &amp; Reporting</span>
+        </button>
+
+        <button class="admin-tab-btn" data-pane="adminPane_Payments">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/></svg>
+          <span>Payments Ledger</span>
+        </button>
+
+        <button class="admin-tab-btn" data-pane="adminPane_MonthlyDues">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>Monthly Dues Tracking</span>
+        </button>
+
+        <button class="admin-tab-btn admin-tab-btn-emerald" data-pane="adminPane_IssueReceipt" id="adminTabBtn_IssueReceipt">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>+ Issue Dues Receipt</span>
+        </button>
+
+        <button class="admin-tab-btn" data-pane="adminPane_LeadershipMembers" id="adminTabBtn_LeadershipMembers">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          <span>Leadership &amp; Members</span>
+        </button>
+
+        <button class="admin-tab-btn" data-pane="adminPane_Categories">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+          <span>Payment Categories</span>
+        </button>
+
+        <button class="admin-tab-btn" data-pane="adminPane_Events">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+          <span>Events Manager</span>
+        </button>
+
+        <button class="admin-tab-btn" data-pane="adminPane_Projects">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          <span>Projects Funding</span>
+        </button>
+
+        <button class="admin-tab-btn admin-tab-btn-action" data-pane="adminPane_CreateProject">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          <span>+ Create Project</span>
+        </button>
+
+        <button class="admin-tab-btn" data-pane="adminPane_News">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+          <span>News &amp; Notices</span>
+        </button>
+
+        <button class="admin-tab-btn" data-pane="adminPane_Gateway">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>Gateway Settings</span>
+        </button>
+
+        <div class="admin-sidebar-footer">
+          <div class="admin-sidebar-status">
+            <span class="status-dot-pulse"></span>
+            <span>Live Portal Synced</span>
+          </div>
+        </div>
+      </aside>
+
+      <div class="admin-body">
+        <!-- PANE: OVERVIEW & REPORTING -->
+        <div class="admin-pane active" id="adminPane_Overview">
+          <div class="admin-kpis-grid">
+            <div class="admin-kpi-card">
+              <span class="admin-kpi-label">Total Revenue</span>
+              <span class="admin-kpi-val" id="kpiTotalRevenue">₦0</span>
+              <span class="admin-kpi-sub">&uarr; Lifetime Collections</span>
+            </div>
+            <div class="admin-kpi-card">
+              <span class="admin-kpi-label">Today's Payments</span>
+              <span class="admin-kpi-val" id="kpiTodayRevenue">₦0</span>
+              <span class="admin-kpi-sub">Active 24h</span>
+            </div>
+            <div class="admin-kpi-card">
+              <span class="admin-kpi-label">Total Transactions</span>
+              <span class="admin-kpi-val" id="kpiTotalTxns">0</span>
+              <span class="admin-kpi-sub">Verified receipts</span>
+            </div>
+            <div class="admin-kpi-card">
+              <span class="admin-kpi-label">Monthly &amp; Annual Dues</span>
+              <span class="admin-kpi-val" id="kpiDuesCollections">₦0</span>
+              <span class="admin-kpi-sub">Dues Subscriptions</span>
+            </div>
+            <div class="admin-kpi-card">
+              <span class="admin-kpi-label">Project &amp; Donations</span>
+              <span class="admin-kpi-val" id="kpiDonationsTotal">₦0</span>
+              <span class="admin-kpi-sub">Development funds</span>
+            </div>
+            <div class="admin-kpi-card">
+              <span class="admin-kpi-label">Event Tickets &amp; Reunions</span>
+              <span class="admin-kpi-val" id="kpiEventsTotal">₦0</span>
+              <span class="admin-kpi-sub">Event Registrations</span>
+            </div>
+          </div>
+
+          <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.75rem; margin-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.15rem; margin-bottom: 0.35rem;">Real-time Financial Audit Snapshot</h4>
+              <p style="font-size: 0.88rem; color: var(--slate-600); margin: 0;">Zero login payments are synchronized immediately. Receipts can be validated publicly by any auditor or member via the public verification engine.</p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+              <button class="btn btn-navy btn-sm" id="btnExportPaymentsCsv">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Export Ledger to CSV
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="switchToCreateProjectTab()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                + Launch New Project
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANE: PAYMENTS LEDGER -->
+        <div class="admin-pane" id="adminPane_Payments">
+          <div class="admin-table-controls">
+            <div class="admin-search-box">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" id="adminSearchPayments" placeholder="Search by name, phone, email, reference...">
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <select id="adminCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
+                <option value="ALL">All Categories</option>
+              </select>
+              <button type="button" class="btn btn-sm btn-primary" onclick="switchToIssueReceiptTab()" style="background: linear-gradient(135deg, #059669, #047857); border-color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                + Issue Receipt
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-light" id="btnExportPaymentsCsv" style="color: var(--slate-700); border-color: var(--slate-300);">
+                Export CSV
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Reference / Receipt</th>
+                  <th>Payer Details</th>
+                  <th>Category &amp; Breakdown</th>
+                  <th>Amount</th>
+                  <th>Gateway / Channel</th>
+                  <th>Timestamp</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminPaymentsTableBody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PANE: MONTHLY DUES CONFIG & TRACKER -->
+        <div class="admin-pane" id="adminPane_MonthlyDues">
+          <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-bottom: 2rem;">
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem;">
+              <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem;">Configure Monthly Dues Rate</h4>
+              <p style="font-size: 0.82rem; color: var(--slate-600); margin-bottom: 1.25rem;">Changing this rate updates the dynamic multi-month calculator across the entire website instantly.</p>
+              
+              <form id="adminDuesRateForm">
+                <div class="form-group">
+                  <label class="form-label">Monthly Rate (₦)</label>
+                  <input type="number" id="adminMonthlyDuesInput" class="form-control" value="5000" min="500" step="500" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                  Update Dues Rate
+                </button>
+              </form>
+            </div>
+
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+              <div>
+                <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.25rem;">Total Monthly Dues Collected</h4>
+                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: var(--gold-600);" id="adminDuesTotalCollected">₦0</div>
+                <p style="font-size: 0.85rem; color: var(--slate-600); margin-top: 0.35rem;">Cumulative dues recorded through zero-login checkouts and direct member deposits.</p>
+              </div>
+              <div style="margin-top: 1rem;">
+                <button type="button" class="btn btn-sm btn-primary" onclick="switchToIssueReceiptTab()" style="background: linear-gradient(135deg, #059669, #047857); border-color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  + Issue Member Dues Receipt
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Alumnus / Phone</th>
+                  <th>Months Cleared</th>
+                  <th>Amount Paid</th>
+                  <th>Date Paid</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="adminMonthlyDuesTableBody">
+                <!-- Monthly dues rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ================================================================
+             PANE: ISSUE DUES RECEIPT (MANUAL / DIRECT DEPOSIT RECORDING)
+             ================================================================ -->
+        <div class="admin-pane" id="adminPane_IssueReceipt">
+          <div style="max-width: 920px; margin: 0 auto;">
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2.5rem; box-shadow: var(--shadow-md);">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--slate-100); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                  <span class="section-badge" style="background: rgba(5, 150, 105, 0.1); color: #059669; border-color: rgba(5, 150, 105, 0.25);">
+                    Treasury &amp; Financial Secretariat
+                  </span>
+                  <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; margin-top: 0.5rem; margin-bottom: 0.35rem;">
+                    Issue Official Member Dues Receipt
+                  </h3>
+                  <p style="font-size: 0.9rem; color: var(--slate-600); margin: 0;">
+                    Generate an official verifiable receipt for an alumnus who paid dues or contributions via direct bank transfer, cash deposit, or POS.
+                  </p>
+                </div>
+                <div style="text-align: right;">
+                  <button type="button" class="btn btn-sm btn-outline-light" onclick="switchToPaymentsTab()" style="color: var(--slate-600); border-color: var(--slate-300);">
+                    &larr; View Ledger
+                  </button>
+                </div>
+              </div>
+
+              <form id="issueDuesReceiptForm">
+                <!-- Section 1: Member Info -->
+                <h4 style="font-size: 0.95rem; color: var(--cic-blue-900); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="width: 24px; height: 24px; border-radius: 50%; background: var(--cic-blue-100); color: var(--cic-blue-700); display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">1</span>
+                  Member Identification
+                </h4>
+
+                <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.75rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="issueMemberName">Full Name <span class="req" style="color: var(--danger);">*</span></label>
+                    <input type="text" id="issueMemberName" class="form-control" placeholder="e.g. Dr. Jude O. Okafor" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="issueMemberPhone">Phone / WhatsApp Number <span class="req" style="color: var(--danger);">*</span></label>
+                    <input type="tel" id="issueMemberPhone" class="form-control" placeholder="e.g. 0803 123 4567" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="issueMemberEmail">Email Address (For Receipt Delivery)</label>
+                    <input type="email" id="issueMemberEmail" class="form-control" placeholder="e.g. jude.okafor@example.com">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="issueMemberClassYear">Class / Graduation Set Year</label>
+                    <input type="text" id="issueMemberClassYear" class="form-control" value="1995" placeholder="e.g. 1995">
+                  </div>
+                </div>
+
+                <!-- Section 2: Dues & Period Selection -->
+                <h4 style="font-size: 0.95rem; color: var(--cic-blue-900); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="width: 24px; height: 24px; border-radius: 50%; background: var(--cic-blue-100); color: var(--cic-blue-700); display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">2</span>
+                  Payment Category &amp; Period Covered
+                </h4>
+
+                <div class="form-grid-2" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="issueCategorySelect">Payment Category <span class="req" style="color: var(--danger);">*</span></label>
+                    <select id="issueCategorySelect" class="form-control" style="font-weight: 600;">
+                      <option value="Monthly Dues" selected>Monthly Dues</option>
+                      <option value="Annual Dues">Annual Dues (Statutory)</option>
+                      <option value="Development Levy">Development Levy</option>
+                      <option value="Welfare Contribution">Welfare Contribution</option>
+                      <option value="Donation">General Donation / Endowment</option>
+                      <option value="Event Registration">Event Registration Fee</option>
+                      <option value="Reunion Fee">Reunion Fee</option>
+                      <option value="Special Levy">Special Levy</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="issuePaymentChannel">Payment Settlement Channel <span class="req" style="color: var(--danger);">*</span></label>
+                    <select id="issuePaymentChannel" class="form-control">
+                      <option value="Direct Bank Transfer" selected>Direct Bank Transfer (GTBank / Zenith)</option>
+                      <option value="Cash Deposit">Cash Deposit at National Secretariat</option>
+                      <option value="POS Terminal">POS Card Terminal</option>
+                      <option value="Cheque / Bank Draft">Bank Draft / Cheque</option>
+                      <option value="Online Settlement">Online Gateway Settlement</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Interactive Months Grid for Monthly Dues -->
+                <div id="issueMonthsContainer" style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 1.75rem;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <div>
+                      <div style="font-weight: 700; color: var(--navy-900);">Select Cleared Months (Jan - Dec)</div>
+                      <div style="font-size: 0.82rem; color: var(--slate-600);">Configured Rate: ₦<span id="issueRateDisplay">5,000</span> / month</div>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                      <button type="button" class="btn btn-sm btn-outline-light" onclick="selectAllIssueMonths(true)" style="color: var(--slate-700); border-color: var(--slate-300);">Select All 12 Months</button>
+                      <button type="button" class="btn btn-sm btn-outline-light" onclick="selectAllIssueMonths(false)" style="color: var(--slate-700); border-color: var(--slate-300);">Clear</button>
+                    </div>
+                  </div>
+
+                  <div id="issueMonthsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 0.75rem;">
+                    <!-- Month checkboxes populated dynamically -->
+                  </div>
+                </div>
+
+                <!-- Section 3: Amount, Date, & Bank Narration -->
+                <h4 style="font-size: 0.95rem; color: var(--cic-blue-900); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                  <span style="width: 24px; height: 24px; border-radius: 50%; background: var(--cic-blue-100); color: var(--cic-blue-700); display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem;">3</span>
+                  Financial Settlement Details
+                </h4>
+
+                <div class="form-grid-3" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="issueAmountInput">Total Amount Paid (₦) <span class="req" style="color: var(--danger);">*</span></label>
+                    <input type="number" id="issueAmountInput" class="form-control" style="font-size: 1.2rem; font-weight: 800; color: var(--cic-blue-900);" min="500" step="500" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="issuePaymentDate">Payment Date <span class="req" style="color: var(--danger);">*</span></label>
+                    <input type="date" id="issuePaymentDate" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="issueBankReference">Bank Narration / Teller / Ref</label>
+                    <input type="text" id="issueBankReference" class="form-control" placeholder="e.g. GTB/TRF/092184">
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 2rem;">
+                  <label class="form-label" for="issueReceiptNotes">Secretariat Audit Notes / Remarks (Optional)</label>
+                  <input type="text" id="issueReceiptNotes" class="form-control" placeholder="e.g. Paid in full for 2026 annual session via Secretariat account.">
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-outline-light" onclick="document.getElementById('issueDuesReceiptForm').reset(); selectAllIssueMonths(false);" style="color: var(--slate-600); border-color: var(--slate-300);">
+                    Reset Form
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg" style="background: linear-gradient(135deg, #059669, #047857); border-color: #059669; font-weight: 800; display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.9rem 2rem;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                    Generate &amp; Issue Official Receipt
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANE: PAYMENT CATEGORIES -->
+        <div class="admin-pane" id="adminPane_Categories">
+          <div style="margin-bottom: 1.25rem;">
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900);">Alumni Payment Categories</h4>
+            <p style="font-size: 0.85rem; color: var(--slate-600);">Enable, disable, or adjust payment items visible on the public payment page.</p>
+          </div>
+          <div id="adminCategoriesList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- PANE: EVENTS MANAGER -->
+        <div class="admin-pane" id="adminPane_Events">
+          <div style="margin-bottom: 1.25rem;">
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900);">Events Directory</h4>
+            <p style="font-size: 0.85rem; color: var(--slate-600);">Alumni can register or purchase event tickets without creating an account.</p>
+          </div>
+          <div id="adminEventsList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- PANE: PROJECTS FUNDING -->
+        <div class="admin-pane" id="adminPane_Projects">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--slate-200);">
+            <div>
+              <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.25rem;">Development Projects</h4>
+              <p style="font-size: 0.85rem; color: var(--slate-600);">Tracks fundraising goals, alumni donations, and completion status in real-time.</p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="switchToCreateProjectTab()">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+              + Create New Project
+            </button>
+          </div>
+          <div id="adminProjectsList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- PANE: CREATE PROJECT (PROJECT CREATION BAR & FORM) -->
+        <div class="admin-pane" id="adminPane_CreateProject">
+          <div style="max-width: 820px; background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 2.5rem; margin: 0 auto; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1.25rem;">
+              <div>
+                <span class="section-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem;">New Initiative Bar</span>
+                <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.5rem; margin-top: 0.25rem;">Create New Developmental Project</h3>
+                <p style="font-size: 0.88rem; color: var(--slate-600); margin-top: 0.25rem;">
+                  Launch a new alumni fundraising goal or infrastructure undertaking. It will immediately publish to the live site.
+                </p>
+              </div>
+              <button type="button" class="btn btn-sm btn-outline-light" onclick="switchToProjectsTab()" style="color: var(--slate-600); border-color: var(--slate-300);">
+                &larr; Back to Projects
+              </button>
+            </div>
+
+            <form id="adminCreateProjectForm">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="newProjectTitle">Project Title <span class="req">*</span></label>
+                  <input type="text" id="newProjectTitle" class="form-control" placeholder="e.g. CIC 1995 Ultra-Modern Science & STEM Lab" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newProjectCategory">Category <span class="req">*</span></label>
+                  <select id="newProjectCategory" class="form-control" required>
+                    <option value="Infrastructure">Infrastructure &amp; Buildings</option>
+                    <option value="Scholarship">Indigent Scholarships &amp; Awards</option>
+                    <option value="Technology">ICT, Solar &amp; Digital Systems</option>
+                    <option value="Welfare">Alumni Welfare &amp; Medical Shield</option>
+                    <option value="Academic">Academic Supplies &amp; Library</option>
+                    <option value="Sports">Sports &amp; Gymnasium Development</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="newProjectTarget">Funding Target Goal (₦) <span class="req">*</span></label>
+                  <input type="number" id="newProjectTarget" class="form-control" placeholder="e.g. 25000000" min="50000" step="10000" required>
+                  <div class="form-hint" id="newProjectTargetHint">Enter target amount in Naira</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newProjectInitialRaised">Initial Seed / Raised (₦) <span style="color: var(--slate-400);">(Optional)</span></label>
+                  <input type="number" id="newProjectInitialRaised" class="form-control" placeholder="0" min="0" step="5000" value="0">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="newProjectImage">Project Banner Image URL <span class="req">*</span></label>
+                <input type="text" id="newProjectImage" class="form-control" placeholder="e.g. campus.jpg or image URL" value="campus.jpg" required>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
+                  <span style="font-size: 0.78rem; color: var(--slate-500);">Quick Presets:</span>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newProjectImage').value='campus.jpg'">Campus</button>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newProjectImage').value='hero-bg.jpg'">Panorama</button>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newProjectImage').value='cic-statue.jpg'">Semper Fidelis</button>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newProjectImage').value='https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80'">Modern Hall</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="newProjectDescription">Project Scope &amp; Impact Description <span class="req">*</span></label>
+                <textarea id="newProjectDescription" class="form-control" rows="4" placeholder="Describe the objectives, beneficiary students or school community, and expected milestones..." required></textarea>
+              </div>
+
+              <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.75rem; border-top: 1px solid var(--slate-200); padding-top: 1.25rem;">
+                <button type="button" class="btn btn-outline-light" onclick="switchToProjectsTab()" style="color: var(--slate-700); border-color: var(--slate-300);">
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-primary btn-lg" id="btnSubmitNewProject">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                  Create &amp; Publish Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- PANE: NEWS & NOTICES (FULL ADMIN CONTROL SUITE) -->
+        <div class="admin-pane" id="adminPane_News">
+          <!-- Header Bar with Quick Action -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="section-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); border-color: rgba(43, 87, 151, 0.20);">
+                Secretariat Media &amp; Publications
+              </span>
+              <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; margin-top: 0.25rem;">
+                News, Notices &amp; Executive Bulletins
+              </h3>
+              <p style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
+                Publish official dispatches, general meeting circulars, executive resolutions, and alumni recognitions directly to the website.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+              <button type="button" class="btn btn-primary" id="btnToggleNewsForm" onclick="toggleAdminNewsForm()" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                + New Announcement
+              </button>
+            </div>
+          </div>
+
+          <!-- Publish / Edit News Studio Box -->
+          <div id="adminNewsFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
+              <h4 id="newsFormHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                Publish New Announcement
+              </h4>
+              <button type="button" class="btn btn-sm btn-outline-light" onclick="cancelNewsEdit()" style="color: var(--slate-600); border-color: var(--slate-300);">
+                &times; Close Studio
+              </button>
+            </div>
+
+            <form id="adminNewsForm">
+              <input type="hidden" id="newsEditId" value="">
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="newsTitleInput">Announcement / Article Title <span class="req" style="color: var(--danger);">*</span></label>
+                  <input type="text" id="newsTitleInput" class="form-control" placeholder="e.g. Notice of 2026 Grand Alumni Gala &amp; AGM in Enugu" required>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newsCategorySelect">Category <span class="req" style="color: var(--danger);">*</span></label>
+                  <select id="newsCategorySelect" class="form-control" required style="font-weight: 600;">
+                    <option value="Alumni News" selected>Alumni News</option>
+                    <option value="Meeting Notices">Meeting Notices</option>
+                    <option value="Event Announcements">Event Announcements</option>
+                    <option value="Project Updates">Project Updates</option>
+                    <option value="Executive Resolutions">Executive Resolutions</option>
+                    <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="newsDateInput">Publication Date <span class="req" style="color: var(--danger);">*</span></label>
+                  <input type="date" id="newsDateInput" class="form-control" required>
+                </div>
+
+                <div class="form-group" style="display: flex; flex-direction: column; justify-content: center;">
+                  <label class="form-label">Display Priority</label>
+                  <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-size: 0.9rem; color: var(--navy-900); font-weight: 600; margin-top: 0.25rem;">
+                    <input type="checkbox" id="newsFeaturedCheckbox" style="width: 18px; height: 18px; accent-color: var(--cic-blue-600);">
+                    <span>Pin as Featured Headline Announcement</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="newsImageInput">Cover Banner Image URL <span class="req" style="color: var(--danger);">*</span></label>
+                <input type="text" id="newsImageInput" class="form-control" placeholder="e.g. campus.jpg or image URL" value="campus.jpg" required>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
+                  <span style="font-size: 0.78rem; color: var(--slate-500);">Quick Presets:</span>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='campus.jpg'">Campus</button>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='hero-bg.jpg'">Panorama</button>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='cic-statue.jpg'">Semper Fidelis</button>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80'">Meeting</button>
+                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80'">Executive</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="newsSummaryInput">Summary / Lead Brief (Card Preview) <span class="req" style="color: var(--danger);">*</span></label>
+                <textarea id="newsSummaryInput" class="form-control" rows="2" placeholder="Brief 1-2 sentence overview shown on the card..." required></textarea>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="newsContentInput">Full Announcement Body &amp; Notice Details <span class="req" style="color: var(--danger);">*</span></label>
+                <textarea id="newsContentInput" class="form-control" rows="6" placeholder="Provide complete notice details, agenda, resolutions, dates, and instructions for alumni..." required></textarea>
+              </div>
+
+              <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; border-top: 1px solid var(--slate-200); padding-top: 1.25rem; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-outline-light" onclick="cancelNewsEdit()" style="color: var(--slate-700); border-color: var(--slate-300);">
+                  Cancel
+                </button>
+                <button type="submit" class="btn btn-primary btn-lg" id="btnSaveNews" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                  Publish Announcement
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Filter & Search Controls -->
+          <div class="admin-table-controls" style="margin-bottom: 1.5rem;">
+            <div class="admin-search-box">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" id="adminSearchNews" placeholder="Search bulletins by title, topic, or date...">
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <select id="adminNewsCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
+                <option value="ALL">All Categories</option>
+                <option value="Alumni News">Alumni News</option>
+                <option value="Meeting Notices">Meeting Notices</option>
+                <option value="Event Announcements">Event Announcements</option>
+                <option value="Project Updates">Project Updates</option>
+                <option value="Executive Resolutions">Executive Resolutions</option>
+                <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dynamic News List -->
+          <div id="adminNewsList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+
+        <!-- PANE: LEADERSHIP & MEMBERS MANAGEMENT (UPLOAD & DIRECTORY SUITE) -->
+        <div class="admin-pane" id="adminPane_LeadershipMembers">
+          <!-- Header Bar with Quick Action Buttons -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="section-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); border-color: rgba(43, 87, 151, 0.20);">
+                Governance &amp; Membership Directory
+              </span>
+              <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; margin-top: 0.25rem;">
+                Leadership &amp; Members Management
+              </h3>
+              <p style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
+                Upload executive leadership profiles, manage committee portfolios, and maintain the verified Alumni Members directory with bulk CSV upload tools.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-primary" id="btnToggleAddLeader" onclick="toggleAdminLeaderForm()" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                + Upload Executive
+              </button>
+              <button type="button" class="btn btn-outline-blue" id="btnToggleAddMember" onclick="toggleAdminMemberForm()" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                + Add Single Member
+              </button>
+              <button type="button" class="btn btn-outline-dark" id="btnToggleBulkBar" onclick="switchLeadershipMembersSubtab('bulk')" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 600;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                Bulk Upload Bar
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Sub-navigation Switcher Bar -->
+          <div class="admin-subnav-bar">
+            <button type="button" class="admin-subnav-tab active" id="subtabLeadersBtn" onclick="switchLeadershipMembersSubtab('leaders')">
+              🏛️ Executive Leadership <span class="admin-badge-count" id="badgeCountLeaders">8</span>
+            </button>
+            <button type="button" class="admin-subnav-tab" id="subtabMembersBtn" onclick="switchLeadershipMembersSubtab('members')">
+              👥 Alumni Members Directory <span class="admin-badge-count" id="badgeCountMembers">12</span>
+            </button>
+            <button type="button" class="admin-subnav-tab" id="subtabBulkBtn" onclick="switchLeadershipMembersSubtab('bulk')">
+              📤 Bulk Upload &amp; Import Bar
+            </button>
+          </div>
+
+          <!-- ==========================================
+               SUBSECTION 1: BULK UPLOAD & IMPORT BAR
+               ========================================== -->
+          <div id="adminBulkUploadSection" style="display: none; margin-bottom: 2.5rem;">
+            <div style="background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-md);">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                  <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                    Bulk Roster Upload &amp; Ingestion Bar
+                  </h4>
+                  <p style="font-size: 0.85rem; color: var(--slate-600); margin: 0.25rem 0 0 0;">
+                    Import multiple alumni members or leadership executives at once using CSV spreadsheets or pasted records.
+                  </p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                  <button type="button" class="btn btn-sm btn-outline-blue" onclick="downloadMembersCsvTemplate()">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Download CSV Template
+                  </button>
+                </div>
+              </div>
+
+              <!-- Upload Configuration Row -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="bulkTargetSelect">Import Destination Target <span class="req">*</span></label>
+                  <select id="bulkTargetSelect" class="form-control" style="font-weight: 600;">
+                    <option value="members">👥 Alumni Members Directory (General Set Roster)</option>
+                    <option value="leadership">🏛️ Executive Leadership Council (Portfolio Officers)</option>
+                  </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Supported Columns Format</label>
+                  <div style="font-size: 0.82rem; color: var(--slate-600); background: var(--cic-blue-50); padding: 0.6rem 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--cic-blue-200);">
+                    <code>Name, Chapter/Position, Phone, Email, ClassYear, Profession, Status</code>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dropzone File Upload Bar -->
+              <div class="admin-upload-dropzone" id="bulkUploadDropzone" onclick="document.getElementById('bulkCsvFileInput').click()">
+                <input type="file" id="bulkCsvFileInput" accept=".csv, .txt" style="display: none;" onchange="handleAdminBulkCsvFile(event)">
+                <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--white); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto; box-shadow: var(--shadow-sm);">
+                  <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                </div>
+                <h5 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.1rem; margin-bottom: 0.25rem;">
+                  Click to Browse or Drag &amp; Drop CSV File
+                </h5>
+                <p style="font-size: 0.85rem; color: var(--slate-500); margin: 0;" id="bulkCsvFileNameDisplay">
+                  Select official <code>.csv</code> spreadsheet exported from Excel, Google Sheets, or alumni records.
+                </p>
+              </div>
+
+              <!-- Alternative: Direct Paste Box -->
+              <div style="margin-top: 1.5rem;">
+                <label class="form-label" for="bulkCsvTextInput">
+                  Or Paste Spreadsheet Rows Directly (Comma or Tab separated):
+                </label>
+                <textarea id="bulkCsvTextInput" class="form-control" rows="4" style="font-family: monospace; font-size: 0.82rem;" placeholder="Engr. Emeka Okafor, Enugu Central, 08031234567, emeka@example.com, Class of 1995, Civil Engineer, Active&#10;Dr. Jude N. Eze, Lagos Main, 08029876543, jude.eze@example.com, Class of 1995, Consultant Surgeon, Active"></textarea>
+              </div>
+
+              <!-- Action Buttons & Notification -->
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <div id="bulkUploadResultAlert" style="display: none; font-size: 0.88rem; font-weight: 600; padding: 0.5rem 1rem; border-radius: var(--radius-md);"></div>
+                <div style="display: flex; gap: 0.75rem; margin-left: auto;">
+                  <button type="button" class="btn btn-outline-light" onclick="switchLeadershipMembersSubtab('members')" style="color: var(--slate-700); border-color: var(--slate-300);">
+                    Back to Roster
+                  </button>
+                  <button type="button" class="btn btn-primary btn-lg" id="btnProcessBulkUpload" onclick="processAdminBulkRosterUpload()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                    Process &amp; Upload Roster
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==========================================
+               SUBSECTION 2: EXECUTIVE LEADERSHIP
+               ========================================== -->
+          <div id="adminLeadersSection">
+            <!-- Add / Edit Executive Studio Card -->
+            <div id="adminLeaderFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
+                <h4 id="leaderFormHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                  <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                  <span>Upload Executive Leadership Profile</span>
+                </h4>
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="toggleAdminLeaderForm(true)" style="color: var(--slate-600);">
+                  &times; Close
+                </button>
+              </div>
+
+              <form id="adminLeaderForm" onsubmit="saveAdminLeader(event)">
+                <input type="hidden" id="leaderEditId" value="">
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="leaderNameInput">Full Name &amp; Academic/Professional Titles <span class="req">*</span></label>
+                    <input type="text" id="leaderNameInput" class="form-control" placeholder="e.g. Engr. Michael C. Adebayo, FNSE" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="leaderPositionSelect">Executive Office / Portfolio <span class="req">*</span></label>
+                    <select id="leaderPositionSelect" class="form-control" required onchange="handleLeaderPositionChange()">
+                      <option value="National President">National President</option>
+                      <option value="Vice President">Vice President</option>
+                      <option value="General Secretary">General Secretary</option>
+                      <option value="Assistant Secretary">Assistant Secretary</option>
+                      <option value="Financial Secretary">Financial Secretary</option>
+                      <option value="National Treasurer">National Treasurer</option>
+                      <option value="Public Relations Officer">Public Relations Officer</option>
+                      <option value="National Welfare Officer">National Welfare Officer</option>
+                      <option value="Legal Adviser">Legal Adviser</option>
+                      <option value="Ex-Officio Member">Ex-Officio Member</option>
+                      <option value="Other">Other Executive Role...</option>
+                    </select>
+                    <input type="text" id="leaderCustomPositionInput" class="form-control" style="display: none; margin-top: 0.5rem;" placeholder="Specify custom executive title">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="leaderClassYearInput">Class / Set Year <span class="req">*</span></label>
+                    <input type="text" id="leaderClassYearInput" class="form-control" value="Class of 1995" placeholder="e.g. Class of 1995" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="leaderPhoneInput">Official Contact Phone</label>
+                    <input type="tel" id="leaderPhoneInput" class="form-control" placeholder="e.g. 0803 452 1109">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="leaderEmailInput">Official Email Address</label>
+                    <input type="email" id="leaderEmailInput" class="form-control" placeholder="e.g. m.adebayo@cic1995.org">
+                  </div>
+                </div>
+
+                <!-- Executive Photo Upload Bar & Live Circular Preview -->
+                <div style="background: var(--cic-blue-50); border: 1px solid var(--cic-blue-200); border-radius: var(--radius-lg); padding: 1.25rem; margin: 1.25rem 0;">
+                  <label class="form-label" style="margin-bottom: 0.75rem; display: block;">Executive Official Portrait / Photo <span class="req">*</span></label>
+                  <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                    <div style="position: relative;">
+                      <img id="leaderPhotoPreviewImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Executive Portrait Preview" class="admin-leader-avatar" style="width: 76px; height: 76px; border: 3px solid var(--cic-blue-600);">
+                    </div>
+                    <div style="flex: 1; min-width: 250px;">
+                      <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                        <label class="btn btn-sm btn-outline-blue" style="cursor: pointer; margin: 0;">
+                          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                          Upload Photo File
+                          <input type="file" id="leaderPhotoFileInput" accept="image/*" style="display: none;" onchange="handleAdminLeaderPhotoUpload(event)">
+                        </label>
+                        <span style="font-size: 0.8rem; color: var(--slate-500); align-self: center;">JPG, PNG, WebP supported</span>
+                      </div>
+                      <input type="url" id="leaderPhotoUrlInput" class="form-control" placeholder="Or paste external photo image URL (https://...)" oninput="updateLeaderPhotoFromUrl(this.value)">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="leaderBioInput">Executive Biography, Citation &amp; Vision Summary <span class="req">*</span></label>
+                  <textarea id="leaderBioInput" class="form-control" rows="3" placeholder="Provide background on professional career, alma mater contributions, and committee portfolio responsibilities..." required></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                  <button type="button" class="btn btn-outline-light" onclick="toggleAdminLeaderForm(true)" style="color: var(--slate-700); border-color: var(--slate-300);">
+                    Cancel
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg" id="btnSubmitLeader">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                    Save &amp; Publish Executive
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Leadership Controls Bar -->
+            <div class="admin-table-controls">
+              <div class="admin-search-box">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input type="text" id="adminSearchLeaders" placeholder="Search executive by name or office..." oninput="renderAdminLeadership()">
+              </div>
+              <div style="font-size: 0.85rem; color: var(--slate-500);">
+                Official Council members displayed live on public <a href="leadership.html" target="_blank" style="color: var(--cic-blue-600); font-weight: 700; text-decoration: underline;">leadership.html</a>
+              </div>
+            </div>
+
+            <!-- Leadership Cards Grid -->
+            <div id="adminLeadershipGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- ==========================================
+               SUBSECTION 3: ALUMNI MEMBERS DIRECTORY
+               ========================================== -->
+          <div id="adminMembersSection" style="display: none;">
+            <!-- Add Single Member Studio Card -->
+            <div id="adminMemberFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
+                <h4 id="memberFormHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                  <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+                  <span>Register Alumni Member</span>
+                </h4>
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="toggleAdminMemberForm(true)" style="color: var(--slate-600);">
+                  &times; Close
+                </button>
+              </div>
+
+              <form id="adminMemberForm" onsubmit="saveAdminMember(event)">
+                <input type="hidden" id="memberEditId" value="">
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="memberNameInput">Full Name <span class="req">*</span></label>
+                    <input type="text" id="memberNameInput" class="form-control" placeholder="e.g. Chukwuebuka O. Eze" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="memberPhoneInput">Phone Number <span class="req">*</span></label>
+                    <input type="tel" id="memberPhoneInput" class="form-control" placeholder="e.g. 0803 123 4567" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="memberEmailInput">Email Address</label>
+                    <input type="email" id="memberEmailInput" class="form-control" placeholder="e.g. ebuka.eze@example.com">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="memberChapterSelect">Chapter / Location <span class="req">*</span></label>
+                    <select id="memberChapterSelect" class="form-control" required>
+                      <option value="Enugu Central">Enugu Central (Alma Mater Chapter)</option>
+                      <option value="Lagos Main">Lagos Main Chapter</option>
+                      <option value="Abuja FCT">Abuja FCT Chapter</option>
+                      <option value="Port Harcourt">Port Harcourt Chapter</option>
+                      <option value="UK / London">UK / London Chapter</option>
+                      <option value="USA / Houston">USA / Houston Chapter</option>
+                      <option value="USA / Atlanta">USA / Atlanta Chapter</option>
+                      <option value="Diaspora / Other">Diaspora / Other Global Chapter</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="memberClassYearInput">Class / Set Year <span class="req">*</span></label>
+                    <input type="text" id="memberClassYearInput" class="form-control" value="Class of 1995" placeholder="e.g. Class of 1995" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="memberProfessionInput">Profession / Occupation</label>
+                    <input type="text" id="memberProfessionInput" class="form-control" placeholder="e.g. Civil Engineer, Consultant, Banker">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="memberDuesStatusSelect">Dues Compliance Status</label>
+                    <select id="memberDuesStatusSelect" class="form-control">
+                      <option value="Active">Active / Up to Date</option>
+                      <option value="Pending">Pending Clearance</option>
+                      <option value="Exempt">Exempt / Honorary</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
+                  <button type="button" class="btn btn-outline-light" onclick="toggleAdminMemberForm(true)" style="color: var(--slate-700); border-color: var(--slate-300);">
+                    Cancel
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg" id="btnSubmitMember">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                    Save Member Record
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Members Filter & Actions Bar -->
+            <div class="admin-table-controls">
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; flex: 1;">
+                <div class="admin-search-box">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                  <input type="text" id="adminSearchMembers" placeholder="Search members by name, phone, email, or profession..." oninput="renderAdminMembers()">
+                </div>
+
+                <select id="adminMemberChapterFilter" class="form-control" style="width: auto; min-width: 170px;" onchange="renderAdminMembers()">
+                  <option value="ALL">All Chapters</option>
+                  <option value="Enugu Central">Enugu Central</option>
+                  <option value="Lagos Main">Lagos Main</option>
+                  <option value="Abuja FCT">Abuja FCT</option>
+                  <option value="Port Harcourt">Port Harcourt</option>
+                  <option value="UK / London">UK / London</option>
+                  <option value="USA / Houston">USA / Houston</option>
+                  <option value="USA / Atlanta">USA / Atlanta</option>
+                  <option value="Diaspora / Other">Diaspora / Other</option>
+                </select>
+
+                <select id="adminMemberStatusFilter" class="form-control" style="width: auto; min-width: 150px;" onchange="renderAdminMembers()">
+                  <option value="ALL">All Statuses</option>
+                  <option value="Active">Active Only</option>
+                  <option value="Pending">Pending Only</option>
+                </select>
+              </div>
+
+              <div style="display: flex; gap: 0.5rem;">
+                <button type="button" class="btn btn-sm btn-outline-dark" onclick="exportMembersToCSV()">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                  Export Roster CSV
+                </button>
+              </div>
+            </div>
+
+            <!-- Members Table -->
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Member Details</th>
+                    <th>Chapter &amp; Set</th>
+                    <th>Contact Info</th>
+                    <th>Dues Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="adminMembersTableBody">
+                  <!-- Populated dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- PANE: GATEWAY SETTINGS -->
+        <div class="admin-pane" id="adminPane_Gateway">
+          <div style="max-width: 580px; background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 2rem;">
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem;">Payment Gateway Configuration</h4>
+            <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 1.5rem;">Configure active processor, test/live environments, and public webhooks.</p>
+
+            <form id="adminGatewaySettingsForm">
+              <div class="form-group">
+                <label class="form-label">Active Payment Gateway</label>
+                <select id="adminActiveGatewaySelect" class="form-control">
+                  <option value="Paystack">Paystack (Recommended &bull; Nigeria / Global)</option>
+                  <option value="Flutterwave">Flutterwave (Africa &bull; International Cards)</option>
+                  <option value="Monnify">Monnify (Direct Instant Bank Transfer)</option>
+                  <option value="Remita">Remita (Treasury RRR Single Account)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Gateway Operating Mode</label>
+                <select id="adminGatewayModeSelect" class="form-control">
+                  <option value="Test Mode">Test Mode (Simulated transactions)</option>
+                  <option value="Live Mode">Live Mode (Production card processing)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Public API Key (Optional Override)</label>
+                <input type="text" class="form-control" placeholder="pk_test_xxxxxxxxxxxxxxxxxxxxxxxx">
+              </div>
+
+              <button type="submit" class="btn btn-navy" style="width: 100%;">
+                Save Gateway Settings
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Generic Article / Profile Modal -->
+  <div class="modal-backdrop" id="genericModal" onclick="if(event.target === this) closeGenericModal();">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeGenericModal()">&times;</button>
+      <div id="genericModalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,37 @@
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp
+*.bak
+
+# Editor and IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# Node & Package Manager Dependencies (if extended with build tools)
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build & Temporary Output
+dist/
+build/
+out/
+.temp/
+scratch/
+powershell.cmd
+
+# Environment Variables & Private Credentials
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.log

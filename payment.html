@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Make Payment &amp; Pay Dues | CIC Alumni 1995 Set</title>
+  <meta name="description" content="Pay monthly dues, developmental contributions, reunion fees, and donations to CIC Alumni 1995 Set with zero login or password. Instant verifiable digital receipt.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SITE HEADER & NAVIGATION
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="brand-crest">
+          <img src="logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img">
+          <div class="crest-text">
+            <span class="crest-title">CIC ALUMNI</span>
+            <span class="crest-subtitle">1995 SET</span>
+          </div>
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="about.html" class="nav-link">About Us</a></li>
+          <li class="nav-item-dropdown">
+            <a href="leadership.html" class="nav-link dropdown-toggle" id="leadershipDropdown">
+              Leadership <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-left: 2px; vertical-align: middle;"><path d="M19 9l-7 7-7-7"></path></svg>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="leadership.html" class="dropdown-link">Executive Council</a></li>
+              <li><a href="members.html" class="dropdown-link">Members</a></li>
+            </ul>
+          </li>
+          <li><a href="projects.html" class="nav-link">Projects</a></li>
+          <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+          <li><a href="verify.html" class="nav-link">Verify Payment</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+            &#9776;
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       PAGE BANNER
+       ========================================================================== -->
+  <section class="section" style="padding: 4.5rem 0 2.5rem 0; border-bottom: 1px solid var(--slate-100); background-color: var(--white);">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 0;">
+        <span class="section-badge">Direct Checkout &bull; Zero Login</span>
+        <h1 class="section-title" style="margin-top: 0.5rem;">Online Dues &amp; Payment Portal</h1>
+        <p class="section-desc">
+          Pay your monthly dues, contributions, event registration fees, donations, and class levies in seconds without requiring an account or password.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       MAKE PAYMENT SECTION (CORE ENGINE)
+       ========================================================================== -->
+  <section class="section" id="paymentSection" style="padding: 3.5rem 0 5.5rem 0;">
+    <div class="container">
+      <div class="payment-section-box">
+        <div class="payment-header-strip">
+          <h2>Alumni Payment Checkout</h2>
+          <p>
+            Select your category, specify your months or custom donation, and proceed to secure checkout.
+          </p>
+          <div class="zero-login-pill">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+            No registration or password required &bull; Direct Checkout &bull; Instant Verifiable Receipt
+          </div>
+        </div>
+
+        <!-- Stepper Progress Bar -->
+        <div class="payment-steps-indicator">
+          <div class="step-item active" id="stepIndicator_1">
+            <div class="step-badge">1</div>
+            <span>Personal Info</span>
+          </div>
+          <div class="step-item" id="stepIndicator_2">
+            <div class="step-badge">2</div>
+            <span>Payment Category</span>
+          </div>
+          <div class="step-item" id="stepIndicator_3">
+            <div class="step-badge">3</div>
+            <span>Months / Amount</span>
+          </div>
+          <div class="step-item" id="stepIndicator_4">
+            <div class="step-badge">4</div>
+            <span>Review &amp; Pay</span>
+          </div>
+        </div>
+
+        <div class="payment-form-body">
+          <!-- STEP 1: PERSONAL INFORMATION -->
+          <div class="step-content-pane active" id="stepPane_1">
+            <h3 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem; font-size: 1.4rem;">
+              Step 1: Your Personal Information
+            </h3>
+            <p style="color: var(--slate-600); font-size: 0.92rem; margin-bottom: 1.75rem;">
+              Please enter your details so we can generate your official verified receipt upon successful payment.
+            </p>
+
+            <form id="payerInfoForm" onsubmit="event.preventDefault();">
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="payerFullName">Full Name <span class="req">*</span></label>
+                  <input type="text" id="payerFullName" class="form-control" placeholder="e.g. Dr. Michael Adebayo" required value="Engr. David Okon">
+                  <div class="form-hint">Your name as it will appear on your official receipt</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="payerPhone">Phone Number <span class="req">*</span></label>
+                  <input type="tel" id="payerPhone" class="form-control" placeholder="e.g. 08031234567" required value="08023456789">
+                  <div class="form-hint">For payment confirmation &amp; SMS notifications</div>
+                </div>
+              </div>
+
+              <div class="form-grid-2">
+                <div class="form-group">
+                  <label class="form-label" for="payerEmail">Email Address <span class="req">*</span></label>
+                  <input type="email" id="payerEmail" class="form-control" placeholder="e.g. david.okon@example.com" required value="david.okon@example.com">
+                  <div class="form-hint">Digital receipt will be delivered to this email</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="payerClassYear">Graduation / Class Year <span style="color: var(--slate-400);">(Optional)</span></label>
+                  <input type="text" id="payerClassYear" class="form-control" placeholder="e.g. Class of 1995" value="Class of 1995">
+                  <div class="form-hint">Helps with class set recognition and reporting</div>
+                </div>
+              </div>
+
+              <div class="step-controls">
+                <div></div>
+                <button type="button" class="btn btn-primary" id="btnToStep2">
+                  Continue to Select Payment &rarr;
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- STEP 2: SELECT PAYMENT TYPE -->
+          <div class="step-content-pane" id="stepPane_2">
+            <h3 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem; font-size: 1.4rem;">
+              Step 2: Select What You Want to Pay For
+            </h3>
+            <p style="color: var(--slate-600); font-size: 0.92rem; margin-bottom: 1.5rem;">
+              Select a payment category below. You can pay monthly dues, make developmental contributions, pay reunion fees, or donate.
+            </p>
+
+            <div class="categories-grid" id="categoriesGrid">
+              <!-- Dynamically populated from DataStore via app.js -->
+            </div>
+
+            <div class="step-controls">
+              <button type="button" class="btn btn-outline-light" id="btnBackTo1" style="color: var(--slate-700); border-color: var(--slate-300);">
+                &larr; Back
+              </button>
+              <button type="button" class="btn btn-primary" id="btnToStep3">
+                Configure Amount &rarr;
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 3: MONTHS / AMOUNT CONFIGURATION -->
+          <div class="step-content-pane" id="stepPane_3">
+            <h3 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem; font-size: 1.4rem;">
+              Step 3: Specify Period or Amount
+            </h3>
+
+            <!-- MONTHLY DUES CONFIGURATION -->
+            <div id="monthlyDuesBox" class="monthly-dues-box">
+              <div class="monthly-dues-header">
+                <div>
+                  <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--navy-900);">Select Dues Month(s)</h4>
+                  <p style="font-size: 0.85rem; color: var(--slate-600);">Check one or multiple months you wish to pay for.</p>
+                </div>
+                <div class="rate-badge" id="currentMonthlyRateBadge">
+                  Current Rate: ₦5,000 / Month
+                </div>
+              </div>
+
+              <!-- 12 Months Checkbox Grid -->
+              <div class="months-grid" id="monthsGrid">
+                <!-- Rendered dynamically via app.js -->
+              </div>
+
+              <!-- Quick Selection Helpers -->
+              <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap;">
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="selectAllMonths(true)" style="color: var(--slate-700); border-color: var(--slate-300);">
+                  Select All 12 Months
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="selectAllMonths(false)" style="color: var(--slate-700); border-color: var(--slate-300);">
+                  Clear Selection
+                </button>
+              </div>
+
+              <!-- Live Formula Calculation Banner -->
+              <div class="calculation-summary-banner">
+                <div>
+                  <div style="font-size: 0.85rem; opacity: 0.85;">Selected Calculation:</div>
+                  <div id="monthlyCalculationFormula" style="font-weight: 700; font-size: 1.1rem; margin-top: 0.2rem;">
+                    3 Months × ₦5,000 = ₦15,000
+                  </div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 0.8rem; opacity: 0.85;">Total Payable</div>
+                  <div class="dynamic-total-val" style="font-size: 1.5rem; font-weight: 900;">₦15,000</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- FIXED AMOUNT CATEGORIES -->
+            <div id="fixedAmountBox" class="fixed-amount-box" style="display: none;">
+              <div style="text-align: center; padding: 2rem 1rem;">
+                <h4 id="fixedCategoryTitle" style="font-family: var(--font-heading); font-size: 1.3rem; color: var(--navy-900); margin-bottom: 0.5rem;">Fixed Statutory Dues</h4>
+                <p style="color: var(--slate-600); font-size: 0.95rem; margin-bottom: 1.5rem;">This category has a fixed statutory amount approved by the general assembly.</p>
+                <div id="fixedCategoryAmount" style="font-size: 2.2rem; font-weight: 900; color: var(--cic-blue-600); font-family: var(--font-heading); margin-bottom: 1rem;">
+                  ₦25,000
+                </div>
+                <div style="font-size: 0.85rem; color: var(--slate-500);">Amount will be confirmed on your verified receipt.</div>
+              </div>
+            </div>
+
+            <!-- OPEN / CUSTOM DONATION AMOUNT -->
+            <div id="customAmountBox" class="custom-amount-box" style="display: none;">
+              <h4 style="font-family: var(--font-heading); font-size: 1.15rem; color: var(--navy-900); margin-bottom: 0.5rem;">Enter Contribution Amount</h4>
+              <p style="font-size: 0.88rem; color: var(--slate-600); margin-bottom: 1.25rem;">Type your desired amount or tap one of the suggested quick chips below.</p>
+
+              <div class="amount-input-wrap">
+                <span class="currency-prefix">₦</span>
+                <input type="number" id="customAmountInput" class="form-control" value="10000" min="1000" step="500" style="font-size: 1.4rem; font-weight: 700; padding-left: 2.75rem;">
+              </div>
+
+              <div class="amount-chips-row">
+                <button type="button" class="chip-btn" data-amount="5000">₦5,000</button>
+                <button type="button" class="chip-btn active" data-amount="10000">₦10,000</button>
+                <button type="button" class="chip-btn" data-amount="25000">₦25,000</button>
+                <button type="button" class="chip-btn" data-amount="50000">₦50,000</button>
+                <button type="button" class="chip-btn" data-amount="100000">₦100,000</button>
+                <button type="button" class="chip-btn" data-amount="250000">₦250,000</button>
+              </div>
+            </div>
+
+            <div class="step-controls">
+              <button type="button" class="btn btn-outline-light" id="btnBackTo2" style="color: var(--slate-700); border-color: var(--slate-300);">
+                &larr; Back
+              </button>
+              <button type="button" class="btn btn-primary" id="btnToStep4">
+                Review Payment Summary &rarr;
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 4: REVIEW & SECURE CHECKOUT -->
+          <div class="step-content-pane" id="stepPane_4">
+            <h3 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem; font-size: 1.4rem;">
+              Step 4: Review Details &amp; Select Payment Channel
+            </h3>
+            <p style="color: var(--slate-600); font-size: 0.92rem; margin-bottom: 1.5rem;">
+              Review your transaction summary below before continuing to the secure payment processor.
+            </p>
+
+            <!-- Realtime Summary Card -->
+            <div class="payment-summary-card">
+              <div class="summary-header">
+                <div>
+                  <h4 style="font-size: 1.1rem; color: var(--navy-900); margin-bottom: 0.2rem;">Payment Summary</h4>
+                  <div style="font-size: 0.8rem; color: var(--slate-500);">Direct Zero-Login Settlement</div>
+                </div>
+                <div class="secure-badge">
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                  256-Bit SSL Encrypted
+                </div>
+              </div>
+
+              <div class="summary-details-list">
+                <div class="summary-row">
+                  <span class="label">Payer Name</span>
+                  <span class="value" id="summaryName">Engr. David Okon (Class of 1995)</span>
+                </div>
+                <div class="summary-row">
+                  <span class="label">Phone / Email</span>
+                  <span class="value" id="summaryContact">08023456789 &bull; david.okon@example.com</span>
+                </div>
+                <div class="summary-row">
+                  <span class="label">Payment Category</span>
+                  <span class="value" id="summaryCategory">Monthly Dues</span>
+                </div>
+                <div class="summary-row">
+                  <span class="label">Description / Period</span>
+                  <span class="value" id="summaryDescription">Monthly Dues (3 Months: Jan, Feb, Mar)</span>
+                </div>
+                <div class="summary-row total-row">
+                  <span class="label">Total Amount Payable</span>
+                  <span class="value" id="summaryTotal">₦15,000</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Integrated Gateway Selection Options -->
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.05rem; margin-top: 1.75rem; margin-bottom: 0.75rem;">
+              Select Payment Gateway:
+            </h4>
+            <div class="gateway-options-grid">
+              <div class="gateway-option-card selected" data-gateway="Paystack">
+                <div class="gw-badge">Recommended</div>
+                <div class="gw-title">Paystack</div>
+                <div class="gw-desc">Cards, USSD, Bank Transfer &bull; Instant Verification</div>
+              </div>
+
+              <div class="gateway-option-card" data-gateway="Flutterwave">
+                <div class="gw-badge">Global</div>
+                <div class="gw-title">Flutterwave</div>
+                <div class="gw-desc">International Cards, Mobile Money, Barter</div>
+              </div>
+
+              <div class="gateway-option-card" data-gateway="Monnify">
+                <div class="gw-badge">Direct Bank</div>
+                <div class="gw-title">Monnify</div>
+                <div class="gw-desc">Dedicated dynamic virtual accounts &amp; low fees</div>
+              </div>
+
+              <div class="gateway-option-card" data-gateway="Remita">
+                <div class="gw-badge">Treasury</div>
+                <div class="gw-title">Remita</div>
+                <div class="gw-desc">RRR Generated invoice &bull; Bank branch deposit</div>
+              </div>
+            </div>
+
+            <!-- Payment Channel Sub-Tabs -->
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.05rem; margin-top: 1.75rem; margin-bottom: 0.75rem;">
+              Preferred Channel:
+            </h4>
+            <div class="channel-tabs-row">
+              <button type="button" class="channel-tab-btn active" data-channel="card">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                Debit / Credit Card
+              </button>
+              <button type="button" class="channel-tab-btn" data-channel="transfer">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"></path></svg>
+                Bank Transfer
+              </button>
+              <button type="button" class="channel-tab-btn" data-channel="ussd">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                USSD Code
+              </button>
+            </div>
+
+            <!-- Channel Details Container -->
+            <div class="channel-body-box">
+              <!-- CARD TAB -->
+              <div class="channel-pane active" id="channelPane_card">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                  <div style="font-size: 0.9rem; color: var(--slate-600);">
+                    Accepts Mastercard, Visa, and Verve. You will be prompted with a secure one-time 3D Secure OTP.
+                  </div>
+                  <div style="display: flex; gap: 0.5rem;">
+                    <span style="background: var(--slate-100); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; color: var(--slate-700);">VISA</span>
+                    <span style="background: var(--slate-100); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; color: var(--slate-700);">MASTERCARD</span>
+                    <span style="background: var(--slate-100); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.75rem; font-weight: 700; color: var(--slate-700);">VERVE</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TRANSFER TAB -->
+              <div class="channel-pane" id="channelPane_transfer">
+                <div class="transfer-info-box">
+                  <div style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 0.5rem;">
+                    Pay via your bank app or internet banking to this dedicated single-use account:
+                  </div>
+                  <div class="dynamic-bank-card">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                      <span style="color: var(--slate-600); font-size: 0.85rem;">Bank Name:</span>
+                      <strong style="color: var(--navy-900);">Wema Bank / Providus Bank</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                      <span style="color: var(--slate-600); font-size: 0.85rem;">Account Name:</span>
+                      <strong style="color: var(--navy-900);">CIC Alumni 1995 Set</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <span style="color: var(--slate-600); font-size: 0.85rem;">Account Number:</span>
+                      <span style="font-size: 1.25rem; font-weight: 900; color: var(--cic-blue-600); letter-spacing: 0.05em; font-family: monospace;">7901842910</span>
+                    </div>
+                  </div>
+                  <div style="font-size: 0.82rem; color: var(--slate-500); margin-top: 0.4rem;">
+                    Payment will be automatically detected and verified immediately.
+                  </div>
+                </div>
+              </div>
+
+              <!-- USSD TAB -->
+              <div class="channel-pane" id="channelPane_ussd">
+                <div style="text-align: center;">
+                  <p style="font-size: 0.9rem; color: var(--slate-600);">Dial the USSD shortcode from your registered mobile phone:</p>
+                  <div class="ussd-code-box" id="ussdCodeDisplay">*737*50*15000#</div>
+                  <div style="font-size: 0.8rem; color: var(--slate-500);">Supports GTBank, Zenith, Access, UBA, and First Bank</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="step-controls">
+              <button type="button" class="btn btn-outline-light" id="btnBackTo3" style="color: var(--slate-700); border-color: var(--slate-300);">
+                &larr; Back
+              </button>
+              <button type="button" class="btn btn-primary btn-lg" id="btnProceedCheckout">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                PROCEED TO SECURE PAYMENT
+              </button>
+            </div>
+          </div>
+
+          <!-- STEP 5 / SUCCESS: VERIFIED & OFFICIAL DIGITAL RECEIPT -->
+          <div class="step-content-pane" id="stepPane_Success">
+            <div class="payment-success-card">
+              <div class="success-check-icon">
+                <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+              </div>
+              <h2>✓ PAYMENT SUCCESSFUL</h2>
+              <p>Thank you for your payment to <strong>CIC Alumni 1995 Set</strong>. Your transaction has been recorded and verified.</p>
+              
+              <!-- Printable & Downloadable Digital Receipt Container -->
+              <div id="digitalReceiptContainer">
+                <!-- Receipt generated via app.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust Badges & Transparency Grid -->
+      <div style="margin-top: 3.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+        <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--cic-blue-50); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+          </div>
+          <div>
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.05rem; margin-bottom: 0.25rem;">100% Instant Receipts</h4>
+            <p style="font-size: 0.88rem; color: var(--slate-600); line-height: 1.5;">Every single transaction generates an official printable receipt with an embedded verification QR code.</p>
+          </div>
+        </div>
+
+        <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--cic-blue-50); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <div>
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.05rem; margin-bottom: 0.25rem;">Public Payment Verification</h4>
+            <p style="font-size: 0.88rem; color: var(--slate-600); line-height: 1.5;">Any employer, auditor, or member can verify transaction references anytime at our public validation portal.</p>
+          </div>
+        </div>
+
+        <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: var(--cic-blue-50); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <div>
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.05rem; margin-bottom: 0.25rem;">Direct Fund Allocation</h4>
+            <p style="font-size: 0.88rem; color: var(--slate-600); line-height: 1.5;">Project contributions and welfare payments automatically credit dedicated trust accounts managed by executive trustees.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SITE FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-crest" style="margin-bottom: 1rem;">
+            <img src="logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img">
+            <div class="crest-text">
+              <span class="crest-title">CIC ALUMNI</span>
+              <span class="crest-subtitle">1995 SET</span>
+            </div>
+          </div>
+          <p>
+            The official global network of former students dedicated to fostering community, networking, welfare support, and the sustainable growth of our beloved alma mater.
+          </p>
+          <div style="font-family: var(--font-heading); color: var(--cic-blue-600); font-style: italic; font-weight: 600;">
+            "Connecting the Past. Building the Future."
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h5>Quick Navigation</h5>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="leadership.html">Leadership Directory</a></li>
+            <li><a href="projects.html">Development Projects</a></li>
+            <li><a href="index.html#gallery">Alumni Gallery</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Alumni Services</h5>
+          <ul class="footer-links">
+            <li><a href="payment.html">Make a Payment (No Login)</a></li>
+            <li><a href="payment.html">Pay Monthly Dues</a></li>
+            <li><a href="verify.html">Verify Payment Reference</a></li>
+            <li><a href="index.html#gallery">Alumni Photo Gallery</a></li>
+            <li><a href="login.html">Executive Admin Login</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Verify Payment</h5>
+          <p style="font-size: 0.88rem; color: var(--slate-600); margin-bottom: 1.25rem;">
+            Already paid? Validate your transaction reference or receipt number instantly.
+          </p>
+          <a href="verify.html" class="btn btn-outline-blue" style="width: 100%; text-align: center;">
+            VERIFY PAYMENT &rarr;
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 CIC Alumni 1995 Set (College of the Immaculate Conception). All rights reserved.
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+          <a href="verify.html">Public Verification</a>
+          <a href="contact.html">Secretariat</a>
+          <a href="login.html">Admin Login</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Generic Article / Profile Modal -->
+  <div class="modal-backdrop" id="genericModal" onclick="if(event.target === this) closeGenericModal();">
+    <div class="modal-card">
+      <button class="modal-close-btn" onclick="closeGenericModal()">&times;</button>
+      <div id="genericModalBody">
+        <!-- Injected dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

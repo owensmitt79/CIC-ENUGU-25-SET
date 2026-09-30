@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photo Gallery &amp; Media Archive | CIC Alumni 1995 Set</title>
+  <meta name="description" content="Visual media archive and photo gallery of the CIC Alumni 1995 Set: campus landmarks, reunions, school development projects, and memorable moments.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SITE HEADER & NAVIGATION
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="index.html" class="brand-crest">
+          <img src="logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img">
+          <div class="crest-text">
+            <span class="crest-title">CIC ALUMNI</span>
+            <span class="crest-subtitle">1995 SET</span>
+          </div>
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="about.html" class="nav-link">About Us</a></li>
+          <li class="nav-item-dropdown">
+            <a href="leadership.html" class="nav-link dropdown-toggle" id="leadershipDropdown">
+              Leadership <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-left: 2px; vertical-align: middle;"><path d="M19 9l-7 7-7-7"></path></svg>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="leadership.html" class="dropdown-link">Executive Council</a></li>
+              <li><a href="members.html" class="dropdown-link">Members</a></li>
+            </ul>
+          </li>
+          <li><a href="projects.html" class="nav-link">Projects</a></li>
+          <li><a href="gallery.html" class="nav-link active">Gallery</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+          <li><a href="verify.html" class="nav-link">Verify Payment</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+            &#9776;
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       PAGE BANNER
+       ========================================================================== -->
+  <section class="section" style="padding: 4.5rem 0 2.5rem 0; border-bottom: 1px solid var(--slate-100); background-color: var(--white);">
+    <div class="container">
+      <div class="section-header" style="margin-bottom: 0;">
+        <span class="section-badge">Memories &amp; Heritage</span>
+        <h1 class="section-title" style="margin-top: 0.5rem;">Alumni Photo &amp; Media Gallery</h1>
+        <p class="section-desc">
+          Cherished memories of our formative days at CIC Enugu, monumental campus landmarks, set reunions, and transformational development projects.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       CAMPUS SHOWCASE HIGHLIGHTS
+       ========================================================================== -->
+  <section class="section" style="padding: 3rem 0 2rem 0; background: var(--slate-50);">
+    <div class="container">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2.5rem;">
+        
+        <!-- Semper Fidelis Monument Card -->
+        <div class="project-card" style="cursor: pointer;" onclick="openLightbox('cic-statue.jpg', 'Semper Fidelis Monument', 'Iconic student monument standing vigil at College of the Immaculate Conception, Enugu.')">
+          <div class="project-img-wrap" style="height: 240px;">
+            <img src="cic-statue.jpg" alt="CIC Semper Fidelis Monument" class="project-img">
+            <span class="project-cat-badge">Historic Monument</span>
+          </div>
+          <div class="project-body" style="padding: 1.25rem;">
+            <h4 class="project-title" style="font-size: 1.15rem; margin-bottom: 0.35rem;">Semper Fidelis Student Monument</h4>
+            <p class="project-desc" style="font-size: 0.85rem; margin-bottom: 0.5rem;">
+              The symbolic student statue representing faithful brotherhood and devotion to the values of C.I.C.
+            </p>
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--cic-blue-600); display: inline-flex; align-items: center; gap: 0.3rem;">
+              Click to View Full Photo &rarr;
+            </span>
+          </div>
+        </div>
+
+        <!-- Campus Grounds & Secondary School -->
+        <div class="project-card" style="cursor: pointer;" onclick="openLightbox('campus.jpg', 'CIC Enugu Assembly Grounds', 'Historic main assembly quadrangle and administration block of CIC Enugu.')">
+          <div class="project-img-wrap" style="height: 240px;">
+            <img src="campus.jpg" alt="Historic CIC Campus Assembly" class="project-img">
+            <span class="project-cat-badge">Campus Grounds</span>
+          </div>
+          <div class="project-body" style="padding: 1.25rem;">
+            <h4 class="project-title" style="font-size: 1.15rem; margin-bottom: 0.35rem;">Historic Campus &amp; Quadrangle</h4>
+            <p class="project-desc" style="font-size: 0.85rem; margin-bottom: 0.5rem;">
+              The time-honored assembly grounds and academic classrooms where lifelong bonds were formed in 1995.
+            </p>
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--cic-blue-600); display: inline-flex; align-items: center; gap: 0.3rem;">
+              Click to View Full Photo &rarr;
+            </span>
+          </div>
+        </div>
+
+        <!-- Hero Panoramic Collage -->
+        <div class="project-card" style="cursor: pointer;" onclick="openLightbox('hero-bg.jpg', 'Alma Mater Collage', 'Iconic College of the Immaculate Conception architectural panorama.')">
+          <div class="project-img-wrap" style="height: 240px;">
+            <img src="hero-bg.jpg" alt="CIC Campus Collage" class="project-img">
+            <span class="project-cat-badge">College Collage</span>
+          </div>
+          <div class="project-body" style="padding: 1.25rem;">
+            <h4 class="project-title" style="font-size: 1.15rem; margin-bottom: 0.35rem;">College Panoramic Collage</h4>
+            <p class="project-desc" style="font-size: 0.85rem; margin-bottom: 0.5rem;">
+              A panoramic tribute celebrating decades of Roman Catholic academic excellence in Enugu, Nigeria.
+            </p>
+            <span style="font-size: 0.78rem; font-weight: 700; color: var(--cic-blue-600); display: inline-flex; align-items: center; gap: 0.3rem;">
+              Click to View Full Photo &rarr;
+            </span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Dynamic Gallery Grid with Filters -->
+      <div class="section-header" style="margin-top: 3.5rem; margin-bottom: 1.5rem;">
+        <span class="section-badge">Alumni Archives</span>
+        <h2 class="section-title">Reunions, Milestones &amp; Events</h2>
+      </div>
+
+      <div class="news-filters" id="galleryFilters" style="margin-bottom: 2rem;">
+        <!-- Filters rendered dynamically -->
+      </div>
+
+      <div class="gallery-grid" id="galleryGrid">
+        <!-- Rendered dynamically from DataStore via renderGallery() -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SITE FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-crest" style="margin-bottom: 1rem;">
+            <img src="logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img">
+            <div class="crest-text">
+              <span class="crest-title">CIC ALUMNI</span>
+              <span class="crest-subtitle">1995 SET</span>
+            </div>
+          </div>
+          <p>
+            The official global network of former students dedicated to fostering community, networking, welfare support, and the sustainable growth of our beloved alma mater.
+          </p>
+          <div style="font-family: var(--font-heading); color: var(--cic-blue-600); font-style: italic; font-weight: 600;">
+            "Connecting the Past. Building the Future."
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h5>Quick Navigation</h5>
+          <ul class="footer-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="leadership.html">Leadership Directory</a></li>
+            <li><a href="members.html">Members Roster</a></li>
+            <li><a href="projects.html">Development Projects</a></li>
+            <li><a href="gallery.html">Photo Gallery</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Alumni Services</h5>
+          <ul class="footer-links">
+            <li><a href="payment.html">Make a Payment (No Login)</a></li>
+            <li><a href="payment.html">Pay Monthly Dues</a></li>
+            <li><a href="verify.html">Verify Payment Reference</a></li>
+            <li><a href="contact.html">Secretariat Help Desk</a></li>
+            <li><a href="login.html">Executive Admin Login</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h5>Make a Payment</h5>
+          <p style="font-size: 0.88rem; color: var(--slate-600); margin-bottom: 1.25rem;">
+            No login or password needed. Simply provide your name, phone, and email to pay dues or donate.
+          </p>
+          <a href="payment.html" class="btn btn-primary" style="width: 100%; text-align: center;">
+            PAY DUES NOW &rarr;
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 CIC Alumni 1995 Set (College of the Immaculate Conception). All rights reserved.
+        </div>
+        <div style="display: flex; gap: 1.5rem;">
+          <a href="verify.html">Public Verification</a>
+          <a href="contact.html">Secretariat</a>
+          <a href="login.html">Admin Login</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Lightbox Modal -->
+  <div class="modal-backdrop" id="lightboxModal" onclick="if(event.target === this) closeLightbox();">
+    <div class="modal-card lightbox-card">
+      <button class="modal-close-btn" onclick="closeLightbox()" style="color: var(--white); background: rgba(255,255,255,0.2);">&times;</button>
+      <img id="lightboxImg" class="lightbox-img" src="" alt="Gallery Preview">
+      <div id="lightboxCaption" class="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
