@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else if (paneId === 'adminPane_Projects') {
         renderAdminProjects();
       } else if (paneId === 'adminPane_CreateProject') {
+        initAdminProjectsStudio();
         const titleInput = document.getElementById('newProjectTitle');
         if (titleInput) titleInput.focus();
       } else if (paneId === 'adminPane_IssueReceipt') {
@@ -379,6 +380,10 @@ function loadAdminDashboardData() {
   initAdminNewsStudio();
   renderAdminNews();
 
+  // Initialize Projects & Initiatives Studio
+  initAdminProjectsStudio();
+  renderAdminProjects();
+
   // Initialize Leadership & Members Management Studio
   updateLeadershipMembersCounts();
 }
@@ -600,80 +605,612 @@ window.deleteEvent = function(idx) {
 };
 
 /**
- * Admin Projects Management
+ * ============================================================================
+ * ADMIN DEVELOPMENTAL PROJECTS & INITIATIVES MANAGEMENT SUITE
+ * ============================================================================
+ */
+
+let projectStudioInitialized = false;
+
+/**
+ * Format currency with Naira symbol
+ */
+function formatNairaDisplay(amount) {
+  const num = Number(amount) || 0;
+  return '₦' + num.toLocaleString('en-NG');
+}
+
+/**
+ * Initialize Project Creation & Edit Studio
+ */
+function initAdminProjectsStudio() {
+  const form = document.getElementById('adminCreateProjectForm');
+  if (!form) return;
+
+  const titleInput = document.getElementById('newProjectTitle');
+  const catSelect = document.getElementById('newProjectCategory');
+  const statusSelect = document.getElementById('newProjectStatus');
+  const targetInput = document.getElementById('newProjectTarget');
+  const raisedInput = document.getElementById('newProjectInitialRaised');
+  const donorsInput = document.getElementById('newProjectDonors');
+  const imageInput = document.getElementById('newProjectImage');
+  const descInput = document.getElementById('newProjectDescription');
+  const searchInput = document.getElementById('adminSearchProjects');
+  const catFilter = document.getElementById('adminProjectCategoryFilter');
+  const statusFilter = document.getElementById('adminProjectStatusFilter');
+
+  // Bind live filters once
+  if (searchInput && !searchInput.dataset.bound) {
+    searchInput.dataset.bound = 'true';
+    searchInput.addEventListener('input', () => renderAdminProjects());
+  }
+  if (catFilter && !catFilter.dataset.bound) {
+    catFilter.dataset.bound = 'true';
+    catFilter.addEventListener('change', () => renderAdminProjects());
+  }
+  if (statusFilter && !statusFilter.dataset.bound) {
+    statusFilter.dataset.bound = 'true';
+    statusFilter.addEventListener('change', () => renderAdminProjects());
+  }
+
+  // Update live preview function
+  function updateLivePreview() {
+    const title = titleInput ? titleInput.value.trim() : '';
+    const category = catSelect ? catSelect.value : 'Infrastructure';
+    const status = statusSelect ? statusSelect.value : 'active';
+    const target = targetInput ? (Number(targetInput.value) || 0) : 0;
+    const raised = raisedInput ? (Number(raisedInput.value) || 0) : 0;
+    const donors = donorsInput ? (Number(donorsInput.value) || 0) : 0;
+    const image = imageInput && imageInput.value.trim() ? imageInput.value.trim() : 'campus.jpg';
+    const desc = descInput ? descInput.value.trim() : '';
+
+    const percent = target > 0 ? Math.min(100, Math.round((raised / target) * 100)) : 0;
+
+    // Update hints
+    const targetHint = document.getElementById('newProjectTargetHint');
+    if (targetHint) targetHint.textContent = `Formatted: ${formatNairaDisplay(target)}`;
+    const raisedHint = document.getElementById('newProjectRaisedHint');
+    if (raisedHint) raisedHint.textContent = `Formatted: ${formatNairaDisplay(raised)}`;
+
+    // Update Preview Elements
+    const pTitle = document.getElementById('previewProjectTitle');
+    if (pTitle) pTitle.textContent = title || 'CIC 1995 Ultra-Modern Science & STEM Lab';
+
+    const pCat = document.getElementById('previewProjectCategory');
+    if (pCat) pCat.textContent = category;
+
+    const pStatus = document.getElementById('previewProjectStatusBadge');
+    if (pStatus) {
+      if (status === 'active') {
+        pStatus.textContent = 'Active';
+        pStatus.style.background = 'rgba(16, 185, 129, 0.15)';
+        pStatus.style.color = '#047857';
+      } else if (status === 'completed') {
+        pStatus.textContent = 'Completed';
+        pStatus.style.background = 'rgba(59, 130, 246, 0.15)';
+        pStatus.style.color = '#1d4ed8';
+      } else {
+        pStatus.textContent = 'Paused';
+        pStatus.style.background = 'rgba(245, 158, 11, 0.15)';
+        pStatus.style.color = '#b45309';
+      }
+    }
+
+    const pImg = document.getElementById('previewProjectImg');
+    if (pImg) pImg.src = image;
+
+    const pDesc = document.getElementById('previewProjectDesc');
+    if (pDesc) {
+      pDesc.textContent = desc || 'Describe the objectives, beneficiary students or school community, and expected milestones for this project...';
+    }
+
+    const pRaised = document.getElementById('previewProjectRaised');
+    if (pRaised) pRaised.textContent = formatNairaDisplay(raised);
+
+    const pTarget = document.getElementById('previewProjectTarget');
+    if (pTarget) pTarget.textContent = `Goal: ${formatNairaDisplay(target)}`;
+
+    const pBar = document.getElementById('previewProjectBar');
+    if (pBar) pBar.style.width = `${percent}%`;
+
+    const pDonors = document.getElementById('previewProjectDonorsStat');
+    if (pDonors) {
+      pDonors.innerHTML = `<strong>${percent}% funded</strong> &bull; ${donors} generous alumni contributors`;
+    }
+  }
+
+  // Bind live preview listeners once
+  const previewInputs = [titleInput, catSelect, statusSelect, targetInput, raisedInput, donorsInput, imageInput, descInput];
+  previewInputs.forEach(input => {
+    if (input && !input.dataset.boundPreview) {
+      input.dataset.boundPreview = 'true';
+      input.addEventListener('input', updateLivePreview);
+      input.addEventListener('change', updateLivePreview);
+    }
+  });
+
+  // Bind preset helper globally
+  window.setProjectStudioImage = function(url) {
+    if (imageInput) {
+      imageInput.value = url;
+      updateLivePreview();
+    }
+  };
+
+  // Bind form submission once
+  if (!form.dataset.bound) {
+    form.dataset.bound = 'true';
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const editId = (document.getElementById('editProjectId')?.value || '').trim();
+      const title = titleInput.value.trim();
+      const category = catSelect.value;
+      const status = statusSelect.value;
+      const target = Number(targetInput.value);
+      const raised = Number(raisedInput.value) || 0;
+      const donors = Number(donorsInput.value) || 0;
+      const image = (imageInput.value || 'campus.jpg').trim();
+      const description = descInput.value.trim();
+
+      if (!title || !target || !description) {
+        alert('Please fill in all required fields (Title, Target Goal, and Description).');
+        return;
+      }
+
+      if (target <= 0) {
+        alert('Funding Target Goal must be greater than zero.');
+        return;
+      }
+
+      if (editId) {
+        // UPDATE EXISTING PROJECT
+        const existing = DataStore.findProjectById(editId);
+        const updatedProject = {
+          id: editId,
+          title: title,
+          category: category,
+          status: status,
+          targetAmount: target,
+          raisedAmount: raised,
+          donorCount: donors,
+          image: image,
+          description: description
+        };
+
+        DataStore.updateProject(updatedProject);
+        alert(`Success! Project "${title}" has been updated.`);
+      } else {
+        // CREATE BRAND NEW PROJECT
+        const newProject = {
+          id: 'prj-' + Date.now(),
+          title: title,
+          category: category,
+          status: status,
+          targetAmount: target,
+          raisedAmount: raised,
+          donorCount: donors,
+          image: image,
+          description: description
+        };
+
+        DataStore.addProject(newProject);
+        alert(`Congratulations! Project "${title}" has been created and published live on the alumni portal!`);
+      }
+
+      // Reset form & studio state
+      resetProjectStudioForm();
+
+      // Return to projects directory
+      switchToProjectsTab();
+
+      // Synchronize overall dashboard metrics & public view if available
+      loadAdminDashboardData();
+      if (typeof renderProjects === 'function') {
+        renderProjects();
+      }
+    });
+  }
+
+  // Trigger initial preview calculation
+  updateLivePreview();
+  projectStudioInitialized = true;
+}
+
+/**
+ * Reset Project Studio Form
+ */
+window.resetProjectStudioForm = function() {
+  const form = document.getElementById('adminCreateProjectForm');
+  if (form) form.reset();
+
+  const editIdInput = document.getElementById('editProjectId');
+  if (editIdInput) editIdInput.value = '';
+
+  const headerTitle = document.getElementById('projectStudioHeaderTitle');
+  if (headerTitle) headerTitle.textContent = 'Create New Developmental Project';
+
+  const headerDesc = document.getElementById('projectStudioHeaderDesc');
+  if (headerDesc) {
+    headerDesc.textContent = 'Design and publish a new alumni fundraising goal or infrastructure project. Changes synchronize immediately across the live portal.';
+  }
+
+  const submitBtnText = document.getElementById('btnSubmitProjectText');
+  if (submitBtnText) submitBtnText.textContent = 'Create & Publish Project';
+
+  const imageInput = document.getElementById('newProjectImage');
+  if (imageInput) imageInput.value = 'campus.jpg';
+
+  const targetInput = document.getElementById('newProjectTarget');
+  if (targetInput) targetInput.value = '25000000';
+
+  const raisedInput = document.getElementById('newProjectInitialRaised');
+  if (raisedInput) raisedInput.value = '0';
+
+  const donorsInput = document.getElementById('newProjectDonors');
+  if (donorsInput) donorsInput.value = '0';
+
+  const catSelect = document.getElementById('newProjectCategory');
+  if (catSelect) catSelect.value = 'Infrastructure';
+
+  const statusSelect = document.getElementById('newProjectStatus');
+  if (statusSelect) statusSelect.value = 'active';
+
+  // Trigger live preview refresh
+  const titleInput = document.getElementById('newProjectTitle');
+  if (titleInput) {
+    titleInput.dispatchEvent(new Event('input'));
+  }
+};
+
+/**
+ * Cancel Project Edit and Return
+ */
+window.cancelProjectEdit = function() {
+  resetProjectStudioForm();
+  switchToProjectsTab();
+};
+
+/**
+ * Render Admin Projects List with KPI Cards and Action Toolbars
  */
 function renderAdminProjects() {
   const container = document.getElementById('adminProjectsList');
   if (!container) return;
 
   const projects = DataStore.getProjects();
-  if (projects.length === 0) {
+
+  // 1. Calculate and update KPI Cards
+  let totalRaised = 0;
+  let totalGoal = 0;
+  let totalDonors = 0;
+
+  projects.forEach(p => {
+    totalRaised += (Number(p.raisedAmount) || 0);
+    totalGoal += (Number(p.targetAmount) || 0);
+    totalDonors += (Number(p.donorCount) || 0);
+  });
+
+  const overallPercent = totalGoal > 0 ? Math.min(100, Math.round((totalRaised / totalGoal) * 100)) : 0;
+
+  const kpiRaised = document.getElementById('adminProjectTotalRaised');
+  if (kpiRaised) kpiRaised.textContent = formatNairaDisplay(totalRaised);
+
+  const kpiGoal = document.getElementById('adminProjectTotalGoal');
+  if (kpiGoal) kpiGoal.textContent = formatNairaDisplay(totalGoal);
+
+  const kpiPercent = document.getElementById('adminProjectOverallPercent');
+  if (kpiPercent) kpiPercent.textContent = `${overallPercent}%`;
+
+  const kpiDonors = document.getElementById('adminProjectTotalDonors');
+  if (kpiDonors) kpiDonors.textContent = totalDonors.toLocaleString();
+
+  // 2. Filter list according to search & dropdowns
+  const searchInput = document.getElementById('adminSearchProjects');
+  const catFilter = document.getElementById('adminProjectCategoryFilter');
+  const statusFilter = document.getElementById('adminProjectStatusFilter');
+
+  const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+  const selectedCat = catFilter ? catFilter.value : 'ALL';
+  const selectedStatus = statusFilter ? statusFilter.value : 'ALL';
+
+  const filtered = projects.filter(prj => {
+    const matchCat = selectedCat === 'ALL' || (prj.category && prj.category.toLowerCase() === selectedCat.toLowerCase());
+    const matchStatus = selectedStatus === 'ALL' || ((prj.status || 'active').toLowerCase() === selectedStatus.toLowerCase());
+    const matchQuery = !query ||
+      (prj.title && prj.title.toLowerCase().includes(query)) ||
+      (prj.description && prj.description.toLowerCase().includes(query)) ||
+      (prj.category && prj.category.toLowerCase().includes(query));
+
+    return matchCat && matchStatus && matchQuery;
+  });
+
+  // 3. Render Empty State
+  if (filtered.length === 0) {
     container.innerHTML = `
-      <div style="text-align: center; padding: 2.5rem; background: var(--white); border-radius: var(--radius-lg); border: 1px dashed var(--slate-300);">
-        <p style="color: var(--slate-600); margin-bottom: 1rem;">No developmental projects have been created yet.</p>
-        <button class="btn btn-primary btn-sm" onclick="switchToCreateProjectTab()">+ Create First Project</button>
+      <div style="text-align: center; padding: 3.5rem 1.5rem; background: var(--white); border-radius: var(--radius-xl); border: 2px dashed var(--slate-300); box-shadow: var(--shadow-sm);">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--cic-blue-50); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto;">
+          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        </div>
+        <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.25rem; margin-bottom: 0.5rem;">No Projects Found</h4>
+        <p style="color: var(--slate-600); max-width: 440px; margin: 0 auto 1.5rem auto; font-size: 0.9rem;">
+          ${query || selectedCat !== 'ALL' || selectedStatus !== 'ALL' ? 'No projects match your active search filter. Try clearing filters or creating a new campaign.' : 'No developmental projects have been created yet. Launch your first project to start tracking donations.'}
+        </p>
+        <button class="btn btn-primary" onclick="switchToCreateProjectTab()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          + Create New Project
+        </button>
       </div>
     `;
     return;
   }
 
-  container.innerHTML = projects.map(prj => {
-    const percent = Math.min(100, Math.round((prj.raisedAmount / prj.targetAmount) * 100));
+  // 4. Render Project Cards
+  container.innerHTML = filtered.map(prj => {
+    const percent = prj.targetAmount > 0 ? Math.min(100, Math.round((prj.raisedAmount / prj.targetAmount) * 100)) : 0;
+    const status = (prj.status || 'active').toLowerCase();
+
+    let statusBadgeHtml = '';
+    if (status === 'completed') {
+      statusBadgeHtml = `<span class="status-badge successful" style="background: rgba(59, 130, 246, 0.15); color: #1d4ed8; font-weight: 700;">Completed</span>`;
+    } else if (status === 'paused') {
+      statusBadgeHtml = `<span class="status-badge" style="background: rgba(245, 158, 11, 0.15); color: #b45309; font-weight: 700;">Paused</span>`;
+    } else {
+      statusBadgeHtml = `<span class="status-badge successful" style="font-weight: 700;">Active Campaign</span>`;
+    }
+
     return `
-      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1.25rem; margin-bottom: 1rem; display: flex; gap: 1.25rem; align-items: center; flex-wrap: wrap;">
-        <img src="${prj.image}" alt="${prj.title}" style="width: 80px; height: 60px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--slate-200); flex-shrink: 0;" onerror="this.src='campus.jpg'">
-        <div style="flex: 1; min-width: 260px;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.5rem;">
-            <h4 style="color: var(--navy-900); font-weight: 700; font-size: 1.05rem;">${prj.title}</h4>
-            <span style="font-weight: 800; color: var(--cic-blue-600); font-size: 1rem;">
-              ₦${prj.raisedAmount.toLocaleString()} <span style="font-size: 0.8rem; color: var(--slate-500); font-weight: 500;">/ ₦${prj.targetAmount.toLocaleString()}</span>
-            </span>
+      <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 1.5rem; margin-bottom: 1.25rem; display: flex; gap: 1.5rem; align-items: stretch; flex-wrap: wrap; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;">
+        <!-- Thumbnail -->
+        <div style="position: relative; width: 150px; min-width: 150px; height: 115px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--slate-200); flex-shrink: 0;">
+          <img src="${prj.image}" alt="${escapeHtml(prj.title)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='campus.jpg'">
+          <span style="position: absolute; bottom: 6px; left: 6px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; background: rgba(11, 19, 32, 0.85); color: #fff; padding: 0.15rem 0.45rem; border-radius: 4px; backdrop-filter: blur(4px);">
+            ${escapeHtml(prj.category)}
+          </span>
+        </div>
+
+        <!-- Body Details -->
+        <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: space-between;">
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.4rem; gap: 0.75rem; flex-wrap: wrap;">
+              <div>
+                <h4 style="color: var(--navy-900); font-family: var(--font-heading); font-weight: 700; font-size: 1.15rem; margin: 0 0 0.25rem 0;">
+                  ${escapeHtml(prj.title)}
+                </h4>
+                <div style="display: flex; gap: 0.6rem; align-items: center; font-size: 0.82rem; color: var(--slate-500);">
+                  ${statusBadgeHtml}
+                  <span>&bull;</span>
+                  <span>ID: <code>${prj.id}</code></span>
+                </div>
+              </div>
+
+              <!-- Financial Metric -->
+              <div style="text-align: right;">
+                <div style="font-weight: 800; color: var(--emerald-600); font-size: 1.15rem;">
+                  ${formatNairaDisplay(prj.raisedAmount)}
+                </div>
+                <div style="font-size: 0.8rem; color: var(--slate-500);">
+                  Goal: ${formatNairaDisplay(prj.targetAmount)}
+                </div>
+              </div>
+            </div>
+
+            <p style="font-size: 0.88rem; color: var(--slate-600); margin: 0.35rem 0 0.85rem 0; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+              ${escapeHtml(prj.description)}
+            </p>
           </div>
-          <div style="display: flex; gap: 0.75rem; font-size: 0.8rem; color: var(--slate-600); margin-bottom: 0.5rem; align-items: center;">
-            <span class="project-cat-badge" style="font-size: 0.7rem; padding: 0.15rem 0.5rem;">${prj.category}</span>
-            <span>&bull; ${prj.donorCount} alumni donors</span>
-            <span>&bull; ${percent}% completed</span>
-          </div>
-          <div style="width: 100%; height: 6px; background: var(--slate-100); border-radius: 99px; overflow: hidden;">
-            <div style="width: ${percent}%; height: 100%; background: var(--cic-blue-600); border-radius: 99px;"></div>
+
+          <!-- Progress Bar & Metrics -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--slate-600); margin-bottom: 0.35rem;">
+              <span><strong>${percent}%</strong> funding reached</span>
+              <span><strong>${prj.donorCount || 0}</strong> verified alumni donors</span>
+            </div>
+            <div style="width: 100%; height: 8px; background: var(--slate-100); border-radius: 99px; overflow: hidden;">
+              <div style="width: ${percent}%; height: 100%; background: linear-gradient(90deg, var(--cic-blue-600), var(--emerald-500)); border-radius: 99px; transition: width 0.4s ease;"></div>
+            </div>
           </div>
         </div>
-        <div style="display: flex; gap: 0.5rem; align-items: center; flex-shrink: 0;">
-          <button class="btn btn-sm btn-outline-light" onclick="viewProjectFromAdmin('${prj.id}')" style="color: var(--slate-700); border-color: var(--slate-300);">
-            View
+
+        <!-- Action Toolbar -->
+        <div style="display: flex; flex-direction: column; justify-content: center; gap: 0.5rem; border-left: 1px solid var(--slate-100); padding-left: 1.25rem; flex-shrink: 0; min-width: 160px;">
+          <button type="button" class="btn btn-sm btn-primary" onclick="editProjectInAdmin('${prj.id}')" style="width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; font-weight: 700;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Edit Project
           </button>
-          <button class="btn btn-sm btn-outline-light" onclick="deleteProjectInAdmin('${prj.id}')" style="color: var(--danger); border-color: #FECACA;">
-            Delete
+
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="quickAddProjectDonation('${prj.id}')" style="width: 100%; color: var(--emerald-700); border-color: #a7f3d0; background: #f0fdf4; display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; font-weight: 700;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            + Add Funds
           </button>
+
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="toggleProjectStatus('${prj.id}')" style="width: 100%; color: var(--slate-700); border-color: var(--slate-300); font-size: 0.78rem;">
+            Status: ${status === 'active' ? 'Mark Completed' : (status === 'completed' ? 'Mark Paused' : 'Activate')}
+          </button>
+
+          <div style="display: flex; gap: 0.35rem; width: 100%;">
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="window.open('projects.html', '_blank')" style="flex: 1; padding: 0.3rem; font-size: 0.75rem; color: var(--cic-blue-700); border-color: var(--cic-blue-200);" title="View on Live Website">
+              View
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="deleteProjectInAdmin('${prj.id}')" style="flex: 1; padding: 0.3rem; font-size: 0.75rem; color: var(--danger); border-color: #fecaca;" title="Permanently Delete Project">
+              Delete
+            </button>
+          </div>
         </div>
       </div>
     `;
   }).join('');
 }
 
+/**
+ * Edit Project from Admin
+ */
+window.editProjectInAdmin = function(projectId) {
+  const prj = DataStore.findProjectById(projectId);
+  if (!prj) {
+    alert('Project could not be found.');
+    return;
+  }
+
+  // Pre-fill form inputs
+  const editIdInput = document.getElementById('editProjectId');
+  const titleInput = document.getElementById('newProjectTitle');
+  const catSelect = document.getElementById('newProjectCategory');
+  const statusSelect = document.getElementById('newProjectStatus');
+  const targetInput = document.getElementById('newProjectTarget');
+  const raisedInput = document.getElementById('newProjectInitialRaised');
+  const donorsInput = document.getElementById('newProjectDonors');
+  const imageInput = document.getElementById('newProjectImage');
+  const descInput = document.getElementById('newProjectDescription');
+
+  if (editIdInput) editIdInput.value = prj.id;
+  if (titleInput) titleInput.value = prj.title || '';
+  if (catSelect) catSelect.value = prj.category || 'Infrastructure';
+  if (statusSelect) statusSelect.value = prj.status || 'active';
+  if (targetInput) targetInput.value = prj.targetAmount || 0;
+  if (raisedInput) raisedInput.value = prj.raisedAmount || 0;
+  if (donorsInput) donorsInput.value = prj.donorCount || 0;
+  if (imageInput) imageInput.value = prj.image || 'campus.jpg';
+  if (descInput) descInput.value = prj.description || '';
+
+  // Update studio headers
+  const headerTitle = document.getElementById('projectStudioHeaderTitle');
+  if (headerTitle) headerTitle.textContent = `Edit Project: ${prj.title}`;
+
+  const headerDesc = document.getElementById('projectStudioHeaderDesc');
+  if (headerDesc) {
+    headerDesc.textContent = `Update capital goal, description, image, or milestone status for initiative (${prj.id}).`;
+  }
+
+  const submitBtnText = document.getElementById('btnSubmitProjectText');
+  if (submitBtnText) submitBtnText.textContent = 'Save Project Updates';
+
+  // Switch tab to Studio
+  switchToCreateProjectTab();
+
+  // Trigger live preview update
+  if (titleInput) {
+    titleInput.dispatchEvent(new Event('input'));
+  }
+};
+
+/**
+ * Record a Manual or Direct Donation Allocation to a Project
+ */
+window.quickAddProjectDonation = function(projectId) {
+  const prj = DataStore.findProjectById(projectId);
+  if (!prj) return;
+
+  const donorName = prompt(`Record Donation for "${prj.title}":\nEnter Alumnus / Donor Name:`, 'Class Member Contribution');
+  if (!donorName || !donorName.trim()) return;
+
+  const amountStr = prompt(`Enter Donation Amount (₦) for ${donorName}:`, '100000');
+  if (!amountStr) return;
+
+  const amount = Number(amountStr.replace(/[^0-9.]/g, ''));
+  if (isNaN(amount) || amount <= 0) {
+    alert('Please enter a valid numeric donation amount greater than 0.');
+    return;
+  }
+
+  // 1. Update Project raisedAmount & donorCount
+  DataStore.updateProjectAmount(projectId, amount);
+
+  // 2. Automatically log an official transaction in DataStore so accounting is reconciled
+  const txRef = 'HAA-' + new Date().getFullYear() + '-' + Math.floor(10000 + Math.random() * 90000);
+  const recNo = 'REC-' + new Date().getFullYear() + '-' + Math.floor(1000 + Math.random() * 9000);
+
+  const paymentRecord = {
+    reference: txRef,
+    receiptNumber: recNo,
+    name: donorName.trim(),
+    phone: '08000000000',
+    email: 'secretariat@cicalumni1995.org',
+    paymentType: 'Project Contribution',
+    selectedMonths: [],
+    amount: amount,
+    gateway: 'Direct Bank Transfer',
+    channel: 'Bank Transfer / Secretariat Entry',
+    status: 'Successful',
+    date: new Date().toISOString().replace('T', ' ').slice(0, 19),
+    timestamp: Date.now(),
+    itemDescription: `${prj.title} Contribution (${donorName.trim()})`
+  };
+
+  DataStore.addPayment(paymentRecord);
+
+  // Refresh views
+  renderAdminProjects();
+  loadAdminDashboardData();
+  if (typeof renderProjects === 'function') {
+    renderProjects();
+  }
+
+  alert(`Success!\nRecorded ₦${amount.toLocaleString()} for project: "${prj.title}".\nReceipt Generated: ${recNo}`);
+};
+
+/**
+ * Toggle Project Status between active, completed, and paused
+ */
+window.toggleProjectStatus = function(projectId) {
+  const prj = DataStore.findProjectById(projectId);
+  if (!prj) return;
+
+  const current = (prj.status || 'active').toLowerCase();
+  let next = 'active';
+
+  if (current === 'active') {
+    next = 'completed';
+  } else if (current === 'completed') {
+    next = 'paused';
+  } else {
+    next = 'active';
+  }
+
+  prj.status = next;
+  DataStore.updateProject(prj);
+  renderAdminProjects();
+  if (typeof renderProjects === 'function') {
+    renderProjects();
+  }
+};
+
+/**
+ * Tab Switching Helpers
+ */
 window.switchToCreateProjectTab = function() {
   document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
+
   const btn = document.querySelector('.admin-tab-btn[data-pane="adminPane_CreateProject"]');
   if (btn) btn.classList.add('active');
+
   const pane = document.getElementById('adminPane_CreateProject');
   if (pane) pane.classList.add('active');
+
+  initAdminProjectsStudio();
+
   const titleInput = document.getElementById('newProjectTitle');
-  if (titleInput) titleInput.focus();
+  if (titleInput) {
+    titleInput.focus();
+  }
 };
 
 window.switchToProjectsTab = function() {
   document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
+
   const btn = document.querySelector('.admin-tab-btn[data-pane="adminPane_Projects"]');
   if (btn) btn.classList.add('active');
+
   const pane = document.getElementById('adminPane_Projects');
   if (pane) pane.classList.add('active');
+
   renderAdminProjects();
 };
 
 window.viewProjectFromAdmin = function(projectId) {
-  window.location.href = 'projects.html';
+  window.open('projects.html', '_blank');
 };
 
 window.deleteProjectInAdmin = function(projectId) {
@@ -681,14 +1218,14 @@ window.deleteProjectInAdmin = function(projectId) {
   const prj = projects.find(p => p.id === projectId);
   if (!prj) return;
 
-  if (confirm(`Are you sure you want to permanently delete the project "${prj.title}"?`)) {
+  if (confirm(`Are you sure you want to permanently delete the project:\n\n"${prj.title}"?\n\nThis will remove it from the public website.`)) {
     DataStore.deleteProject(projectId);
     if (typeof renderProjects === 'function') {
       renderProjects();
     }
     renderAdminProjects();
     loadAdminDashboardData();
-    alert('Project successfully removed.');
+    alert('Project has been successfully deleted.');
   }
 };
 

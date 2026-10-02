@@ -445,99 +445,246 @@
           </div>
         </div>
 
-        <!-- PANE: PROJECTS FUNDING -->
+        <!-- PANE: PROJECTS FUNDING & MANAGEMENT SUITE -->
         <div class="admin-pane" id="adminPane_Projects">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; padding-bottom: 1rem; border-bottom: 1px solid var(--slate-200);">
+          <!-- Header and Launch Button -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--slate-200);">
             <div>
-              <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.25rem;">Development Projects</h4>
-              <p style="font-size: 0.85rem; color: var(--slate-600);">Tracks fundraising goals, alumni donations, and completion status in real-time.</p>
+              <span class="section-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); border-color: rgba(43, 87, 151, 0.20);">
+                Giving Back &bull; Capital Projects
+              </span>
+              <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; margin-top: 0.25rem;">
+                Developmental Projects &amp; Initiatives
+              </h3>
+              <p style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
+                Manage alumni development goals, monitor donation inflows, record direct allocations, and publish new school projects.
+              </p>
             </div>
-            <button type="button" class="btn btn-primary" onclick="switchToCreateProjectTab()">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+            <button type="button" class="btn btn-primary" onclick="switchToCreateProjectTab()" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; padding: 0.75rem 1.4rem;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
               + Create New Project
             </button>
           </div>
+
+          <!-- Project Financial Overview KPIs -->
+          <div class="admin-kpis-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+            <div class="admin-kpi-card" style="border-left: 4px solid var(--emerald-600);">
+              <span class="admin-kpi-label">Total Capital Raised</span>
+              <span class="admin-kpi-val" id="adminProjectTotalRaised" style="color: var(--emerald-600);">₦0</span>
+              <span class="admin-kpi-sub">Across all initiatives</span>
+            </div>
+            <div class="admin-kpi-card" style="border-left: 4px solid var(--cic-blue-600);">
+              <span class="admin-kpi-label">Cumulative Target Goal</span>
+              <span class="admin-kpi-val" id="adminProjectTotalGoal" style="color: var(--navy-900);">₦0</span>
+              <span class="admin-kpi-sub">Total capital requirement</span>
+            </div>
+            <div class="admin-kpi-card" style="border-left: 4px solid var(--gold-500);">
+              <span class="admin-kpi-label">Overall Progress</span>
+              <span class="admin-kpi-val" id="adminProjectOverallPercent" style="color: var(--gold-600);">0%</span>
+              <span class="admin-kpi-sub">Funding realized</span>
+            </div>
+            <div class="admin-kpi-card" style="border-left: 4px solid #6366f1;">
+              <span class="admin-kpi-label">Verified Alumni Backers</span>
+              <span class="admin-kpi-val" id="adminProjectTotalDonors" style="color: #4f46e5;">0</span>
+              <span class="admin-kpi-sub">Individual contributions</span>
+            </div>
+          </div>
+
+          <!-- Filter & Search Controls -->
+          <div class="admin-table-controls" style="margin-bottom: 1.5rem;">
+            <div class="admin-search-box">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" id="adminSearchProjects" placeholder="Search projects by title, category, or description...">
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <select id="adminProjectCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
+                <option value="ALL">All Categories</option>
+                <option value="Infrastructure">Infrastructure</option>
+                <option value="Scholarship">Scholarship</option>
+                <option value="Technology">Technology &amp; Solar</option>
+                <option value="Welfare">Welfare &amp; Healthcare</option>
+                <option value="Academic">Academic Supplies</option>
+                <option value="Sports">Sports Development</option>
+              </select>
+
+              <select id="adminProjectStatusFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
+                <option value="ALL">All Statuses</option>
+                <option value="active">Active Campaigns</option>
+                <option value="completed">Completed Goals</option>
+                <option value="paused">Paused / On Hold</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dynamic Projects List Container -->
           <div id="adminProjectsList">
-            <!-- Rendered dynamically -->
+            <!-- Rendered dynamically via renderAdminProjects() -->
           </div>
         </div>
 
-        <!-- PANE: CREATE PROJECT (PROJECT CREATION BAR & FORM) -->
+        <!-- PANE: CREATE / EDIT PROJECT STUDIO -->
         <div class="admin-pane" id="adminPane_CreateProject">
-          <div style="max-width: 820px; background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 2.5rem; margin: 0 auto; box-shadow: var(--shadow-sm);">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1.25rem;">
-              <div>
-                <span class="section-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem;">New Initiative Bar</span>
-                <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.5rem; margin-top: 0.25rem;">Create New Developmental Project</h3>
-                <p style="font-size: 0.88rem; color: var(--slate-600); margin-top: 0.25rem;">
-                  Launch a new alumni fundraising goal or infrastructure undertaking. It will immediately publish to the live site.
-                </p>
-              </div>
-              <button type="button" class="btn btn-sm btn-outline-light" onclick="switchToProjectsTab()" style="color: var(--slate-600); border-color: var(--slate-300);">
-                &larr; Back to Projects
-              </button>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="section-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); border-color: rgba(43, 87, 151, 0.20);">
+                Executive Project Studio
+              </span>
+              <h3 id="projectStudioHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; margin-top: 0.25rem;">
+                Create New Developmental Project
+              </h3>
+              <p id="projectStudioHeaderDesc" style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
+                Design and publish a new alumni fundraising goal or infrastructure project. Changes synchronize immediately across the live portal.
+              </p>
+            </div>
+            <button type="button" class="btn btn-outline-light" onclick="switchToProjectsTab()" style="color: var(--slate-700); border-color: var(--slate-300);">
+              &larr; Back to Projects Directory
+            </button>
+          </div>
+
+          <!-- Two-Column Studio Layout: Form on Left, Live Preview on Right -->
+          <div class="project-studio-grid">
+            <!-- LEFT: Form Card -->
+            <div style="background: var(--white); border: 1.5px solid var(--slate-200); border-radius: var(--radius-xl); padding: 2.25rem; box-shadow: var(--shadow-sm);">
+              <form id="adminCreateProjectForm">
+                <input type="hidden" id="editProjectId" value="">
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <label class="form-label" for="newProjectTitle">Project Title <span class="req" style="color: var(--danger);">*</span></label>
+                  <input type="text" id="newProjectTitle" class="form-control" placeholder="e.g. Ultra-Modern Science &amp; STEM Laboratories" required>
+                  <div class="form-hint">Make the title specific and inspirational for class members.</div>
+                </div>
+
+                <div class="form-grid-2" style="margin-bottom: 1.25rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="newProjectCategory">Category <span class="req" style="color: var(--danger);">*</span></label>
+                    <select id="newProjectCategory" class="form-control" required style="font-weight: 600;">
+                      <option value="Infrastructure" selected>Infrastructure &amp; Buildings</option>
+                      <option value="Scholarship">Indigent Scholarships &amp; Awards</option>
+                      <option value="Technology">ICT, Solar &amp; Digital Systems</option>
+                      <option value="Welfare">Alumni Welfare &amp; Medical Shield</option>
+                      <option value="Academic">Academic Supplies &amp; Library</option>
+                      <option value="Sports">Sports &amp; Gymnasium Development</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="newProjectStatus">Project Status <span class="req" style="color: var(--danger);">*</span></label>
+                    <select id="newProjectStatus" class="form-control" required style="font-weight: 600;">
+                      <option value="active" selected>Active (Accepting Donations)</option>
+                      <option value="completed">Completed (Goal Achieved)</option>
+                      <option value="paused">Paused / Under Review</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="form-grid-2" style="margin-bottom: 1.25rem;">
+                  <div class="form-group">
+                    <label class="form-label" for="newProjectTarget">Funding Target Goal (₦) <span class="req" style="color: var(--danger);">*</span></label>
+                    <input type="number" id="newProjectTarget" class="form-control" placeholder="25000000" min="10000" step="10000" required style="font-weight: 700; color: var(--navy-900);">
+                    <div class="form-hint" id="newProjectTargetHint" style="font-weight: 600; color: var(--cic-blue-700);">Formatted: ₦25,000,000</div>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="newProjectInitialRaised">Initial Seed / Raised (₦)</label>
+                    <input type="number" id="newProjectInitialRaised" class="form-control" placeholder="0" min="0" step="5000" value="0" style="font-weight: 700; color: var(--emerald-600);">
+                    <div class="form-hint" id="newProjectRaisedHint" style="font-weight: 600; color: var(--emerald-600);">Formatted: ₦0</div>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <label class="form-label" for="newProjectDonors">Initial Alumni Donors Count</label>
+                  <input type="number" id="newProjectDonors" class="form-control" placeholder="0" min="0" value="0" style="width: 140px;">
+                  <div class="form-hint">Number of verified donors so far (auto-increments when members donate online).</div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <label class="form-label" for="newProjectImage">Project Banner Image URL <span class="req" style="color: var(--danger);">*</span></label>
+                  <input type="text" id="newProjectImage" class="form-control" placeholder="campus.jpg or image URL" value="campus.jpg" required>
+                  <div style="display: flex; gap: 0.4rem; margin-top: 0.6rem; align-items: center; flex-wrap: wrap;">
+                    <span style="font-size: 0.78rem; color: var(--slate-500); font-weight: 600;">Presets:</span>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('campus.jpg')">Campus</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('hero-bg.jpg')">Panorama</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('cic-statue.jpg')">Semper Fidelis</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80')">STEM Labs</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80')">Scholarship</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80')">ICT Solar</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80')">Healthcare</button>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.75rem;">
+                  <label class="form-label" for="newProjectDescription">Project Scope &amp; Impact Description <span class="req" style="color: var(--danger);">*</span></label>
+                  <textarea id="newProjectDescription" class="form-control" rows="5" placeholder="Detail the objectives, beneficiaries, equipment to purchase, expected timeline, and accountability measures..." required></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; border-top: 1px solid var(--slate-200); padding-top: 1.5rem; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-outline-light" onclick="cancelProjectEdit()" style="color: var(--slate-700); border-color: var(--slate-300);">
+                    Cancel
+                  </button>
+                  <button type="button" class="btn btn-outline-light" onclick="resetProjectStudioForm()" style="color: var(--slate-600); border-color: var(--slate-300);">
+                    Reset Form
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg" id="btnSubmitProjectStudio" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.85rem 1.75rem;">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                    <span id="btnSubmitProjectText">Create &amp; Publish Project</span>
+                  </button>
+                </div>
+              </form>
             </div>
 
-            <form id="adminCreateProjectForm">
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label" for="newProjectTitle">Project Title <span class="req">*</span></label>
-                  <input type="text" id="newProjectTitle" class="form-control" placeholder="e.g. CIC 1995 Ultra-Modern Science & STEM Lab" required>
+            <!-- RIGHT: Live Public Card Preview -->
+            <div style="position: sticky; top: 1.5rem;">
+              <div style="background: var(--white); border: 1.5px solid var(--cic-blue-200); border-radius: var(--radius-xl); padding: 1.5rem; box-shadow: var(--shadow-md);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--slate-200);">
+                  <div style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.88rem; color: var(--navy-900);">
+                    <span style="width: 8px; height: 8px; border-radius: 50%; background: var(--emerald-500); display: inline-block;"></span>
+                    Live Public Website Preview
+                  </div>
+                  <span style="font-size: 0.75rem; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Real-time</span>
                 </div>
 
-                <div class="form-group">
-                  <label class="form-label" for="newProjectCategory">Category <span class="req">*</span></label>
-                  <select id="newProjectCategory" class="form-control" required>
-                    <option value="Infrastructure">Infrastructure &amp; Buildings</option>
-                    <option value="Scholarship">Indigent Scholarships &amp; Awards</option>
-                    <option value="Technology">ICT, Solar &amp; Digital Systems</option>
-                    <option value="Welfare">Alumni Welfare &amp; Medical Shield</option>
-                    <option value="Academic">Academic Supplies &amp; Library</option>
-                    <option value="Sports">Sports &amp; Gymnasium Development</option>
-                  </select>
+                <!-- Preview Card Mirroring Public Project Card -->
+                <div class="project-card" style="margin: 0; box-shadow: var(--shadow-sm); border: 1px solid var(--slate-200);">
+                  <div class="project-img-wrap" style="position: relative;">
+                    <img id="previewProjectImg" src="campus.jpg" alt="Project Preview" class="project-img" style="height: 180px; width: 100%; object-fit: cover;" onerror="this.src='campus.jpg'">
+                    <span id="previewProjectCategory" class="project-cat-badge">Infrastructure</span>
+                    <span id="previewProjectStatusBadge" class="status-badge successful" style="position: absolute; top: 12px; right: 12px; font-size: 0.7rem; padding: 0.2rem 0.55rem;">Active</span>
+                  </div>
+                  <div class="project-body" style="padding: 1.25rem;">
+                    <h4 id="previewProjectTitle" class="project-title" style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--navy-900);">
+                      CIC 1995 Ultra-Modern Science &amp; STEM Lab
+                    </h4>
+                    <p id="previewProjectDesc" class="project-desc" style="font-size: 0.88rem; line-height: 1.5; color: var(--slate-600); margin-bottom: 1.25rem; display: -webkit-box; -webkit-line-clamp: 3; line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+                      Describe the objectives, beneficiary students or school community, and expected milestones for this project...
+                    </p>
+
+                    <div class="project-progress-wrap" style="margin-bottom: 1rem;">
+                      <div class="progress-header" style="display: flex; justify-content: space-between; font-size: 0.88rem; margin-bottom: 0.4rem;">
+                        <span id="previewProjectRaised" class="raised" style="font-weight: 800; color: var(--emerald-600);">₦0</span>
+                        <span id="previewProjectTarget" class="target" style="color: var(--slate-500); font-weight: 600;">Goal: ₦25,000,000</span>
+                      </div>
+                      <div class="progress-bar-bg" style="height: 8px; background: var(--slate-200); border-radius: 99px; overflow: hidden;">
+                        <div id="previewProjectBar" class="progress-bar-fill" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--cic-blue-600), var(--emerald-500)); border-radius: 99px; transition: width 0.3s ease;"></div>
+                      </div>
+                      <div id="previewProjectDonorsStat" class="project-donors-stat" style="font-size: 0.78rem; color: var(--slate-600); margin-top: 0.4rem;">
+                        <strong>0% funded</strong> &bull; 0 generous alumni contributors
+                      </div>
+                    </div>
+
+                    <button type="button" class="btn btn-navy" style="width: 100%; font-size: 0.88rem; pointer-events: none; opacity: 0.9;">
+                      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                      SUPPORT THIS PROJECT
+                    </button>
+                  </div>
+                </div>
+
+                <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: var(--slate-50); border-radius: var(--radius-md); font-size: 0.8rem; color: var(--slate-600); display: flex; align-items: center; gap: 0.5rem;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  <span>Card appears automatically on <strong>projects.html</strong> and <strong>index.html</strong> upon publishing.</span>
                 </div>
               </div>
-
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label" for="newProjectTarget">Funding Target Goal (₦) <span class="req">*</span></label>
-                  <input type="number" id="newProjectTarget" class="form-control" placeholder="e.g. 25000000" min="50000" step="10000" required>
-                  <div class="form-hint" id="newProjectTargetHint">Enter target amount in Naira</div>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label" for="newProjectInitialRaised">Initial Seed / Raised (₦) <span style="color: var(--slate-400);">(Optional)</span></label>
-                  <input type="number" id="newProjectInitialRaised" class="form-control" placeholder="0" min="0" step="5000" value="0">
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="newProjectImage">Project Banner Image URL <span class="req">*</span></label>
-                <input type="text" id="newProjectImage" class="form-control" placeholder="e.g. campus.jpg or image URL" value="campus.jpg" required>
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
-                  <span style="font-size: 0.78rem; color: var(--slate-500);">Quick Presets:</span>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newProjectImage').value='campus.jpg'">Campus</button>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newProjectImage').value='hero-bg.jpg'">Panorama</button>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newProjectImage').value='cic-statue.jpg'">Semper Fidelis</button>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newProjectImage').value='https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80'">Modern Hall</button>
-                </div>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="newProjectDescription">Project Scope &amp; Impact Description <span class="req">*</span></label>
-                <textarea id="newProjectDescription" class="form-control" rows="4" placeholder="Describe the objectives, beneficiary students or school community, and expected milestones..." required></textarea>
-              </div>
-
-              <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.75rem; border-top: 1px solid var(--slate-200); padding-top: 1.25rem;">
-                <button type="button" class="btn btn-outline-light" onclick="switchToProjectsTab()" style="color: var(--slate-700); border-color: var(--slate-300);">
-                  Cancel
-                </button>
-                <button type="submit" class="btn btn-primary btn-lg" id="btnSubmitNewProject">
-                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-                  Create &amp; Publish Project
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
         </div>
 

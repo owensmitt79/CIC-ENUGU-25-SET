@@ -3442,5 +3442,22 @@ button, input, select, textarea {
   flex-wrap: wrap;
 }
 
+/* ==========================================================================
+   Admin Project Studio Responsive Layout
+   ========================================================================== */
+.project-studio-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+@media (max-width: 992px) {
+  .project-studio-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
 
 

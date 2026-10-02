@@ -648,6 +648,22 @@ const DataStore = {
     }
   },
 
+  updateProject(updated) {
+    let projects = this.getProjects();
+    const idx = projects.findIndex(p => p.id === updated.id);
+    if (idx !== -1) {
+      projects[idx] = { ...projects[idx], ...updated };
+      this.saveProjects(projects);
+      return projects[idx];
+    }
+    return null;
+  },
+
+  findProjectById(id) {
+    const projects = this.getProjects();
+    return projects.find(p => p.id === id) || null;
+  },
+
   getNews() {
     return this.get(STORAGE_KEYS.NEWS) || DEFAULT_NEWS;
   },
