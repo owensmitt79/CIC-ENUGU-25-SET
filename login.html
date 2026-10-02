@@ -292,6 +292,17 @@
         Enter your email and password to access the admin dashboard.
       </p>
 
+      <!-- Active session banner if user is already authenticated -->
+      <div id="activeSessionBanner" style="display: none; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); border-radius: var(--radius-md); padding: 0.65rem 0.85rem; margin-bottom: 1.25rem; font-size: 0.82rem; color: #93c5fd; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+          <span>✓ Active admin session detected</span>
+          <div style="display: flex; gap: 0.4rem;">
+            <a href="admin.html" style="color: #ffffff; background: #2563eb; padding: 0.25rem 0.6rem; border-radius: 4px; text-decoration: none; font-weight: 700; font-size: 0.75rem;">Dashboard &rarr;</a>
+            <button type="button" onclick="sessionStorage.removeItem('cic_admin_logged_in'); document.getElementById('activeSessionBanner').style.display='none';" style="background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.72rem; cursor: pointer;">Sign Out</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Error alert box -->
       <div class="exec-error-box" id="loginErrorBox" role="alert">
         <span id="loginErrorMessage">Invalid email or password. Please try again.</span>
@@ -374,10 +385,10 @@
   <script src="js/data.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // 1. If already authenticated in this session, jump directly to admin.html
+      // 1. Check if already authenticated in this session - show banner but do NOT force redirect
       if (sessionStorage.getItem('cic_admin_logged_in') === 'true') {
-        window.location.href = 'admin.html';
-        return;
+        const sessionBanner = document.getElementById('activeSessionBanner');
+        if (sessionBanner) sessionBanner.style.display = 'block';
       }
 
       // 2. Fetch live credentials from DataStore
