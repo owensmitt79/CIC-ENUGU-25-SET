@@ -4,6 +4,48 @@
  * events, projects, news, leadership, and gallery items.
  */
 
+// Intercept and resolve noisy third-party extension/webview listener exceptions (e.g. tabs:outgoing.message.ready)
+(function initMessageListeners() {
+  if (typeof window === 'undefined') return;
+
+  // 1. Proactively respond to tabs:outgoing handshake messages if sent by webview/extension bridges
+  window.addEventListener('message', function(event) {
+    try {
+      if (!event || !event.data) return;
+      const data = event.data;
+      const isTarget = 
+        (typeof data === 'string' && (data.includes('tabs:outgoing') || data.includes('message.ready'))) ||
+        (typeof data === 'object' && (data.type === 'tabs:outgoing.message.ready' || (data.action && String(data.action).includes('tabs:outgoing'))));
+
+      if (isTarget && event.source && typeof event.source.postMessage === 'function') {
+        event.source.postMessage({ type: 'tabs:outgoing.message.ready:ack', status: 'ready' }, '*');
+      }
+    } catch (_) {}
+  }, false);
+
+  // 2. Intercept unhandled promise rejections specifically matching tabs:outgoing
+  window.addEventListener('unhandledrejection', function(event) {
+    try {
+      const reason = event && event.reason ? (event.reason.message || String(event.reason)) : '';
+      if (reason.includes('No Listener: tabs:outgoing') || reason.includes('tabs:outgoing.message.ready')) {
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      }
+    } catch (_) {}
+  });
+
+  // 3. Intercept general window errors specifically matching tabs:outgoing
+  window.addEventListener('error', function(event) {
+    try {
+      const msg = event && event.message ? String(event.message) : '';
+      if (msg.includes('No Listener: tabs:outgoing') || msg.includes('tabs:outgoing.message.ready')) {
+        event.preventDefault();
+        if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+      }
+    } catch (_) {}
+  });
+})();
+
 const STORAGE_KEYS = {
   PAYMENTS: 'haa_payments_v1',
   CONFIG: 'haa_config_v1',
