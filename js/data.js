@@ -57,7 +57,8 @@ const STORAGE_KEYS = {
   LEADERSHIP: 'haa_leadership_v2',
   MEMBERS: 'haa_members_v1',
   MESSAGES: 'haa_messages_v1',
-  ADMIN_PIN: 'haa_admin_pin_v1'
+  ADMIN_PIN: 'haa_admin_pin_v1',
+  ADMIN_EMAIL: 'haa_admin_email_v1'
 };
 
 const DEFAULT_CONFIG = {
@@ -831,6 +832,14 @@ const DataStore = {
 
   setAdminPin(pin) {
     localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, pin);
+  },
+
+  getAdminEmail() {
+    return localStorage.getItem(STORAGE_KEYS.ADMIN_EMAIL) || 'admin@cic1995.org';
+  },
+
+  setAdminEmail(email) {
+    localStorage.setItem(STORAGE_KEYS.ADMIN_EMAIL, email);
   }
 };
 

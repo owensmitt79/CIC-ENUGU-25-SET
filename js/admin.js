@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Update gate display credentials
+  updateAdminGateCredentialsDisplay();
+
   // Check if admin is already authenticated in this browser session
   if (sessionStorage.getItem('cic_admin_logged_in') === 'true') {
     isAdminAuthenticated = true;
@@ -40,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (adminLoginForm) {
     adminLoginForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      const pin = document.getElementById('adminPinInput').value;
+      const pin = (document.getElementById('adminPinInput')?.value || '').trim();
       const validPin = DataStore.getAdminPin();
 
       if (pin === validPin) {
@@ -52,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         const errEl = document.getElementById('adminAuthError');
         if (errEl) {
-          errEl.textContent = 'Invalid administrator security PIN. Please try again.';
+          errEl.textContent = 'Invalid administrator security PIN. Please check the credential badge below.';
           errEl.style.display = 'block';
         }
       }
@@ -279,6 +282,109 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+/**
+ * Admin Credentials & Gate Display Helpers
+ */
+window.updateAdminGateCredentialsDisplay = function() {
+  const pin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) ? DataStore.getAdminPin() : 'admin123';
+  const email = (typeof DataStore !== 'undefined' && DataStore.getAdminEmail) ? DataStore.getAdminEmail() : 'admin@cic1995.org';
+
+  const gatePinEl = document.getElementById('gateAdminPinDisplay');
+  if (gatePinEl) gatePinEl.textContent = pin;
+
+  const gateEmailEl = document.getElementById('gateAdminEmailDisplay');
+  if (gateEmailEl) gateEmailEl.textContent = email;
+
+  const settingsPinEl = document.getElementById('displaySettingsPin');
+  if (settingsPinEl) settingsPinEl.textContent = pin;
+
+  const settingsEmailEl = document.getElementById('displaySettingsEmail');
+  if (settingsEmailEl) settingsEmailEl.textContent = email;
+
+  const settingEmailInput = document.getElementById('settingAdminEmail');
+  if (settingEmailInput) settingEmailInput.value = email;
+};
+
+window.autofillGatePin = function() {
+  const pin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) ? DataStore.getAdminPin() : 'admin123';
+  const pinInput = document.getElementById('adminPinInput');
+  if (pinInput) pinInput.value = pin;
+  const form = document.getElementById('adminLoginForm');
+  if (form) {
+    form.dispatchEvent(new Event('submit', { cancelable: true }));
+  }
+};
+
+window.updateAdminSecurityCredentials = function(e) {
+  if (e && e.preventDefault) e.preventDefault();
+
+  const currentPin = (document.getElementById('settingCurrentPin')?.value || '').trim();
+  const newPin = (document.getElementById('settingNewPin')?.value || '').trim();
+  const confirmPin = (document.getElementById('settingConfirmPin')?.value || '').trim();
+  const newEmail = (document.getElementById('settingAdminEmail')?.value || '').trim();
+  const alertBox = document.getElementById('credentialChangeAlert');
+
+  const validCurrentPin = DataStore.getAdminPin();
+
+  if (currentPin !== validCurrentPin) {
+    if (alertBox) {
+      alertBox.textContent = 'Current security PIN is incorrect. Verification failed.';
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.color = '#b91c1c';
+      alertBox.style.border = '1px solid #fecaca';
+    }
+    return;
+  }
+
+  if (newPin.length < 4) {
+    if (alertBox) {
+      alertBox.textContent = 'New security PIN must be at least 4 characters long.';
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.color = '#b91c1c';
+      alertBox.style.border = '1px solid #fecaca';
+    }
+    return;
+  }
+
+  if (newPin !== confirmPin) {
+    if (alertBox) {
+      alertBox.textContent = 'New PIN and Confirm PIN do not match. Please re-enter.';
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.color = '#b91c1c';
+      alertBox.style.border = '1px solid #fecaca';
+    }
+    return;
+  }
+
+  // Update DataStore
+  DataStore.setAdminPin(newPin);
+  if (newEmail) {
+    DataStore.setAdminEmail(newEmail);
+  }
+
+  // Update UI Displays
+  updateAdminGateCredentialsDisplay();
+
+  // Reset form inputs
+  const form = document.getElementById('adminSecurityCredentialsForm');
+  if (form) form.reset();
+  const emailInput = document.getElementById('settingAdminEmail');
+  if (emailInput && newEmail) emailInput.value = newEmail;
+
+  if (alertBox) {
+    alertBox.textContent = `Success! Security credentials updated. New PIN: ${newPin}`;
+    alertBox.style.display = 'block';
+    alertBox.style.background = '#f0fdf4';
+    alertBox.style.color = '#15803d';
+    alertBox.style.border = '1px solid #bbf7d0';
+  }
+
+  alert(`Administrator Security Credentials Updated Successfully!\nNew Active Passcode: ${newPin}\nAuthorized Email: ${newEmail}`);
+};
 
 function openAdminPortal() {
   const overlay = document.getElementById('adminOverlay');

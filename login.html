@@ -3,221 +3,277 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Login | CIC Alumni 1995 Set Executive Portal</title>
+  <title>Executive Login | CIC Alumni 1995 Set Administrative Portal</title>
   <meta name="description" content="Secure authentication gate for authorized executive administrators of the CIC Alumni 1995 Set.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    .login-page-body {
+    .exec-login-body {
       min-height: 100vh;
-      background: #f8fafc radial-gradient(circle at 50% 0%, rgba(43, 87, 151, 0.06) 0%, transparent 65%);
+      background: radial-gradient(circle at 50% 10%, #172a46 0%, #0b1524 60%, #050b13 100%);
       display: flex;
       flex-direction: column;
       font-family: var(--font-body);
-      color: var(--slate-800);
+      color: #e2e8f0;
+      position: relative;
+      overflow-x: hidden;
     }
-    .login-topbar {
-      padding: 1.25rem 2rem;
+    .exec-login-body::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(43, 87, 151, 0.22) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .exec-login-topbar {
+      position: relative;
+      z-index: 10;
+      padding: 1.25rem 2.5rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--white);
-      border-bottom: 1px solid var(--slate-200);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      background: rgba(11, 21, 36, 0.75);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
-    .login-wrapper {
+    .exec-login-wrapper {
+      position: relative;
+      z-index: 10;
       flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 3rem 1.5rem;
+      padding: 3.5rem 1.5rem;
     }
-    .login-card {
+    .exec-login-card {
       width: 100%;
-      max-width: 460px;
-      background: var(--white);
-      border: 1px solid var(--slate-200);
+      max-width: 480px;
+      background: rgba(15, 28, 48, 0.88);
+      border: 1px solid rgba(147, 197, 253, 0.2);
       border-radius: var(--radius-xl);
-      box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 30px rgba(43, 87, 151, 0.18);
       padding: 2.75rem 2.5rem;
       text-align: center;
       position: relative;
+      backdrop-filter: blur(16px);
       overflow: hidden;
     }
-    .login-card::before {
+    .exec-login-card::before {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(90deg, var(--cic-blue-600), #059669, var(--cic-blue-600));
+      background: linear-gradient(90deg, #d97706, #3b82f6, #10b981);
     }
-    .login-icon-badge {
-      width: 72px;
-      height: 72px;
+    .exec-emblem-badge {
+      width: 78px;
+      height: 78px;
       border-radius: 50%;
-      background: linear-gradient(135deg, rgba(43, 87, 151, 0.08), rgba(43, 87, 151, 0.03));
-      color: var(--cic-blue-600);
+      background: linear-gradient(135deg, rgba(43, 87, 151, 0.35), rgba(11, 21, 36, 0.8));
+      color: #93c5fd;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      margin-bottom: 1.25rem;
+      border: 2px solid rgba(147, 197, 253, 0.3);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+    }
+    .exec-role-chips {
+      display: flex;
+      gap: 0.4rem;
+      justify-content: center;
       margin-bottom: 1.5rem;
-      border: 2px solid rgba(43, 87, 151, 0.14);
+      flex-wrap: wrap;
     }
-    .login-title {
-      font-family: var(--font-heading);
-      font-size: 1.65rem;
-      font-weight: 800;
-      color: var(--navy-900);
-      letter-spacing: -0.01em;
-      margin-bottom: 0.5rem;
-    }
-    .login-subtitle {
-      font-size: 0.88rem;
-      color: var(--slate-600);
-      line-height: 1.5;
-      margin-bottom: 2rem;
-    }
-    .login-form-group {
-      text-align: left;
-      margin-bottom: 1.35rem;
-    }
-    .login-label {
-      display: block;
-      font-size: 0.82rem;
+    .exec-role-chip {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #94a3b8;
+      font-size: 0.72rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      color: var(--cic-blue-900);
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .exec-role-chip:hover, .exec-role-chip.active {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: #60a5fa;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+    }
+    .exec-form-group {
+      text-align: left;
+      margin-bottom: 1.25rem;
+    }
+    .exec-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #cbd5e1;
       margin-bottom: 0.45rem;
     }
-    .login-input-wrap {
+    .exec-input-wrap {
       position: relative;
     }
-    .login-input {
+    .exec-input {
       width: 100%;
       padding: 0.85rem 1rem;
       font-size: 0.95rem;
-      border: 1.5px solid var(--slate-300);
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
       border-radius: var(--radius-md);
       transition: all 0.2s ease;
-      background: var(--white);
-      color: var(--navy-900);
+      background: rgba(8, 16, 28, 0.7);
+      color: #ffffff;
       box-sizing: border-box;
+      letter-spacing: 0.02em;
     }
-    .login-input:focus {
+    .exec-input:focus {
       outline: none;
-      border-color: var(--cic-blue-600);
-      box-shadow: 0 0 0 3px rgba(43, 87, 151, 0.15);
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+      background: rgba(8, 16, 28, 0.9);
     }
-    .login-input-pin {
+    .exec-input-pin {
       padding-right: 2.75rem;
-      letter-spacing: 0.15em;
-      font-weight: 600;
+      letter-spacing: 0.2em;
+      font-size: 1.15rem;
+      font-weight: 700;
     }
-    .toggle-password-btn {
+    .exec-toggle-pwd {
       position: absolute;
-      right: 0.75rem;
+      right: 0.85rem;
       top: 50%;
       transform: translateY(-50%);
       background: none;
       border: none;
-      color: var(--slate-400);
+      color: #94a3b8;
       cursor: pointer;
-      padding: 0.25rem;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 0.25rem;
     }
-    .toggle-password-btn:hover {
-      color: var(--cic-blue-600);
+    .exec-toggle-pwd:hover {
+      color: #38bdf8;
     }
-    .login-remember-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 1.5rem;
-      font-size: 0.84rem;
-    }
-    .login-remember-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      cursor: pointer;
-      color: var(--slate-600);
-    }
-    .login-remember-label input {
-      accent-color: var(--cic-blue-600);
-      width: 16px;
-      height: 16px;
-    }
-    .login-help-link {
-      color: var(--cic-blue-600);
-      text-decoration: none;
-      font-weight: 600;
-    }
-    .login-help-link:hover {
-      text-decoration: underline;
-    }
-    .btn-login-submit {
+    .btn-exec-submit {
       width: 100%;
       padding: 0.95rem 1.5rem;
-      font-size: 1.02rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, var(--cic-blue-600) 0%, var(--cic-blue-700) 100%);
-      color: var(--white);
-      border: none;
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0284c7 100%);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: var(--radius-md);
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.6rem;
-      box-shadow: 0 4px 12px rgba(36, 73, 123, 0.20);
-      transition: all 0.2s ease;
+      box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.5);
+      transition: all 0.25s ease;
     }
-    .btn-login-submit:hover {
-      background: linear-gradient(135deg, var(--cic-blue-500) 0%, var(--cic-blue-600) 100%);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(36, 73, 123, 0.30);
+    .btn-exec-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px -4px rgba(37, 99, 235, 0.7);
+      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 50%, #0369a1 100%);
     }
-    .login-error-box {
+    .exec-error-box {
       display: none;
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: #b91c1c;
+      background: rgba(220, 38, 38, 0.18);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
       padding: 0.75rem 1rem;
       border-radius: var(--radius-md);
       font-size: 0.85rem;
-      font-weight: 500;
       margin-bottom: 1.25rem;
       text-align: left;
     }
-    .login-footer-info {
+
+    /* Redesigned Official Executive Credentials Card */
+    .exec-creds-card {
       margin-top: 1.75rem;
-      padding-top: 1.25rem;
-      border-top: 1px solid var(--slate-100);
-      font-size: 0.78rem;
-      color: var(--slate-500);
+      background: rgba(8, 16, 28, 0.75);
+      border: 1px solid rgba(59, 130, 246, 0.28);
+      border-radius: var(--radius-lg);
+      padding: 1.25rem;
+      text-align: left;
+      position: relative;
     }
-    .login-demo-pill {
+    .exec-creds-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .exec-creds-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #93c5fd;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .exec-creds-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      margin-bottom: 0.45rem;
+    }
+    .exec-creds-label {
+      color: #94a3b8;
+    }
+    .exec-creds-val {
+      font-weight: 700;
+      color: #ffffff;
+      font-family: monospace;
+      letter-spacing: 0.05em;
+    }
+    .btn-quick-autofill {
+      width: 100%;
+      margin-top: 0.85rem;
+      padding: 0.6rem 1rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      border-radius: var(--radius-md);
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      background: var(--slate-100);
-      padding: 0.3rem 0.65rem;
-      border-radius: 9999px;
-      font-size: 0.75rem;
-      color: var(--slate-700);
-      margin-top: 0.5rem;
+      justify-content: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
     }
-    .login-demo-pill code {
-      font-weight: 700;
-      color: var(--cic-blue-600);
-      font-family: monospace;
+    .btn-quick-autofill:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: #38bdf8;
+      color: #ffffff;
+      transform: translateY(-1px);
     }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
@@ -229,102 +285,139 @@
     }
   </style>
 </head>
-<body class="login-page-body">
+<body class="exec-login-body">
 
   <!-- Top Navigation Header -->
-  <header class="login-topbar">
+  <header class="exec-login-topbar">
     <a href="index.html" class="brand-crest" style="text-decoration: none;">
       <img src="logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img">
       <div class="crest-text">
-        <span class="crest-title">CIC ALUMNI</span>
-        <span class="crest-subtitle">1995 SET</span>
+        <span class="crest-title" style="color: #ffffff;">CIC ALUMNI</span>
+        <span class="crest-subtitle" style="color: #60a5fa;">1995 SET &bull; EXECUTIVE DESK</span>
       </div>
     </a>
 
     <div style="display: flex; align-items: center; gap: 0.75rem;">
-      <a href="index.html" class="btn btn-sm btn-outline-light" style="color: var(--slate-700); border-color: var(--slate-300); display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600;">
+      <a href="index.html" class="btn btn-sm btn-outline-light" style="color: #cbd5e1; border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.04); display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600;">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-        Return to Portal
+        Return to Website
       </a>
     </div>
   </header>
 
   <!-- Centered Login Card -->
-  <main class="login-wrapper">
-    <div class="login-card" id="loginCard">
-      <div class="login-icon-badge">
-        <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+  <main class="exec-login-wrapper">
+    <div class="exec-login-card" id="loginCard">
+      <!-- Shield Emblem -->
+      <div class="exec-emblem-badge">
+        <svg width="38" height="38" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
         </svg>
       </div>
 
-      <span class="section-badge" style="font-size: 0.72rem; padding: 0.2rem 0.6rem; margin-bottom: 0.6rem;">
-        Executive Security Desk
+      <span class="section-badge" style="background: rgba(59, 130, 246, 0.15); color: #93c5fd; border-color: rgba(147, 197, 253, 0.3); font-size: 0.72rem; padding: 0.2rem 0.65rem; margin-bottom: 0.6rem;">
+        National Executive Security Clearance
       </span>
 
-      <h1 class="login-title">Administrator Login</h1>
-      <p class="login-subtitle">
-        Authorized portal for Class Executives and Secretariat Officers to manage finances, dues receipts, and site circulars.
+      <h1 style="font-family: var(--font-heading); font-size: 1.7rem; font-weight: 800; color: #ffffff; letter-spacing: -0.01em; margin-bottom: 0.35rem;">
+        Administrator Portal
+      </h1>
+      <p style="font-size: 0.88rem; color: #94a3b8; line-height: 1.5; margin-bottom: 1.5rem;">
+        Authorized access for Class Executives, Secretariat Officers, and Financial Auditors to manage projects, dues, and site bulletins.
       </p>
 
+      <!-- Role Selector Chips -->
+      <div class="exec-role-chips">
+        <button type="button" class="exec-role-chip active" onclick="selectRolePreset('Executive Administrator', 'admin@cic1995.org')">Full Executive</button>
+        <button type="button" class="exec-role-chip" onclick="selectRolePreset('Financial Secretary', 'treasury@cic1995.org')">Treasury</button>
+        <button type="button" class="exec-role-chip" onclick="selectRolePreset('General Secretary', 'secretariat@cic1995.org')">Secretariat</button>
+      </div>
+
       <!-- Error alert box -->
-      <div class="login-error-box" id="loginErrorBox" role="alert">
+      <div class="exec-error-box" id="loginErrorBox" role="alert">
         <span id="loginErrorMessage">Invalid security PIN. Please try again.</span>
       </div>
 
       <form id="standaloneLoginForm">
         <!-- Username / Email Field -->
-        <div class="login-form-group">
-          <label class="login-label" for="loginUsername">Admin Username / Email</label>
-          <div class="login-input-wrap">
-            <input type="text" id="loginUsername" class="login-input" value="admin@cic1995.org" placeholder="e.g. admin@cic1995.org" required autocomplete="username">
+        <div class="exec-form-group">
+          <label class="exec-label" for="loginUsername">
+            <span>Executive User Account</span>
+            <span id="selectedRoleLabel" style="font-size: 0.72rem; color: #38bdf8; text-transform: none;">Level 4 Clearance</span>
+          </label>
+          <div class="exec-input-wrap">
+            <input type="text" id="loginUsername" class="exec-input" value="admin@cic1995.org" placeholder="admin@cic1995.org" required autocomplete="username">
           </div>
         </div>
 
         <!-- Security Passcode / PIN Field -->
-        <div class="login-form-group">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
-            <label class="login-label" for="loginPin" style="margin-bottom: 0;">Security Passcode / PIN <span style="color: var(--danger);">*</span></label>
+        <div class="exec-form-group">
+          <div class="exec-label">
+            <label for="loginPin" style="margin-bottom: 0; cursor: pointer;">Security Passcode (PIN) <span style="color: #f87171;">*</span></label>
+            <span style="font-size: 0.72rem; color: #94a3b8; text-transform: none;">Encrypted Gate</span>
           </div>
-          <div class="login-input-wrap">
-            <input type="password" id="loginPin" class="login-input login-input-pin" placeholder="Enter PIN (e.g. admin123)" required autocomplete="current-password" autofocus>
-            <button type="button" class="toggle-password-btn" id="btnTogglePassword" title="Show or hide passcode" aria-label="Toggle password visibility">
+          <div class="exec-input-wrap">
+            <input type="password" id="loginPin" class="exec-input exec-input-pin" placeholder="••••••••" required autocomplete="current-password" autofocus>
+            <button type="button" class="exec-toggle-pwd" id="btnTogglePassword" title="Show or hide passcode" aria-label="Toggle password visibility">
               <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             </button>
           </div>
         </div>
 
         <!-- Options row -->
-        <div class="login-remember-row">
-          <label class="login-remember-label">
-            <input type="checkbox" id="loginRemember" checked>
-            <span>Stay signed in for this session</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.82rem;">
+          <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: #94a3b8;">
+            <input type="checkbox" id="loginRemember" checked style="accent-color: #3b82f6; width: 16px; height: 16px;">
+            <span>Remember on this terminal</span>
           </label>
-          <a href="contact.html" class="login-help-link">Need Help?</a>
+          <a href="contact.html" style="color: #60a5fa; text-decoration: none; font-weight: 600;">Lost Credentials?</a>
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn-login-submit" id="btnLoginSubmit">
+        <button type="submit" class="btn-exec-submit" id="btnLoginSubmit">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-          <span id="btnLoginText">Authenticate &amp; Access Admin</span>
+          <span id="btnLoginText">Authenticate &amp; Open Console</span>
         </button>
       </form>
 
-      <!-- Default Access Notice -->
-      <div class="login-footer-info">
-        <div>Default Executive Access Code:</div>
-        <div class="login-demo-pill" onclick="document.getElementById('loginPin').value='admin123'; document.getElementById('loginPin').focus();" style="cursor: pointer;" title="Click to fill default PIN">
-          <span>Security PIN:</span> <code>admin123</code>
-          <span style="font-size: 0.68rem; color: var(--cic-blue-600); text-decoration: underline; margin-left: 4px;">(Click to insert)</span>
+      <!-- REDESIGNED OFFICIAL EXECUTIVE CREDENTIALS CARD -->
+      <div class="exec-creds-card">
+        <div class="exec-creds-header">
+          <span class="exec-creds-title">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            Official Executive Access Credentials
+          </span>
+          <span style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 9999px;">
+            VERIFIED
+          </span>
         </div>
-        <div style="margin-top: 1rem; font-size: 0.72rem; color: var(--slate-400);">
-          🔒 High-Security 256-Bit Encrypted Session &bull; Strictly for CIC Alumni 1995 Set Executives
+
+        <div class="exec-creds-row">
+          <span class="exec-creds-label">Authorized Account:</span>
+          <span class="exec-creds-val" id="displayAdminEmail">admin@cic1995.org</span>
+        </div>
+        <div class="exec-creds-row">
+          <span class="exec-creds-label">Security PIN:</span>
+          <span class="exec-creds-val" id="displayAdminPin" style="color: #fbbf24;">admin123</span>
+        </div>
+        <div class="exec-creds-row">
+          <span class="exec-creds-label">Clearance Scope:</span>
+          <span class="exec-creds-val" style="color: #60a5fa; font-family: inherit; font-size: 0.78rem;">Full Platform Admin</span>
+        </div>
+
+        <button type="button" class="btn-quick-autofill" id="btnQuickAutoFill" onclick="autofillAndSignIn()">
+          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          ⚡ 1-Click Executive Auto-Fill &amp; Sign In
+        </button>
+
+        <div style="margin-top: 0.75rem; font-size: 0.7rem; color: #64748b; text-align: center;">
+          🔒 256-Bit Cryptographic TLS Session &bull; Strictly for CIC Alumni 1995 Set Executives
         </div>
       </div>
     </div>
   </main>
 
-  <footer style="text-align: center; padding: 1.5rem; font-size: 0.8rem; color: var(--slate-500); background: var(--white); border-top: 1px solid var(--slate-200);">
+  <footer style="position: relative; z-index: 10; text-align: center; padding: 1.25rem; font-size: 0.78rem; color: #64748b; background: rgba(5, 11, 19, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.06);">
     &copy; 2026 College of the Immaculate Conception (CIC) Alumni 1995 Set. All rights reserved.
   </footer>
 
@@ -332,13 +425,30 @@
   <script src="js/data.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Check if already authenticated
+      // 1. If already authenticated in this session, jump directly to admin.html
       if (sessionStorage.getItem('cic_admin_logged_in') === 'true') {
         window.location.href = 'admin.html';
         return;
       }
 
-      // Eye toggle for PIN
+      // 2. Fetch live credentials from DataStore
+      const activePin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) 
+        ? DataStore.getAdminPin() 
+        : 'admin123';
+      const activeEmail = (typeof DataStore !== 'undefined' && DataStore.getAdminEmail)
+        ? DataStore.getAdminEmail()
+        : 'admin@cic1995.org';
+
+      const displayPinEl = document.getElementById('displayAdminPin');
+      if (displayPinEl) displayPinEl.textContent = activePin;
+
+      const displayEmailEl = document.getElementById('displayAdminEmail');
+      if (displayEmailEl) displayEmailEl.textContent = activeEmail;
+
+      const usernameInput = document.getElementById('loginUsername');
+      if (usernameInput) usernameInput.value = activeEmail;
+
+      // 3. Eye toggle for PIN
       const toggleBtn = document.getElementById('btnTogglePassword');
       const pinInput = document.getElementById('loginPin');
       if (toggleBtn && pinInput) {
@@ -353,7 +463,40 @@
         });
       }
 
-      // Login form submission
+      // 4. Role Chip Selector
+      window.selectRolePreset = function(roleName, roleEmail) {
+        document.querySelectorAll('.exec-role-chip').forEach(c => c.classList.remove('active'));
+        if (event && event.target) event.target.classList.add('active');
+        if (usernameInput) usernameInput.value = roleEmail;
+        const roleLabel = document.getElementById('selectedRoleLabel');
+        if (roleLabel) roleLabel.textContent = roleName;
+        if (pinInput) pinInput.focus();
+      };
+
+      // 5. 1-Click Executive Auto-Fill & Sign-In
+      window.autofillAndSignIn = function() {
+        const pin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) ? DataStore.getAdminPin() : 'admin123';
+        const email = (typeof DataStore !== 'undefined' && DataStore.getAdminEmail) ? DataStore.getAdminEmail() : 'admin@cic1995.org';
+
+        if (usernameInput) usernameInput.value = email;
+        if (pinInput) pinInput.value = pin;
+
+        // Visual feedback
+        const btnSubmit = document.getElementById('btnLoginSubmit');
+        const btnText = document.getElementById('btnLoginText');
+        if (btnSubmit) {
+          btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+          if (btnText) btnText.textContent = 'Credentials Verified! Launching...';
+        }
+
+        sessionStorage.setItem('cic_admin_logged_in', 'true');
+
+        setTimeout(() => {
+          window.location.href = 'admin.html';
+        }, 350);
+      };
+
+      // 6. Form Submission Handling
       const form = document.getElementById('standaloneLoginForm');
       const errorBox = document.getElementById('loginErrorBox');
       const errorMsg = document.getElementById('loginErrorMessage');
@@ -373,8 +516,8 @@
             // Authentication Success
             errorBox.style.display = 'none';
             btnSubmit.disabled = true;
-            btnSubmit.style.background = '#059669';
-            btnText.textContent = 'Authenticated! Loading Portal...';
+            btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+            btnText.textContent = 'Authorized! Opening Portal...';
 
             sessionStorage.setItem('cic_admin_logged_in', 'true');
 
@@ -383,7 +526,7 @@
             }, 300);
           } else {
             // Authentication Failure
-            errorMsg.textContent = 'Invalid administrator security PIN. Please check your credentials and try again.';
+            errorMsg.textContent = 'Invalid administrator security PIN. Please check the credential badge below.';
             errorBox.style.display = 'block';
             if (loginCard) {
               loginCard.classList.remove('shake');
