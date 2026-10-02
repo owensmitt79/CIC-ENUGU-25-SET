@@ -587,6 +587,16 @@ const DataStore = {
     return this.get(STORAGE_KEYS.CATEGORIES) || DEFAULT_CATEGORIES;
   },
 
+  getDefaultCategories() {
+    return JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+  },
+
+  resetCategories() {
+    const cats = this.getDefaultCategories();
+    this.saveCategories(cats);
+    return cats;
+  },
+
   saveCategories(cats) {
     this.set(STORAGE_KEYS.CATEGORIES, cats);
   },

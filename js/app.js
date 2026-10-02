@@ -823,6 +823,10 @@ function renderCategoryCards() {
         paymentState.categoryType = cat.type;
         if (cat.type === 'fixed') {
           paymentState.totalAmount = cat.baseAmount;
+        } else if (cat.type === 'custom') {
+          paymentState.customAmount = cat.baseAmount || 5000;
+          const customInput = document.getElementById('customAmountInput');
+          if (customInput) customInput.value = paymentState.customAmount;
         }
         updateSelectedCategoryUI();
         recalculateTotal();
@@ -1596,3 +1600,10 @@ window.copyAnthemLyrics = function() {
     alert(text);
   }
 };
+
+// Cross-tab real-time sync for categories and payments
+window.addEventListener('storage', function(e) {
+  if (e.key === 'haa_categories_v1' || e.key === 'haa_categories_pulse') {
+    if (typeof renderCategoryCards === 'function') renderCategoryCards();
+  }
+});

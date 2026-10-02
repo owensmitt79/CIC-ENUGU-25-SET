@@ -6,6 +6,17 @@
 
 let isAdminAuthenticated = true;
 
+// Cross-tab real-time pulse synchronization for payments, dues, and categories
+window.addEventListener('storage', function(e) {
+  if (e.key === 'haa_payment_pulse' || e.key === 'haa_payments_v1' || e.key === 'haa_categories_pulse' || e.key === 'haa_categories_v1') {
+    if (typeof loadAdminDashboardData === 'function') loadAdminDashboardData();
+    if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
+    if (typeof renderAdminMonthlyDuesTable === 'function') renderAdminMonthlyDuesTable();
+    if (typeof renderAdminCategories === 'function') renderAdminCategories();
+    if (typeof renderDuesCategoryChips === 'function') renderDuesCategoryChips();
+  }
+});
+
 /**
  * Global Bulletproof Tab & Pane Switcher for Admin Navigation Bar
  */
@@ -580,6 +591,7 @@ function loadAdminDashboardData() {
 
   // Render dues stream filter chips
   renderDuesCategoryChips();
+  renderAdminCategories();
 
   // Render payments & dues ledger
   filterAndRenderPaymentsTable();
@@ -950,38 +962,427 @@ function renderAdminMonthlyDuesTable() {
 }
 
 /**
- * Payment Categories Manager
+ * ============================================================================
+ * PAYMENT CATEGORIES & LEVIES CONTROLLER
+ * Full administrative control suite to add, configure, adjust rates, and
+ * toggle public portal visibility for all alumni dues, levies, and contributions.
+ * ============================================================================
  */
+let adminCategoryFilterType = 'ALL';
+let adminCategorySearchQuery = '';
+
 function renderAdminCategories() {
   const container = document.getElementById('adminCategoriesList');
   if (!container) return;
 
-  const categories = DataStore.getCategories();
-  container.innerHTML = categories.map((cat, idx) => `
-    <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <h4 style="color: var(--navy-900); font-weight: 700;">${cat.name}</h4>
-        <div style="font-size: 0.8rem; color: var(--slate-500);">Type: <strong>${cat.type.toUpperCase()}</strong> &bull; Base Rate: <strong>₦${cat.baseAmount.toLocaleString()}</strong></div>
+  const categories = DataStore.getCategories() || [];
+  const payments = DataStore.getPayments() || [];
+
+  // 1. Calculate KPI Metrics
+  const totalCount = categories.length;
+  const activeCount = categories.filter(c => c.active).length;
+  const fixedCount = categories.filter(c => c.type === 'fixed' || c.type === 'monthly').length;
+  const customCount = categories.filter(c => c.type === 'custom').length;
+
+  // Calculate collections and payer counts mapped by category name or id
+  const collectionsMap = {};
+  const payersMap = {};
+  let totalInflowAll = 0;
+
+  payments.forEach(p => {
+    const amt = Number(p.amount || 0);
+    totalInflowAll += amt;
+    const pType = (p.paymentType || '').toLowerCase().trim();
+    const pDesc = (p.itemDescription || '').toLowerCase();
+    const payerId = (p.email || p.phone || p.name || '').toLowerCase().trim();
+
+    categories.forEach(cat => {
+      const catName = (cat.name || '').toLowerCase().trim();
+      const catId = (cat.id || '').toLowerCase().trim();
+      if (pType === catName || pType.includes(catName) || pDesc.includes(catName) || pType.includes(catId)) {
+        collectionsMap[cat.id] = (collectionsMap[cat.id] || 0) + amt;
+        if (!payersMap[cat.id]) payersMap[cat.id] = new Set();
+        if (payerId) payersMap[cat.id].add(payerId);
+      }
+    });
+  });
+
+  // Update KPI Cards
+  setElText('catKpiActiveCount', activeCount.toString());
+  setElText('catKpiTotalSub', `Out of ${totalCount} configured streams`);
+  setElText('catKpiFixedCount', fixedCount.toString());
+  setElText('catKpiCustomCount', customCount.toString());
+  setElText('catKpiTotalCollected', '₦' + totalInflowAll.toLocaleString());
+  setElText('catKpiTotalPayersSub', `Across ${payments.length} verified settlements`);
+  setElText('sidebarCategoryActiveCount', `${activeCount} Active`);
+
+  // 2. Filter Categories
+  let filtered = categories.filter(cat => {
+    if (adminCategoryFilterType === 'ACTIVE' && !cat.active) return false;
+    if (adminCategoryFilterType === 'DISABLED' && cat.active) return false;
+    if (adminCategoryFilterType === 'monthly' && cat.type !== 'monthly') return false;
+    if (adminCategoryFilterType === 'fixed' && cat.type !== 'fixed') return false;
+    if (adminCategoryFilterType === 'custom' && cat.type !== 'custom') return false;
+
+    if (adminCategorySearchQuery) {
+      const q = adminCategorySearchQuery.toLowerCase();
+      const matchName = (cat.name || '').toLowerCase().includes(q);
+      const matchId = (cat.id || '').toLowerCase().includes(q);
+      const matchDesc = (cat.description || '').toLowerCase().includes(q);
+      const matchAmount = String(cat.baseAmount || '').includes(q);
+      if (!matchName && !matchId && !matchDesc && !matchAmount) return false;
+    }
+
+    return true;
+  });
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="background: var(--white); border: 2px dashed var(--slate-200); border-radius: var(--radius-xl); padding: 3rem 1.5rem; text-align: center;">
+        <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color: var(--slate-400); margin-bottom: 1rem;"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem;">No Matching Payment Categories Found</h4>
+        <p style="color: var(--slate-500); font-size: 0.9rem; margin-bottom: 1.25rem;">Try adjusting your filter or search query, or create a new assessment category.</p>
+        <button type="button" class="btn btn-primary" onclick="openCategoryModal()">+ Add Payment Category</button>
       </div>
-      <div style="display: flex; gap: 0.5rem; align-items: center;">
-        <span class="status-badge ${cat.active ? 'successful' : ''}" style="${!cat.active ? 'background: var(--slate-200); color: var(--slate-600);' : ''}">
-          ${cat.active ? 'Active' : 'Disabled'}
-        </span>
-        <button class="btn btn-sm ${cat.active ? 'btn-navy' : 'btn-primary'}" onclick="toggleCategoryStatus(${idx})">
-          ${cat.active ? 'Deactivate' : 'Activate'}
-        </button>
+    `;
+    return;
+  }
+
+  container.innerHTML = filtered.map(cat => {
+    const isMonthly = cat.type === 'monthly';
+    const isFixed = cat.type === 'fixed';
+    const typeLabel = isMonthly ? 'Monthly Assessment' : (isFixed ? 'Fixed Statutory Fee' : 'Open Contribution');
+    const typeClass = isMonthly ? 'monthly' : (isFixed ? 'fixed' : 'custom');
+    const rateText = `₦${Number(cat.baseAmount || 0).toLocaleString()}${isMonthly ? ' / mo' : ''}`;
+    const collected = collectionsMap[cat.id] || 0;
+    const payersCount = payersMap[cat.id] ? payersMap[cat.id].size : 0;
+    const isCore = ['monthly_dues', 'annual_dues'].includes(cat.id);
+
+    return `
+      <div class="cat-controller-card ${cat.active ? '' : 'disabled'}" id="catCard_${cat.id}">
+        <!-- Left: Icon & Details -->
+        <div class="cat-card-left">
+          <div class="cat-icon-box">
+            ${getCategoryAdminIcon(cat.id, cat.type)}
+          </div>
+          <div class="cat-info-block">
+            <div class="cat-title-row">
+              <h4 class="cat-title-text">${escapeHtml(cat.name)}</h4>
+              <span class="cat-code-tag">#${escapeHtml(cat.id)}</span>
+              <span class="cat-type-pill ${typeClass}">
+                ${typeLabel}
+              </span>
+            </div>
+            <div class="cat-desc-text">
+              ${escapeHtml(cat.description || 'Statutory association contribution item.')}
+            </div>
+            <div class="cat-meta-row">
+              <span><strong>Total Collections:</strong> <span style="color: var(--emerald-600); font-weight: 700;">₦${collected.toLocaleString()}</span></span>
+              <span>&bull;</span>
+              <span><strong>Verified Payers:</strong> ${payersCount} Alumnus</span>
+              <span>&bull;</span>
+              <span><strong>Portal Visibility:</strong> ${cat.active ? '<span style="color: var(--emerald-600); font-weight: 600;">Visible to Public</span>' : '<span style="color: var(--slate-400); font-weight: 600;">Hidden</span>'}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Amount, Toggle & Actions -->
+        <div class="cat-card-right">
+          <div class="cat-amount-display">
+            <div class="cat-amount-label">${isMonthly ? 'Monthly Unit Rate' : (isFixed ? 'Statutory Fee' : 'Default / Base')}</div>
+            <div class="cat-amount-val">${rateText}</div>
+          </div>
+
+          <!-- Active/Disabled Toggle Switch -->
+          <div class="cat-toggle-wrap">
+            <label class="cat-toggle-switch">
+              <input type="checkbox" ${cat.active ? 'checked' : ''} onchange="toggleCategoryStatus('${escapeHtml(cat.id)}')">
+              <span class="cat-toggle-slider"></span>
+            </label>
+            <span class="cat-toggle-label ${cat.active ? 'active' : 'inactive'}">${cat.active ? 'Active' : 'Disabled'}</span>
+          </div>
+
+          <!-- Actions Group -->
+          <div class="cat-actions-group">
+            <button type="button" class="cat-btn-action cat-btn-edit" title="Edit Category Details & Rates" onclick="openCategoryModal('${escapeHtml(cat.id)}')">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              <span>Edit</span>
+            </button>
+            <button type="button" class="cat-btn-action cat-btn-payers" title="View Payers in Ledger" onclick="viewCategoryPayersInLedger('${escapeHtml(cat.name)}')">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span>Payers</span>
+            </button>
+            <button type="button" class="cat-btn-action cat-btn-delete" title="${isCore ? 'Core category cannot be deleted' : 'Delete Category'}" onclick="deleteCategory('${escapeHtml(cat.id)}')" ${isCore ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
 }
 
-window.toggleCategoryStatus = function(idx) {
+function getCategoryAdminIcon(catId, type) {
+  if (type === 'monthly' || catId === 'monthly_dues') {
+    return `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>`;
+  }
+  if (catId.includes('annual') || catId.includes('membership')) {
+    return `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+  }
+  if (catId.includes('development') || catId.includes('project') || catId.includes('building')) {
+    return `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>`;
+  }
+  if (catId.includes('welfare') || catId.includes('relief') || catId.includes('donation')) {
+    return `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>`;
+  }
+  return `<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>`;
+}
+
+function filterAndRenderAdminCategories() {
+  const searchInput = document.getElementById('adminCategorySearchInput');
+  adminCategorySearchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  renderAdminCategories();
+}
+
+window.setCategoryFilter = function(filterType) {
+  adminCategoryFilterType = filterType;
+  const chipContainer = document.getElementById('categoryFilterChips');
+  if (chipContainer) {
+    chipContainer.querySelectorAll('.dues-chip-btn').forEach(btn => {
+      if (btn.dataset.filter === filterType) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+  }
+  renderAdminCategories();
+};
+
+window.toggleCategoryStatus = function(catIdOrIdx) {
   const cats = DataStore.getCategories();
-  if (cats[idx]) {
-    cats[idx].active = !cats[idx].active;
+  let cat = null;
+  if (typeof catIdOrIdx === 'number') {
+    cat = cats[catIdOrIdx];
+  } else {
+    cat = cats.find(c => c.id === catIdOrIdx || c.name === catIdOrIdx);
+    if (!cat && !isNaN(catIdOrIdx)) cat = cats[Number(catIdOrIdx)];
+  }
+
+  if (cat) {
+    cat.active = !cat.active;
     DataStore.saveCategories(cats);
+    localStorage.setItem('haa_payment_pulse', Date.now().toString());
+    localStorage.setItem('haa_categories_pulse', Date.now().toString());
     renderAdminCategories();
-    renderCategoryCards();
+    renderDuesCategoryChips();
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast(`✓ Category "${cat.name}" is now ${cat.active ? 'Active (Visible on Portal)' : 'Disabled (Hidden)'}`, 'success');
+    }
+  }
+};
+
+window.openCategoryModal = function(catId) {
+  const overlay = document.getElementById('categoryModalOverlay');
+  const modalTitle = document.getElementById('categoryModalTitle');
+  const form = document.getElementById('categoryControllerForm');
+  const origIdInput = document.getElementById('catFormOriginalId');
+  const nameInput = document.getElementById('catFormName');
+  const idInput = document.getElementById('catFormId');
+  const typeSelect = document.getElementById('catFormType');
+  const amountInput = document.getElementById('catFormBaseAmount');
+  const descInput = document.getElementById('catFormDescription');
+  const activeInput = document.getElementById('catFormActive');
+
+  if (!overlay) return;
+
+  if (catId) {
+    const cats = DataStore.getCategories();
+    const cat = cats.find(c => c.id === catId);
+    if (!cat) return;
+
+    if (modalTitle) modalTitle.textContent = `Edit Payment Category: ${cat.name}`;
+    if (origIdInput) origIdInput.value = cat.id;
+    if (nameInput) nameInput.value = cat.name || '';
+    if (idInput) {
+      idInput.value = cat.id || '';
+      idInput.readOnly = true;
+      idInput.style.background = 'var(--slate-100)';
+    }
+    if (typeSelect) typeSelect.value = cat.type || 'fixed';
+    if (amountInput) amountInput.value = cat.baseAmount || 0;
+    if (descInput) descInput.value = cat.description || '';
+    if (activeInput) activeInput.checked = !!cat.active;
+  } else {
+    if (modalTitle) modalTitle.textContent = 'Add New Payment Category';
+    if (form) form.reset();
+    if (origIdInput) origIdInput.value = '';
+    if (idInput) {
+      idInput.readOnly = false;
+      idInput.style.background = 'var(--white)';
+    }
+    if (amountInput) amountInput.value = 10000;
+    if (activeInput) activeInput.checked = true;
+  }
+
+  handleCatTypeChange(typeSelect ? typeSelect.value : 'fixed');
+  overlay.classList.add('active');
+  if (nameInput) nameInput.focus();
+};
+
+window.closeCategoryModal = function() {
+  const overlay = document.getElementById('categoryModalOverlay');
+  if (overlay) overlay.classList.remove('active');
+};
+
+window.autoGenerateCategorySlug = function(nameVal) {
+  const origId = document.getElementById('catFormOriginalId');
+  if (origId && origId.value) return; // Editing existing, don't change slug
+
+  const idInput = document.getElementById('catFormId');
+  if (idInput && nameVal) {
+    const slug = nameVal.toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    idInput.value = slug;
+  }
+};
+
+window.handleCatTypeChange = function(type) {
+  const label = document.getElementById('catFormAmountLabel');
+  if (!label) return;
+  if (type === 'monthly') {
+    label.innerHTML = `Monthly Assessment Rate (₦ / Month) <span style="color: red;">*</span>`;
+  } else if (type === 'fixed') {
+    label.innerHTML = `Approved Statutory Fee (₦) <span style="color: red;">*</span>`;
+  } else {
+    label.innerHTML = `Default / Minimum Contribution (₦) <span style="color: red;">*</span>`;
+  }
+};
+
+window.saveCategoryForm = function(event) {
+  if (event) event.preventDefault();
+
+  const origId = (document.getElementById('catFormOriginalId').value || '').trim();
+  const name = (document.getElementById('catFormName').value || '').trim();
+  let id = (document.getElementById('catFormId').value || '').trim().toLowerCase().replace(/[^a-z0-9_]/g, '_');
+  const type = document.getElementById('catFormType').value;
+  const baseAmount = Number(document.getElementById('catFormBaseAmount').value || 0);
+  const description = (document.getElementById('catFormDescription').value || '').trim();
+  const active = document.getElementById('catFormActive').checked;
+
+  if (!name) {
+    alert('Please enter a category title.');
+    return;
+  }
+  if (!id) {
+    id = name.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+  }
+
+  const cats = DataStore.getCategories();
+
+  if (origId) {
+    // Updating existing
+    const existingIdx = cats.findIndex(c => c.id === origId);
+    if (existingIdx !== -1) {
+      cats[existingIdx] = {
+        ...cats[existingIdx],
+        name,
+        type,
+        baseAmount,
+        description,
+        active
+      };
+    }
+  } else {
+    // Check if ID collision
+    let finalId = id;
+    let counter = 1;
+    while (cats.some(c => c.id === finalId)) {
+      finalId = `${id}_${counter++}`;
+    }
+
+    cats.push({
+      id: finalId,
+      name,
+      type,
+      baseAmount,
+      description,
+      active
+    });
+  }
+
+  DataStore.saveCategories(cats);
+  localStorage.setItem('haa_payment_pulse', Date.now().toString());
+  localStorage.setItem('haa_categories_pulse', Date.now().toString());
+
+  closeCategoryModal();
+  renderAdminCategories();
+  renderDuesCategoryChips();
+
+  // If this was Monthly Dues, update config rate as well
+  if (origId === 'monthly_dues' || id === 'monthly_dues') {
+    const config = DataStore.getConfig();
+    config.monthlyDuesRate = baseAmount;
+    DataStore.saveConfig(config);
+  }
+
+  if (typeof showReceiptToast === 'function') {
+    showReceiptToast(`✓ Category "${name}" saved successfully!`, 'success');
+  }
+};
+
+window.deleteCategory = function(catId) {
+  if (['monthly_dues', 'annual_dues'].includes(catId)) {
+    alert('Core statutory categories (Monthly Dues, Annual Dues) cannot be deleted. You can deactivate them instead to hide them from the public payment portal.');
+    return;
+  }
+
+  const cats = DataStore.getCategories();
+  const cat = cats.find(c => c.id === catId);
+  if (!cat) return;
+
+  if (confirm(`Are you sure you want to delete "${cat.name}"?\n\nThis will remove it from the payment portal. Historical payment audit records will remain preserved.`)) {
+    const updated = cats.filter(c => c.id !== catId);
+    DataStore.saveCategories(updated);
+    localStorage.setItem('haa_payment_pulse', Date.now().toString());
+    localStorage.setItem('haa_categories_pulse', Date.now().toString());
+    renderAdminCategories();
+    renderDuesCategoryChips();
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast(`✓ Category "${cat.name}" deleted successfully.`, 'success');
+    }
+  }
+};
+
+window.viewCategoryPayersInLedger = function(catName) {
+  // 1. Switch to Payments tab
+  if (typeof switchAdminPane === 'function') {
+    switchAdminPane('adminPane_Payments');
+  }
+
+  // 2. Select category chip or set search
+  setTimeout(() => {
+    if (typeof setLedgerCategoryChip === 'function') {
+      setLedgerCategoryChip(catName);
+    } else {
+      const searchInput = document.getElementById('adminPaymentsSearch');
+      if (searchInput) {
+        searchInput.value = catName;
+        if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
+      }
+    }
+  }, 100);
+};
+
+window.resetDefaultCategories = function() {
+  if (confirm('Are you sure you want to reset all payment categories to the association standard defaults?\n\nCustom categories will be replaced with the 10 approved general assembly dues streams.')) {
+    DataStore.resetCategories();
+    localStorage.setItem('haa_payment_pulse', Date.now().toString());
+    localStorage.setItem('haa_categories_pulse', Date.now().toString());
+    renderAdminCategories();
+    renderDuesCategoryChips();
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast('✓ Payment categories successfully reset to association standard dues.', 'success');
+    }
   }
 };
 
