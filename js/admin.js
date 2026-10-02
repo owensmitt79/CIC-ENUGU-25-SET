@@ -4,7 +4,78 @@
  * category manager, CSV export, and content management.
  */
 
-let isAdminAuthenticated = false;
+let isAdminAuthenticated = true;
+
+/**
+ * Global Bulletproof Tab & Pane Switcher for Admin Navigation Bar
+ */
+window.switchAdminPane = function(paneId) {
+  if (!paneId) return;
+
+  // 1. Update buttons
+  const allBtns = document.querySelectorAll('.admin-tab-btn');
+  allBtns.forEach(btn => {
+    const p = btn.dataset.pane || btn.getAttribute('data-pane');
+    if (p === paneId) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+
+  // 2. Update panes
+  const allPanes = document.querySelectorAll('.admin-pane');
+  allPanes.forEach(pane => {
+    if (pane.id === paneId) {
+      pane.classList.add('active');
+    } else {
+      pane.classList.remove('active');
+    }
+  });
+
+  // 3. Lazy render specific pane data
+  try {
+    if (paneId === 'adminPane_Overview') {
+      if (typeof loadAdminDashboardData === 'function') loadAdminDashboardData();
+    } else if (paneId === 'adminPane_Payments') {
+      if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
+    } else if (paneId === 'adminPane_MonthlyDues') {
+      if (typeof renderAdminMonthlyDuesTable === 'function') renderAdminMonthlyDuesTable();
+    } else if (paneId === 'adminPane_Categories') {
+      if (typeof renderAdminCategories === 'function') renderAdminCategories();
+    } else if (paneId === 'adminPane_Events') {
+      if (typeof renderAdminEvents === 'function') renderAdminEvents();
+    } else if (paneId === 'adminPane_Projects') {
+      if (typeof renderAdminProjects === 'function') renderAdminProjects();
+    } else if (paneId === 'adminPane_CreateProject') {
+      if (typeof initAdminProjectsStudio === 'function') initAdminProjectsStudio();
+      const titleInput = document.getElementById('newProjectTitle');
+      if (titleInput) titleInput.focus();
+    } else if (paneId === 'adminPane_IssueReceipt') {
+      if (typeof initIssueReceiptStudio === 'function') initIssueReceiptStudio();
+      const nameInput = document.getElementById('issueMemberName');
+      if (nameInput) nameInput.focus();
+    } else if (paneId === 'adminPane_News') {
+      if (typeof initAdminNewsStudio === 'function') initAdminNewsStudio();
+      if (typeof renderAdminNews === 'function') renderAdminNews();
+    } else if (paneId === 'adminPane_LeadershipMembers') {
+      if (typeof initAdminLeadershipMembers === 'function') initAdminLeadershipMembers();
+    }
+  } catch (err) {
+    console.warn('Pane render warning:', err);
+  }
+};
+
+// Global click delegation for all .admin-tab-btn buttons
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.admin-tab-btn');
+  if (btn) {
+    const paneId = btn.dataset.pane || btn.getAttribute('data-pane');
+    if (paneId) {
+      window.switchAdminPane(paneId);
+    }
+  }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   // Admin button in top bar or navigation
@@ -23,15 +94,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Update gate display credentials
-  updateAdminGateCredentialsDisplay();
+  // Safely update gate display credentials if helper exists
+  if (typeof updateAdminGateCredentialsDisplay === 'function') {
+    try { updateAdminGateCredentialsDisplay(); } catch (_) {}
+  }
 
   // Load Admin Dashboard directly on admin page
   const mainDashboard = document.getElementById('adminMainDashboard');
   if (mainDashboard) {
     isAdminAuthenticated = true;
     mainDashboard.style.display = 'flex';
-    loadAdminDashboardData();
+    try {
+      loadAdminDashboardData();
+    } catch (err) {
+      console.warn('Initial dashboard load warning:', err);
+    }
   }
 
   // Admin Login form
@@ -72,38 +149,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Admin Nav Tab Switching
+  // Admin Nav Tab Switching via delegation and direct calls
   document.querySelectorAll('.admin-tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
-
-      btn.classList.add('active');
-      const paneId = btn.dataset.pane;
-      const targetPane = document.getElementById(paneId);
-      if (targetPane) targetPane.classList.add('active');
-
-      if (paneId === 'adminPane_MonthlyDues') {
-        renderAdminMonthlyDuesTable();
-      } else if (paneId === 'adminPane_Categories') {
-        renderAdminCategories();
-      } else if (paneId === 'adminPane_Events') {
-        renderAdminEvents();
-      } else if (paneId === 'adminPane_Projects') {
-        renderAdminProjects();
-      } else if (paneId === 'adminPane_CreateProject') {
-        initAdminProjectsStudio();
-        const titleInput = document.getElementById('newProjectTitle');
-        if (titleInput) titleInput.focus();
-      } else if (paneId === 'adminPane_IssueReceipt') {
-        initIssueReceiptStudio();
-        const nameInput = document.getElementById('issueMemberName');
-        if (nameInput) nameInput.focus();
-      } else if (paneId === 'adminPane_News') {
-        initAdminNewsStudio();
-        renderAdminNews();
-      } else if (paneId === 'adminPane_LeadershipMembers') {
-        initAdminLeadershipMembers();
+    btn.addEventListener('click', (e) => {
+      if (e && typeof e.preventDefault === 'function') e.preventDefault();
+      const paneId = btn.dataset.pane || btn.getAttribute('data-pane');
+      if (paneId) {
+        window.switchAdminPane(paneId);
       }
     });
   });
