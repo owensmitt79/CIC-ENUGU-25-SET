@@ -1176,7 +1176,7 @@
                       <img id="leaderPhotoPreviewImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Executive Portrait Preview" class="admin-leader-avatar" style="width: 76px; height: 76px; border: 3px solid var(--cic-blue-600);">
                     </div>
                     <div style="flex: 1; min-width: 250px;">
-                      <div style="display: flex; gap: 0.75rem; margin-bottom: 0.5rem; flex-wrap: wrap;">
+                      <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
                         <label class="btn btn-sm btn-outline-blue" style="cursor: pointer; margin: 0;">
                           <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
                           Upload Photo File
@@ -1184,7 +1184,7 @@
                         </label>
                         <span style="font-size: 0.8rem; color: var(--slate-500); align-self: center;">JPG, PNG, WebP supported</span>
                       </div>
-                      <input type="url" id="leaderPhotoUrlInput" class="form-control" placeholder="Or paste external photo image URL (https://...)" oninput="updateLeaderPhotoFromUrl(this.value)">
+                      <input type="hidden" id="leaderPhotoUrlInput">
                     </div>
                   </div>
                 </div>
