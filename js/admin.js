@@ -324,7 +324,9 @@ document.addEventListener('DOMContentLoaded', () => {
       loadAdminDashboardData();
       renderAdminMonthlyDuesTable();
 
-      alert(`✓ Official Receipt #${receiptNumber} generated successfully for ${name} (Amount: ₦${amount.toLocaleString()})!`);
+      if (typeof showReceiptToast === 'function') {
+        showReceiptToast(`✓ Official Receipt #${receiptNumber} generated automatically for ${name}!`, 'success');
+      }
 
       // Immediately open universal receipt modal for instant review, printing, or download
       if (typeof openOfficialReceiptModal === 'function') {
@@ -608,7 +610,8 @@ function filterAndRenderPaymentsTable() {
         ${p.date}
       </td>
       <td>
-        <button class="btn btn-sm btn-outline-gold" onclick="viewReceiptInAdmin('${p.reference}')">
+        <button type="button" class="btn btn-sm btn-outline-blue" onclick="viewReceiptInAdmin('${p.reference}')" title="Generate & View Official Receipt" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem;">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
           Receipt
         </button>
       </td>

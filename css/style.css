@@ -1465,28 +1465,107 @@ button, input, select, textarea {
   font-size: 1.05rem;
 }
 
-/* The Official Printable Receipt Layout */
+/* The Official Printable Receipt Layout & Automated Engine */
+.receipt-dispatch-banner {
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.08), rgba(4, 120, 87, 0.03));
+  border: 1.5px solid rgba(5, 150, 105, 0.35);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.75rem;
+  max-width: 760px;
+  margin: 1.5rem auto 1.25rem auto;
+  text-align: left;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.06);
+}
+
+.dispatch-banner-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.15rem;
+}
+
+.dispatch-pulse-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #059669;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5);
+  animation: receiptPulse 2s infinite;
+}
+
+@keyframes receiptPulse {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.6); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(5, 150, 105, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+}
+
+.dispatch-title {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  color: #065f46;
+  margin: 0 0 0.25rem 0;
+}
+
+.dispatch-desc {
+  font-size: 0.88rem;
+  color: var(--slate-600);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.dispatch-checks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.65rem 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(5, 150, 105, 0.15);
+}
+
+.dispatch-check-item {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: var(--slate-700);
+}
+
+.dispatch-check-item svg {
+  color: #059669;
+  flex-shrink: 0;
+}
+
 .digital-receipt-box {
   background: var(--white);
   border: 2px solid var(--cic-blue-900);
   border-radius: var(--radius-lg);
   padding: 2.5rem;
-  max-width: 680px;
-  margin: 2rem auto;
+  max-width: 760px;
+  margin: 1.5rem auto;
   position: relative;
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   text-align: left;
   color: var(--slate-800);
 }
 
-.digital-receipt-box::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 8px;
-  background: linear-gradient(90deg, var(--cic-blue-950), var(--cic-blue-600), var(--cic-blue-950));
+.receipt-security-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--cic-blue-950);
+  color: #94a3b8;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  padding: 0.4rem 0.8rem;
+  border-radius: var(--radius-sm);
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
 }
 
 .receipt-header {
@@ -1496,6 +1575,7 @@ button, input, select, textarea {
   border-bottom: 2px solid var(--slate-200);
   padding-bottom: 1.5rem;
   margin-bottom: 1.5rem;
+  gap: 1rem;
 }
 
 .receipt-brand {
@@ -1504,71 +1584,109 @@ button, input, select, textarea {
   gap: 1rem;
 }
 
-.receipt-brand-text h3 {
-  font-family: var(--font-heading);
-  font-size: 1.2rem;
-  color: var(--cic-blue-900);
-  line-height: 1.15;
+.receipt-crest-img {
+  width: 58px;
+  height: 64px;
+  object-fit: contain;
 }
 
-.receipt-brand-text p {
+.receipt-brand-text h3 {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  color: var(--cic-blue-900);
+  line-height: 1.2;
+  margin: 0;
+}
+
+.receipt-brand-sub {
   font-size: 0.78rem;
+  font-weight: 800;
   color: var(--cic-blue-600);
-  font-weight: 700;
-  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.receipt-tagline {
+  font-size: 0.72rem;
+  color: var(--slate-500);
+  font-weight: 600;
+  margin-top: 2px;
 }
 
 .receipt-number-badge {
   text-align: right;
+  flex-shrink: 0;
 }
 
 .receipt-number-badge .label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--slate-500);
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .receipt-number-badge .number {
   font-family: monospace;
-  font-size: 1.1rem;
-  font-weight: 800;
+  font-size: 1.15rem;
+  font-weight: 900;
   color: var(--cic-blue-900);
 }
 
 .receipt-status-stamp {
   display: inline-block;
-  padding: 0.35rem 0.85rem;
-  border: 2px solid var(--cic-blue-600);
+  padding: 0.3rem 0.75rem;
+  border: 2px solid #059669;
+  background: rgba(5, 150, 105, 0.08);
   border-radius: var(--radius-sm);
-  color: var(--cic-blue-600);
+  color: #059669;
   font-weight: 800;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  transform: rotate(-4deg);
+  letter-spacing: 0.08em;
+  transform: rotate(-2deg);
   margin-top: 0.35rem;
 }
 
 .receipt-grid-meta {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 1rem 1.5rem;
   margin-bottom: 1.5rem;
-  font-size: 0.9rem;
+  background: var(--slate-50);
+  padding: 1.25rem 1.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--slate-200);
 }
 
 .receipt-meta-item .label {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--slate-500);
   text-transform: uppercase;
   font-weight: 700;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 
 .receipt-meta-item .val {
   font-weight: 700;
   color: var(--cic-blue-900);
+  font-size: 0.92rem;
+}
+
+.receipt-class-tag {
+  display: inline-block;
+  background: var(--cic-blue-100);
+  color: var(--cic-blue-700);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  margin-left: 0.4rem;
+}
+
+.receipt-ref-code {
+  font-family: monospace;
+  color: var(--cic-blue-900);
+  font-weight: 900;
 }
 
 .receipt-table {
@@ -1582,9 +1700,9 @@ button, input, select, textarea {
   background: var(--cic-blue-50);
   text-align: left;
   padding: 0.75rem 1rem;
-  font-weight: 700;
+  font-weight: 800;
   color: var(--cic-blue-900);
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   text-transform: uppercase;
   border-top: 1px solid var(--cic-blue-200);
   border-bottom: 1px solid var(--cic-blue-200);
@@ -1592,24 +1710,125 @@ button, input, select, textarea {
 
 .receipt-table td {
   padding: 0.85rem 1rem;
-  border-bottom: 1px solid var(--slate-100);
+  border-bottom: 1px solid var(--slate-200);
+}
+
+.receipt-item-title {
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.receipt-item-desc {
+  font-size: 0.82rem;
+  color: var(--slate-600);
+  margin-top: 0.2rem;
+}
+
+.receipt-month-chip {
+  display: inline-block;
+  background: rgba(43, 87, 151, 0.1);
+  color: var(--cic-blue-700);
+  border: 1px solid rgba(43, 87, 151, 0.2);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .receipt-table tr.total-row td {
   border-top: 2px solid var(--cic-blue-900);
   border-bottom: 2px solid var(--cic-blue-900);
+  background: var(--cic-blue-50);
+}
+
+.receipt-amount-words-box {
+  background: #fdfaf3;
+  border: 1px dashed #d4af37;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  margin: 1rem 0 1.5rem 0;
+  font-size: 0.88rem;
+}
+
+.receipt-amount-words-box .label {
   font-weight: 800;
-  font-size: 1.1rem;
+  color: #854d0e;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+
+.receipt-amount-words-box .words {
+  font-style: italic;
+  font-weight: 700;
   color: var(--cic-blue-900);
+}
+
+.receipt-signatures-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 1.5rem;
+  margin: 1.5rem 0;
+  padding-top: 1rem;
+}
+
+.receipt-sig-item {
+  text-align: left;
+}
+
+.receipt-sig-line {
+  border-bottom: 1.5px solid var(--slate-400);
+  width: 170px;
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
+}
+
+.receipt-sig-script {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--cic-blue-700);
+}
+
+.receipt-sig-name {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--navy-900);
+}
+
+.receipt-sig-title {
+  font-size: 0.72rem;
+  color: var(--slate-500);
+}
+
+.receipt-official-seal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border: 2px dashed #059669;
+  border-radius: 50%;
+  color: #059669;
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-align: center;
+  padding: 4px;
+  background: rgba(5, 150, 105, 0.04);
 }
 
 .receipt-footer-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
   border-top: 1px dashed var(--slate-300);
+  padding-top: 1.25rem;
+  margin-top: 1rem;
+  gap: 1rem;
 }
 
 .receipt-qr-wrap {
@@ -1619,28 +1838,126 @@ button, input, select, textarea {
 }
 
 .receipt-qr-svg {
-  width: 75px;
-  height: 75px;
+  width: 76px;
+  height: 76px;
   border: 1px solid var(--slate-200);
   border-radius: var(--radius-sm);
   padding: 4px;
+  background: #fff;
+  flex-shrink: 0;
 }
 
 .receipt-verification-text {
-  font-size: 0.75rem;
+  font-size: 0.74rem;
   color: var(--slate-500);
-  max-width: 260px;
+  max-width: 320px;
+  line-height: 1.4;
 }
 
 .receipt-verification-text strong {
   color: var(--cic-blue-900);
 }
 
+.receipt-footer-crest-info {
+  text-align: right;
+}
+
+.motto-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(43, 87, 151, 0.1);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  color: var(--cic-blue-700);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.legal-note {
+  font-size: 0.7rem;
+  color: var(--slate-500);
+  margin-top: 2px;
+}
+
 .receipt-actions-bar {
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.75rem;
+}
+
+/* Button Variants for WhatsApp and Emerald */
+.btn-whatsapp {
+  background: #25D366 !important;
+  color: #ffffff !important;
+  border: 1px solid #1ebd5a !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+}
+.btn-whatsapp:hover {
+  background: #1ebd5a !important;
+}
+
+.btn-emerald {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border: 1px solid #047857 !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.45rem !important;
+}
+.btn-emerald:hover {
+  background: #047857 !important;
+}
+
+/* Toast Alerts for Receipt Operations */
+.receipt-toast-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  pointer-events: none;
+}
+
+.receipt-toast-item {
+  background: var(--navy-900);
+  color: #ffffff;
+  padding: 0.85rem 1.25rem;
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2);
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-left: 4px solid var(--cic-blue-500);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all 0.25s ease;
+  pointer-events: auto;
+  max-width: 380px;
+}
+
+.receipt-toast-item.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.receipt-toast-item.success {
+  border-left-color: #059669;
+}
+
+@media (max-width: 680px) {
+  .receipt-grid-meta { grid-template-columns: 1fr; }
+  .receipt-signatures-grid { grid-template-columns: 1fr; gap: 1rem; }
+  .receipt-sig-center { display: none; }
+  .receipt-footer-row { flex-direction: column; align-items: flex-start; }
+  .receipt-footer-crest-info { text-align: left; margin-top: 0.75rem; }
 }
 
 /* ==========================================================================
@@ -2866,12 +3183,14 @@ button, input, select, textarea {
     width: 100%;
     max-width: 100%;
     margin: 0;
-    padding: 2cm;
-    border: 1px solid #000;
+    padding: 1.5cm;
+    border: 1.5px solid #0B192C;
     box-shadow: none !important;
   }
 
+  .receipt-dispatch-banner,
   .receipt-actions-bar,
+  .receipt-toast-container,
   .site-header,
   .site-footer,
   .step-controls {
