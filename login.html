@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Executive Login | CIC Alumni 1995 Set Administrative Portal</title>
-  <meta name="description" content="Secure authentication gate for authorized executive administrators of the CIC Alumni 1995 Set.">
+  <title>Login Portal | CIC Alumni 1995 Set</title>
+  <meta name="description" content="Sign in with your email and password to access the CIC Alumni 1995 Set Admin Dashboard.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -55,10 +55,10 @@
     .exec-login-card {
       width: 100%;
       max-width: 480px;
-      background: rgba(15, 28, 48, 0.88);
-      border: 1px solid rgba(147, 197, 253, 0.2);
+      background: rgba(15, 28, 48, 0.92);
+      border: 1px solid rgba(147, 197, 253, 0.25);
       border-radius: var(--radius-xl);
-      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.65), 0 0 30px rgba(43, 87, 151, 0.18);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 30px rgba(43, 87, 151, 0.22);
       padding: 2.75rem 2.5rem;
       text-align: center;
       position: relative;
@@ -75,52 +75,24 @@
       background: linear-gradient(90deg, #d97706, #3b82f6, #10b981);
     }
     .exec-emblem-badge {
-      width: 78px;
-      height: 78px;
+      width: 76px;
+      height: 76px;
       border-radius: 50%;
-      background: linear-gradient(135deg, rgba(43, 87, 151, 0.35), rgba(11, 21, 36, 0.8));
+      background: linear-gradient(135deg, rgba(43, 87, 151, 0.4), rgba(11, 21, 36, 0.85));
       color: #93c5fd;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 1.25rem;
-      border: 2px solid rgba(147, 197, 253, 0.3);
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
-    }
-    .exec-role-chips {
-      display: flex;
-      gap: 0.4rem;
-      justify-content: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-    }
-    .exec-role-chip {
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #94a3b8;
-      font-size: 0.72rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 0.25rem 0.65rem;
-      border-radius: 9999px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    .exec-role-chip:hover, .exec-role-chip.active {
-      background: rgba(59, 130, 246, 0.25);
-      border-color: #60a5fa;
-      color: #ffffff;
-      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+      border: 2px solid rgba(147, 197, 253, 0.35);
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
     }
     .exec-form-group {
       text-align: left;
       margin-bottom: 1.25rem;
     }
     .exec-label {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      display: block;
       font-size: 0.8rem;
       font-weight: 700;
       text-transform: uppercase;
@@ -133,12 +105,13 @@
     }
     .exec-input {
       width: 100%;
-      padding: 0.85rem 1rem;
+      height: 48px;
+      padding: 0 1rem;
       font-size: 0.95rem;
-      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border: 1.5px solid rgba(255, 255, 255, 0.18);
       border-radius: var(--radius-md);
       transition: all 0.2s ease;
-      background: rgba(8, 16, 28, 0.7);
+      background: rgba(8, 16, 28, 0.75);
       color: #ffffff;
       box-sizing: border-box;
       letter-spacing: 0.02em;
@@ -146,14 +119,12 @@
     .exec-input:focus {
       outline: none;
       border-color: #38bdf8;
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
-      background: rgba(8, 16, 28, 0.9);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.25);
+      background: rgba(8, 16, 28, 0.95);
     }
-    .exec-input-pin {
+    .exec-input-password {
       padding-right: 2.75rem;
-      letter-spacing: 0.2em;
-      font-size: 1.15rem;
-      font-weight: 700;
+      letter-spacing: 0.15em;
     }
     .exec-toggle-pwd {
       position: absolute;
@@ -174,11 +145,10 @@
     }
     .btn-exec-submit {
       width: 100%;
-      padding: 0.95rem 1.5rem;
+      height: 50px;
       font-size: 1rem;
       font-weight: 800;
       letter-spacing: 0.04em;
-      text-transform: uppercase;
       background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #0284c7 100%);
       color: #ffffff;
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -198,7 +168,7 @@
     }
     .exec-error-box {
       display: none;
-      background: rgba(220, 38, 38, 0.18);
+      background: rgba(220, 38, 38, 0.2);
       border: 1px solid rgba(239, 68, 68, 0.4);
       color: #fca5a5;
       padding: 0.75rem 1rem;
@@ -208,7 +178,7 @@
       text-align: left;
     }
 
-    /* Redesigned Official Executive Credentials Card */
+    /* Login Information Card */
     .exec-creds-card {
       margin-top: 1.75rem;
       background: rgba(8, 16, 28, 0.75);
@@ -255,12 +225,12 @@
     .btn-quick-autofill {
       width: 100%;
       margin-top: 0.85rem;
-      padding: 0.6rem 1rem;
+      padding: 0.65rem 1rem;
       font-size: 0.82rem;
       font-weight: 700;
-      color: #38bdf8;
-      background: rgba(56, 189, 248, 0.1);
-      border: 1px dashed rgba(56, 189, 248, 0.4);
+      color: #ffffff;
+      background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+      border: none;
       border-radius: var(--radius-md);
       cursor: pointer;
       display: inline-flex;
@@ -268,12 +238,12 @@
       justify-content: center;
       gap: 0.4rem;
       transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
     }
     .btn-quick-autofill:hover {
-      background: rgba(56, 189, 248, 0.2);
-      border-color: #38bdf8;
-      color: #ffffff;
+      background: linear-gradient(135deg, #0369a1 0%, #1d4ed8 100%);
       transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.4);
     }
     @keyframes shake {
       0%, 100% { transform: translateX(0); }
@@ -293,7 +263,7 @@
       <img src="logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img">
       <div class="crest-text">
         <span class="crest-title" style="color: #ffffff;">CIC ALUMNI</span>
-        <span class="crest-subtitle" style="color: #60a5fa;">1995 SET &bull; EXECUTIVE DESK</span>
+        <span class="crest-subtitle" style="color: #60a5fa;">1995 SET &bull; PORTAL</span>
       </div>
     </a>
 
@@ -308,57 +278,40 @@
   <!-- Centered Login Card -->
   <main class="exec-login-wrapper">
     <div class="exec-login-card" id="loginCard">
-      <!-- Shield Emblem -->
+      <!-- Lock Emblem -->
       <div class="exec-emblem-badge">
-        <svg width="38" height="38" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
         </svg>
       </div>
 
-      <span class="section-badge" style="background: rgba(59, 130, 246, 0.15); color: #93c5fd; border-color: rgba(147, 197, 253, 0.3); font-size: 0.72rem; padding: 0.2rem 0.65rem; margin-bottom: 0.6rem;">
-        National Executive Security Clearance
-      </span>
-
-      <h1 style="font-family: var(--font-heading); font-size: 1.7rem; font-weight: 800; color: #ffffff; letter-spacing: -0.01em; margin-bottom: 0.35rem;">
-        Administrator Portal
+      <h1 style="font-family: var(--font-heading); font-size: 1.85rem; font-weight: 800; color: #ffffff; letter-spacing: -0.01em; margin-bottom: 0.4rem; text-align: center;">
+        Login Portal
       </h1>
-      <p style="font-size: 0.88rem; color: #94a3b8; line-height: 1.5; margin-bottom: 1.5rem;">
-        Authorized access for Class Executives, Secretariat Officers, and Financial Auditors to manage projects, dues, and site bulletins.
+      <p style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 1.75rem; line-height: 1.5;">
+        Enter your email and password to access the admin dashboard.
       </p>
-
-      <!-- Role Selector Chips -->
-      <div class="exec-role-chips">
-        <button type="button" class="exec-role-chip active" onclick="selectRolePreset('Executive Administrator', 'admin@cic1995.org')">Full Executive</button>
-        <button type="button" class="exec-role-chip" onclick="selectRolePreset('Financial Secretary', 'treasury@cic1995.org')">Treasury</button>
-        <button type="button" class="exec-role-chip" onclick="selectRolePreset('General Secretary', 'secretariat@cic1995.org')">Secretariat</button>
-      </div>
 
       <!-- Error alert box -->
       <div class="exec-error-box" id="loginErrorBox" role="alert">
-        <span id="loginErrorMessage">Invalid security PIN. Please try again.</span>
+        <span id="loginErrorMessage">Invalid email or password. Please try again.</span>
       </div>
 
       <form id="standaloneLoginForm">
-        <!-- Username / Email Field -->
+        <!-- Email Field -->
         <div class="exec-form-group">
-          <label class="exec-label" for="loginUsername">
-            <span>Executive User Account</span>
-            <span id="selectedRoleLabel" style="font-size: 0.72rem; color: #38bdf8; text-transform: none;">Level 4 Clearance</span>
-          </label>
+          <label class="exec-label" for="loginEmail">Email Address</label>
           <div class="exec-input-wrap">
-            <input type="text" id="loginUsername" class="exec-input" value="admin@cic1995.org" placeholder="admin@cic1995.org" required autocomplete="username">
+            <input type="email" id="loginEmail" class="exec-input" value="admin@cic1995.org" placeholder="admin@cic1995.org" required autocomplete="email" autofocus>
           </div>
         </div>
 
-        <!-- Security Passcode / PIN Field -->
+        <!-- Password Field -->
         <div class="exec-form-group">
-          <div class="exec-label">
-            <label for="loginPin" style="margin-bottom: 0; cursor: pointer;">Security Passcode (PIN) <span style="color: #f87171;">*</span></label>
-            <span style="font-size: 0.72rem; color: #94a3b8; text-transform: none;">Encrypted Gate</span>
-          </div>
+          <label class="exec-label" for="loginPassword">Password</label>
           <div class="exec-input-wrap">
-            <input type="password" id="loginPin" class="exec-input exec-input-pin" placeholder="••••••••" required autocomplete="current-password" autofocus>
-            <button type="button" class="exec-toggle-pwd" id="btnTogglePassword" title="Show or hide passcode" aria-label="Toggle password visibility">
+            <input type="password" id="loginPassword" class="exec-input exec-input-password" placeholder="••••••••" required autocomplete="current-password">
+            <button type="button" class="exec-toggle-pwd" id="btnTogglePassword" title="Show or hide password" aria-label="Toggle password visibility">
               <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             </button>
           </div>
@@ -368,50 +321,46 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; font-size: 0.82rem;">
           <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: #94a3b8;">
             <input type="checkbox" id="loginRemember" checked style="accent-color: #3b82f6; width: 16px; height: 16px;">
-            <span>Remember on this terminal</span>
+            <span>Remember on this device</span>
           </label>
-          <a href="contact.html" style="color: #60a5fa; text-decoration: none; font-weight: 600;">Lost Credentials?</a>
+          <a href="contact.html" style="color: #60a5fa; text-decoration: none; font-weight: 600;">Lost Password?</a>
         </div>
 
         <!-- Submit Button -->
         <button type="submit" class="btn-exec-submit" id="btnLoginSubmit">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-          <span id="btnLoginText">Authenticate &amp; Open Console</span>
+          <span id="btnLoginText">Login to Admin Dashboard</span>
         </button>
       </form>
 
-      <!-- REDESIGNED OFFICIAL EXECUTIVE CREDENTIALS CARD -->
+      <!-- LOGIN INFORMATION CARD -->
       <div class="exec-creds-card">
         <div class="exec-creds-header">
           <span class="exec-creds-title">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            Official Executive Access Credentials
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Login Information
           </span>
-          <span style="font-size: 0.68rem; background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 9999px;">
-            VERIFIED
+          <span style="font-size: 0.68rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 9999px;">
+            ADMIN
           </span>
         </div>
 
         <div class="exec-creds-row">
-          <span class="exec-creds-label">Authorized Account:</span>
+          <span class="exec-creds-label">Email:</span>
           <span class="exec-creds-val" id="displayAdminEmail">admin@cic1995.org</span>
         </div>
         <div class="exec-creds-row">
-          <span class="exec-creds-label">Security PIN:</span>
+          <span class="exec-creds-label">Password:</span>
           <span class="exec-creds-val" id="displayAdminPin" style="color: #fbbf24;">admin123</span>
-        </div>
-        <div class="exec-creds-row">
-          <span class="exec-creds-label">Clearance Scope:</span>
-          <span class="exec-creds-val" style="color: #60a5fa; font-family: inherit; font-size: 0.78rem;">Full Platform Admin</span>
         </div>
 
         <button type="button" class="btn-quick-autofill" id="btnQuickAutoFill" onclick="autofillAndSignIn()">
           <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          ⚡ 1-Click Executive Auto-Fill &amp; Sign In
+          ⚡ 1-Click Auto Fill &amp; Login to Dashboard
         </button>
 
         <div style="margin-top: 0.75rem; font-size: 0.7rem; color: #64748b; text-align: center;">
-          🔒 256-Bit Cryptographic TLS Session &bull; Strictly for CIC Alumni 1995 Set Executives
+          🔒 Secure Session &bull; Connects directly to Admin Dashboard
         </div>
       </div>
     </div>
@@ -445,41 +394,31 @@
       const displayEmailEl = document.getElementById('displayAdminEmail');
       if (displayEmailEl) displayEmailEl.textContent = activeEmail;
 
-      const usernameInput = document.getElementById('loginUsername');
-      if (usernameInput) usernameInput.value = activeEmail;
+      const emailInput = document.getElementById('loginEmail');
+      if (emailInput) emailInput.value = activeEmail;
 
-      // 3. Eye toggle for PIN
+      // 3. Eye toggle for Password
       const toggleBtn = document.getElementById('btnTogglePassword');
-      const pinInput = document.getElementById('loginPin');
-      if (toggleBtn && pinInput) {
+      const passwordInput = document.getElementById('loginPassword');
+      if (toggleBtn && passwordInput) {
         toggleBtn.addEventListener('click', () => {
-          if (pinInput.type === 'password') {
-            pinInput.type = 'text';
+          if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
             toggleBtn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>`;
           } else {
-            pinInput.type = 'password';
+            passwordInput.type = 'password';
             toggleBtn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>`;
           }
         });
       }
 
-      // 4. Role Chip Selector
-      window.selectRolePreset = function(roleName, roleEmail) {
-        document.querySelectorAll('.exec-role-chip').forEach(c => c.classList.remove('active'));
-        if (event && event.target) event.target.classList.add('active');
-        if (usernameInput) usernameInput.value = roleEmail;
-        const roleLabel = document.getElementById('selectedRoleLabel');
-        if (roleLabel) roleLabel.textContent = roleName;
-        if (pinInput) pinInput.focus();
-      };
-
-      // 5. 1-Click Executive Auto-Fill & Sign-In
+      // 4. 1-Click Auto-Fill & Login to Dashboard
       window.autofillAndSignIn = function() {
         const pin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) ? DataStore.getAdminPin() : 'admin123';
         const email = (typeof DataStore !== 'undefined' && DataStore.getAdminEmail) ? DataStore.getAdminEmail() : 'admin@cic1995.org';
 
-        if (usernameInput) usernameInput.value = email;
-        if (pinInput) pinInput.value = pin;
+        if (emailInput) emailInput.value = email;
+        if (passwordInput) passwordInput.value = pin;
 
         // Visual feedback
         const btnSubmit = document.getElementById('btnLoginSubmit');
@@ -496,7 +435,7 @@
         }, 350);
       };
 
-      // 6. Form Submission Handling
+      // 5. Form Submission Handling
       const form = document.getElementById('standaloneLoginForm');
       const errorBox = document.getElementById('loginErrorBox');
       const errorMsg = document.getElementById('loginErrorMessage');
@@ -507,17 +446,22 @@
       if (form) {
         form.addEventListener('submit', (e) => {
           e.preventDefault();
-          const enteredPin = (pinInput ? pinInput.value : '').trim();
+          const enteredPassword = (passwordInput ? passwordInput.value : '').trim();
+          const enteredEmail = (emailInput ? emailInput.value : '').trim().toLowerCase();
+
           const validPin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) 
             ? DataStore.getAdminPin() 
             : 'admin123';
+          const validEmail = ((typeof DataStore !== 'undefined' && DataStore.getAdminEmail)
+            ? DataStore.getAdminEmail()
+            : 'admin@cic1995.org').toLowerCase();
 
-          if (enteredPin === validPin) {
+          if (enteredPassword === validPin) {
             // Authentication Success
             errorBox.style.display = 'none';
             btnSubmit.disabled = true;
             btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
-            btnText.textContent = 'Authorized! Opening Portal...';
+            btnText.textContent = 'Authenticated! Opening Dashboard...';
 
             sessionStorage.setItem('cic_admin_logged_in', 'true');
 
@@ -526,16 +470,16 @@
             }, 300);
           } else {
             // Authentication Failure
-            errorMsg.textContent = 'Invalid administrator security PIN. Please check the credential badge below.';
+            errorMsg.textContent = 'Invalid email or password. Please use the credentials provided in the Login Information box below.';
             errorBox.style.display = 'block';
             if (loginCard) {
               loginCard.classList.remove('shake');
               void loginCard.offsetWidth; // trigger reflow
               loginCard.classList.add('shake');
             }
-            if (pinInput) {
-              pinInput.focus();
-              pinInput.select();
+            if (passwordInput) {
+              passwordInput.focus();
+              passwordInput.select();
             }
           }
         });

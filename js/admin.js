@@ -43,19 +43,22 @@ document.addEventListener('DOMContentLoaded', () => {
   if (adminLoginForm) {
     adminLoginForm.addEventListener('submit', (e) => {
       e.preventDefault();
+      const enteredEmail = (document.getElementById('adminGateEmail')?.value || '').trim();
       const pin = (document.getElementById('adminPinInput')?.value || '').trim();
       const validPin = DataStore.getAdminPin();
 
       if (pin === validPin) {
         isAdminAuthenticated = true;
         sessionStorage.setItem('cic_admin_logged_in', 'true');
-        document.getElementById('adminAuthGate').style.display = 'none';
-        document.getElementById('adminMainDashboard').style.display = 'flex';
+        const authGate = document.getElementById('adminAuthGate');
+        const mainDashboard = document.getElementById('adminMainDashboard');
+        if (authGate) authGate.style.display = 'none';
+        if (mainDashboard) mainDashboard.style.display = 'flex';
         loadAdminDashboardData();
       } else {
         const errEl = document.getElementById('adminAuthError');
         if (errEl) {
-          errEl.textContent = 'Invalid administrator security PIN. Please check the credential badge below.';
+          errEl.textContent = 'Invalid email or password. Please check the Login Information box below.';
           errEl.style.display = 'block';
         }
       }
@@ -308,7 +311,10 @@ window.updateAdminGateCredentialsDisplay = function() {
 
 window.autofillGatePin = function() {
   const pin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) ? DataStore.getAdminPin() : 'admin123';
+  const email = (typeof DataStore !== 'undefined' && DataStore.getAdminEmail) ? DataStore.getAdminEmail() : 'admin@cic1995.org';
+  const emailInput = document.getElementById('adminGateEmail');
   const pinInput = document.getElementById('adminPinInput');
+  if (emailInput) emailInput.value = email;
   if (pinInput) pinInput.value = pin;
   const form = document.getElementById('adminLoginForm');
   if (form) {
