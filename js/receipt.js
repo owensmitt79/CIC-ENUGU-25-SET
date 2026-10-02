@@ -136,6 +136,7 @@
   function renderOfficialReceiptHTML(record) {
     if (!record) return '<div class="alert alert-danger">No payment record found.</div>';
 
+    const payerName = record.fullName || record.name || 'CIC Alumnus';
     const ref = record.reference || 'HAA-2026-UNKNOWN';
     const recNum = record.receiptNumber || `REC-2026-${ref.split('-').pop() || '0000'}`;
     const amountVal = Number(record.amount || 0);
@@ -198,7 +199,7 @@
           <div class="receipt-meta-item">
             <div class="label">Payer's Full Name</div>
             <div class="val">
-              ${escapeHtml(record.name || 'CIC Alumnus')}
+              ${escapeHtml(payerName)}
               ${record.classYear ? `<span class="receipt-class-tag">${escapeHtml(record.classYear)} Set</span>` : ''}
             </div>
           </div>
@@ -651,7 +652,7 @@
 *1995 ALUMNI SET — OFFICIAL PAYMENT RECEIPT*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━
 📄 *Receipt No:* ${record.receiptNumber || record.reference}
-👤 *Payer:* ${record.name}
+👤 *Payer:* ${record.fullName || record.name || 'CIC Alumnus'}
 🏷️ *Purpose:* ${record.paymentType}
 💰 *Amount Paid:* ₦${Number(record.amount).toLocaleString()}
 📅 *Date:* ${record.date}

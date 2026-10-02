@@ -1074,41 +1074,98 @@ function executeCheckoutPayment() {
       const reference = `HAA-${dateNow.getFullYear()}-${randomRefNum}`;
       const receiptNumber = `REC-${dateNow.getFullYear()}-${receiptSeq}`;
 
+      let itemDesc = paymentState.itemDescription;
+      if (!itemDesc || !itemDesc.trim()) {
+        if (paymentState.categoryName === 'Monthly Dues') {
+          itemDesc = (paymentState.selectedMonths && paymentState.selectedMonths.length > 0)
+            ? `Monthly Dues for: ${paymentState.selectedMonths.join(', ')}`
+            : `Monthly Dues Contribution`;
+        } else if (paymentState.categoryName === 'Annual Dues') {
+          itemDesc = `Statutory Annual Membership Dues (${dateNow.getFullYear()} Session)`;
+        } else {
+          itemDesc = `${paymentState.categoryName} • Alumni Financial Contribution`;
+        }
+      }
+
       const paymentRecord = {
         reference,
         receiptNumber,
         name: paymentState.fullName,
         phone: paymentState.phone,
         email: paymentState.email,
-        classYear: paymentState.classYear || '',
+        classYear: paymentState.classYear || 'Class of 1995',
         paymentType: paymentState.categoryName,
-        selectedMonths: paymentState.selectedMonths,
+        selectedMonths: paymentState.selectedMonths || [],
         amount: paymentState.totalAmount,
         gateway: paymentState.gateway,
         channel: paymentState.channel === 'card' ? 'Debit Card' : paymentState.channel === 'transfer' ? 'Bank Transfer' : 'USSD',
         status: 'Successful',
         date: dateNow.toISOString().replace('T', ' ').substring(0, 19),
         timestamp: dateNow.getTime(),
-        itemDescription: paymentState.itemDescription
+        itemDescription: itemDesc
       };
 
-      // Save to DataStore
+      // 1. Save to Unified Financial Ledger in DataStore
       DataStore.addPayment(paymentRecord);
 
-      // If targeted project, increment funding
+      // 2. Pulse localStorage for real-time live synchronization with open Admin Portal tabs
+      try {
+        localStorage.setItem('haa_payment_pulse', Date.now().toString());
+      } catch (_) {}
+
+      // 3. Keep Members Directory synchronized: Mark payer as Active dues payer
+      try {
+        const members = DataStore.getMembers() || [];
+        const cleanEmail = (paymentRecord.email || '').toLowerCase().trim();
+        const cleanPhone = (paymentRecord.phone || '').replace(/\D/g, '');
+        const cleanName = (paymentRecord.name || '').toLowerCase().trim();
+
+        let memberMatch = members.find(m => {
+          if (cleanEmail && m.email && m.email.toLowerCase().trim() === cleanEmail) return true;
+          if (cleanPhone && m.phone && m.phone.replace(/\D/g, '') === cleanPhone) return true;
+          if (cleanName && m.name && m.name.toLowerCase().trim() === cleanName) return true;
+          return false;
+        });
+
+        if (memberMatch) {
+          memberMatch.duesStatus = 'Active';
+          memberMatch.lastPaymentDate = paymentRecord.date;
+          memberMatch.lastReceiptNumber = paymentRecord.receiptNumber;
+          DataStore.saveMembers(members);
+        } else if (paymentRecord.name && (paymentRecord.email || paymentRecord.phone)) {
+          // Auto-record new alumnus in verified roster
+          DataStore.addMember({
+            id: 'mem-' + Date.now(),
+            name: paymentRecord.name,
+            classYear: paymentRecord.classYear || 'Class of 1995',
+            email: paymentRecord.email || '',
+            phone: paymentRecord.phone || '',
+            chapter: 'Enugu Central',
+            profession: 'Alumnus Member',
+            duesStatus: 'Active',
+            dateJoined: paymentRecord.date.split(' ')[0],
+            lastPaymentDate: paymentRecord.date,
+            lastReceiptNumber: paymentRecord.receiptNumber
+          });
+        }
+      } catch (err) {
+        console.warn('Member directory sync note:', err);
+      }
+
+      // 4. If targeted project, increment funding
       if (paymentState.targetProjectId) {
         DataStore.updateProjectAmount(paymentState.targetProjectId, paymentState.totalAmount);
-        renderProjects();
+        if (typeof renderProjects === 'function') renderProjects();
       }
 
       paymentState.completedPayment = paymentRecord;
 
-      // Render Receipt
+      // 5. Automatic Official Receipt Generation
       renderDigitalReceipt(paymentRecord);
 
-      // Automated Receipt Feedback
+      // 6. Automated Toast Notification
       if (typeof showReceiptToast === 'function') {
-        showReceiptToast(`✓ Official Receipt #${receiptNumber} generated automatically and dispatched to ${paymentRecord.email || paymentRecord.phone}`, 'success');
+        showReceiptToast(`✓ Official Receipt #${receiptNumber} automatically generated for ${paymentRecord.name}!`, 'success');
       }
 
       // Transition to Success Step

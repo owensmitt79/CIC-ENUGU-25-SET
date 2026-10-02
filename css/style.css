@@ -2987,6 +2987,35 @@ button, input, select, textarea {
   color: var(--cic-blue-700);
 }
 
+.dues-chip-btn {
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid var(--slate-300);
+  background: var(--white);
+  color: var(--slate-700);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.dues-chip-btn:hover {
+  border-color: var(--cic-blue-600);
+  color: var(--cic-blue-700);
+  background: var(--cic-blue-50);
+}
+
+.dues-chip-btn.active {
+  background: var(--cic-blue-900);
+  color: var(--white);
+  border-color: var(--cic-blue-900);
+  box-shadow: var(--shadow-xs);
+}
+
 /* Admin Login Form */
 .admin-login-box {
   max-width: 400px;

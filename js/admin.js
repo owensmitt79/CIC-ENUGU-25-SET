@@ -111,6 +111,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Real-time cross-tab synchronization: Updates ledger, payers list, and metrics automatically whenever any payment is made
+  window.addEventListener('storage', (e) => {
+    if (!e.key || e.key === 'haa_payments_v1' || e.key === 'haa_members_v1' || e.key === 'haa_payment_pulse') {
+      try {
+        loadAdminDashboardData();
+        filterAndRenderPaymentsTable();
+        renderAdminMonthlyDuesTable();
+        if (typeof renderAdminMembers === 'function') renderAdminMembers();
+      } catch (err) {
+        console.warn('Storage sync update note:', err);
+      }
+    }
+  });
+
   // Admin Login form
   const adminLoginForm = document.getElementById('adminLoginForm');
   if (adminLoginForm) {
@@ -320,9 +334,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
       DataStore.addPayment(newRecord);
 
+      // Pulse storage for live cross-tab updates
+      try {
+        localStorage.setItem('haa_payment_pulse', Date.now().toString());
+      } catch (_) {}
+
+      // Keep Members Directory synchronized with Active status
+      try {
+        const members = DataStore.getMembers() || [];
+        const cleanEmail = (email || '').toLowerCase().trim();
+        const cleanPhone = (phone || '').replace(/\D/g, '');
+        const cleanName = (name || '').toLowerCase().trim();
+
+        let memberMatch = members.find(m => {
+          if (cleanEmail && m.email && m.email.toLowerCase().trim() === cleanEmail) return true;
+          if (cleanPhone && m.phone && m.phone.replace(/\D/g, '') === cleanPhone) return true;
+          if (cleanName && m.name && m.name.toLowerCase().trim() === cleanName) return true;
+          return false;
+        });
+
+        if (memberMatch) {
+          memberMatch.duesStatus = 'Active';
+          memberMatch.lastPaymentDate = paymentDate;
+          memberMatch.lastReceiptNumber = receiptNumber;
+          DataStore.saveMembers(members);
+        }
+      } catch (err) {}
+
       // Refresh admin tables and KPI cards
       loadAdminDashboardData();
+      filterAndRenderPaymentsTable();
       renderAdminMonthlyDuesTable();
+      if (typeof renderAdminMembers === 'function') renderAdminMembers();
 
       if (typeof showReceiptToast === 'function') {
         showReceiptToast(`✓ Official Receipt #${receiptNumber} generated automatically for ${name}!`, 'success');
@@ -531,12 +574,16 @@ function loadAdminDashboardData() {
   const catFilter = document.getElementById('adminCategoryFilter');
   if (catFilter) {
     const categories = DataStore.getCategories();
-    catFilter.innerHTML = `<option value="ALL">All Categories</option>` +
+    catFilter.innerHTML = `<option value="ALL">All Categories &amp; Dues</option>` +
       categories.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
   }
 
-  // Render payments table
+  // Render dues stream filter chips
+  renderDuesCategoryChips();
+
+  // Render payments & dues ledger
   filterAndRenderPaymentsTable();
+  renderAdminMonthlyDuesTable();
 
   // Initialize News & Announcements Studio
   initAdminNewsStudio();
@@ -555,83 +602,213 @@ function setElText(id, text) {
   if (el) el.textContent = text;
 }
 
+let activeLedgerCategory = 'ALL';
+
+window.handleAdminCategoryFilterChange = function(cat) {
+  activeLedgerCategory = cat || 'ALL';
+  updateActiveLedgerChipsUI();
+  filterAndRenderPaymentsTable();
+};
+
+window.setLedgerCategoryChip = function(cat) {
+  activeLedgerCategory = cat || 'ALL';
+  const selectEl = document.getElementById('adminCategoryFilter');
+  if (selectEl) selectEl.value = activeLedgerCategory;
+  updateActiveLedgerChipsUI();
+  filterAndRenderPaymentsTable();
+};
+
+function updateActiveLedgerChipsUI() {
+  document.querySelectorAll('.dues-chip-btn').forEach(btn => {
+    if (btn.dataset.category === activeLedgerCategory) {
+      btn.classList.add('active');
+    } else {
+      btn.classList.remove('active');
+    }
+  });
+}
+
+function renderDuesCategoryChips() {
+  const container = document.getElementById('duesChipFilterBar');
+  if (!container) return;
+
+  const categories = DataStore.getCategories();
+  const chipList = [
+    { id: 'ALL', name: 'All Dues & Payers' },
+    ...categories.filter(c => c.active).map(c => ({ id: c.name, name: c.name }))
+  ];
+
+  container.innerHTML = chipList.map(c => `
+    <button type="button" class="dues-chip-btn ${activeLedgerCategory === c.id ? 'active' : ''}" data-category="${escapeHtml(c.id)}" onclick="setLedgerCategoryChip('${escapeHtml(c.id)}')">
+      ${escapeHtml(c.name)}
+    </button>
+  `).join('');
+}
+
 /**
- * Filter & Render Payments Ledger
+ * Filter & Render Payments Ledger (Payers Directory)
+ * Automatically updates KPI cards, unique payers count, and actions for EVERY due paid
  */
 function filterAndRenderPaymentsTable() {
   const container = document.getElementById('adminPaymentsTableBody');
+  const payments = DataStore.getPayments();
+
+  // 1. Compute & update high-level KPI metrics across all payments
+  let totalAmount = 0;
+  const uniquePayersSet = new Set();
+  let totalDuesCount = 0;
+
+  payments.forEach(p => {
+    totalAmount += Number(p.amount || 0);
+    const identifier = (p.email || p.phone || p.name || '').toLowerCase().trim();
+    if (identifier) uniquePayersSet.add(identifier);
+    const pType = (p.paymentType || '').toLowerCase();
+    if (pType.includes('dues') || pType.includes('levy') || pType.includes('welfare') || (p.selectedMonths && p.selectedMonths.length > 0)) {
+      totalDuesCount++;
+    }
+  });
+
+  setElText('ledgerKpiTotalAmount', `₦${totalAmount.toLocaleString()}`);
+  setElText('ledgerKpiUniquePayers', uniquePayersSet.size.toString());
+  setElText('ledgerKpiTotalReceipts', payments.length.toString());
+  setElText('sidebarPayersCount', uniquePayersSet.size.toString());
+  setElText('sidebarDuesCount', totalDuesCount.toString());
+
+  if (payments.length > 0) {
+    const latest = payments[0];
+    setElText('ledgerKpiLatestPayer', latest.name || 'Alumnus Payer');
+    setElText('ledgerKpiLatestAmount', `₦${Number(latest.amount || 0).toLocaleString()} • ${latest.paymentType || 'Dues'}`);
+  } else {
+    setElText('ledgerKpiLatestPayer', '—');
+    setElText('ledgerKpiLatestAmount', 'No transactions yet');
+  }
+
   if (!container) return;
 
-  const payments = DataStore.getPayments();
+  // 2. Filter records by search and active category
   const searchInput = document.getElementById('adminSearchPayments');
   const catFilter = document.getElementById('adminCategoryFilter');
 
   const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
-  const catVal = catFilter ? catFilter.value : 'ALL';
+  const selectedCat = activeLedgerCategory !== 'ALL' ? activeLedgerCategory : (catFilter ? catFilter.value : 'ALL');
 
   const filtered = payments.filter(p => {
-    const matchesCat = catVal === 'ALL' || p.paymentType === catVal;
+    const matchesCat = selectedCat === 'ALL' || p.paymentType === selectedCat;
     const matchesQuery = !query ||
       (p.name && p.name.toLowerCase().includes(query)) ||
       (p.phone && p.phone.toLowerCase().includes(query)) ||
       (p.email && p.email.toLowerCase().includes(query)) ||
       (p.reference && p.reference.toLowerCase().includes(query)) ||
-      (p.receiptNumber && p.receiptNumber.toLowerCase().includes(query));
+      (p.receiptNumber && p.receiptNumber.toLowerCase().includes(query)) ||
+      (p.itemDescription && p.itemDescription.toLowerCase().includes(query));
     return matchesCat && matchesQuery;
   });
 
   if (filtered.length === 0) {
-    container.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--slate-500); padding: 2rem;">No matching payment records found.</td></tr>`;
+    container.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--slate-500); padding: 3rem 1.5rem;"><div style="font-weight: 600; color: var(--navy-900); font-size: 1.05rem; margin-bottom: 0.35rem;">No matching payer records found</div><div style="font-size: 0.85rem;">Try clearing search filters or selecting another dues stream.</div></td></tr>`;
     return;
   }
 
-  container.innerHTML = filtered.map(p => `
-    <tr>
-      <td style="font-family: monospace; font-weight: 700; color: var(--navy-900);">
-        ${p.reference}
-        <div style="font-size: 0.72rem; color: var(--slate-500);">${p.receiptNumber || ''}</div>
-      </td>
-      <td>
-        <strong>${p.name}</strong>
-        <div style="font-size: 0.78rem; color: var(--slate-500);">${p.email} &bull; ${p.phone}</div>
-      </td>
-      <td>
-        <span style="font-weight: 600; color: var(--blue-800);">${p.paymentType}</span>
-        ${p.selectedMonths && p.selectedMonths.length > 0 ? `<div style="font-size: 0.75rem; color: var(--blue-600); font-weight: 600;">${p.selectedMonths.join(', ')}</div>` : ''}
-      </td>
-      <td style="font-weight: 800; color: var(--navy-900);">
-        ₦${p.amount.toLocaleString()}
-      </td>
-      <td>
-        <span style="font-size: 0.8rem; font-weight: 600;">${p.gateway}</span>
-        <div style="font-size: 0.72rem; color: var(--slate-500);">${p.channel}</div>
-      </td>
-      <td style="font-size: 0.8rem; color: var(--slate-600); white-space: nowrap;">
-        ${p.date}
-      </td>
-      <td>
-        <button type="button" class="btn btn-sm btn-outline-blue" onclick="viewReceiptInAdmin('${p.reference}')" title="Generate & View Official Receipt" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.65rem;">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          Receipt
-        </button>
-      </td>
-    </tr>
-  `).join('');
+  container.innerHTML = filtered.map(p => {
+    const receiptNum = p.receiptNumber || p.reference;
+    const monthsText = (p.selectedMonths && p.selectedMonths.length > 0)
+      ? p.selectedMonths.join(', ')
+      : '';
+    const descText = p.itemDescription || '';
+
+    return `
+      <tr>
+        <td>
+          <div style="font-family: monospace; font-weight: 800; color: var(--navy-900); font-size: 0.9rem;">
+            ${escapeHtml(receiptNum)}
+          </div>
+          <div style="font-size: 0.72rem; color: var(--slate-500); font-family: monospace;">
+            Ref: ${escapeHtml(p.reference)}
+          </div>
+        </td>
+        <td>
+          <strong style="color: var(--navy-900); font-size: 0.92rem; display: block;">${escapeHtml(p.name)}</strong>
+          <div style="font-size: 0.78rem; color: var(--slate-600); margin-top: 1px;">
+            ${escapeHtml(p.phone || '')}${p.phone && p.email ? ' • ' : ''}${escapeHtml(p.email || '')}
+          </div>
+          <div style="font-size: 0.72rem; color: var(--slate-400); margin-top: 1px;">
+            ${escapeHtml(p.classYear || 'Class of 1995')}
+          </div>
+        </td>
+        <td>
+          <span style="display: inline-block; padding: 2px 8px; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-700); border: 1px solid rgba(43, 87, 151, 0.2); border-radius: 4px; font-size: 0.78rem; font-weight: 700;">
+            ${escapeHtml(p.paymentType)}
+          </span>
+          ${monthsText ? `
+            <div style="font-size: 0.75rem; color: var(--cic-blue-600); font-weight: 600; margin-top: 3px;">
+              ${escapeHtml(monthsText)}
+            </div>
+          ` : ''}
+          ${descText && !monthsText ? `
+            <div style="font-size: 0.73rem; color: var(--slate-500); margin-top: 2px; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${escapeHtml(descText)}">
+              ${escapeHtml(descText)}
+            </div>
+          ` : ''}
+        </td>
+        <td>
+          <strong style="font-weight: 800; color: var(--navy-900); font-size: 1rem;">
+            ₦${Number(p.amount || 0).toLocaleString()}
+          </strong>
+        </td>
+        <td>
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--slate-700);">${escapeHtml(p.gateway || 'Paystack')}</span>
+          <div style="font-size: 0.72rem; color: var(--slate-500);">${escapeHtml(p.channel || 'Online Checkout')}</div>
+        </td>
+        <td>
+          <div style="font-size: 0.8rem; color: var(--slate-600); white-space: nowrap;">
+            ${escapeHtml(p.date || 'N/A')}
+          </div>
+        </td>
+        <td>
+          <span class="status-badge successful" style="background: rgba(34, 197, 94, 0.12); color: #15803D; font-weight: 700;">
+            ✓ Cleared
+          </span>
+        </td>
+        <td style="text-align: right;">
+          <div style="display: flex; gap: 0.4rem; justify-content: flex-end;">
+            <button type="button" class="btn btn-sm btn-outline-blue" onclick="viewReceiptInAdmin('${p.reference}')" title="View &amp; Verify Official Receipt" style="font-weight: 700; padding: 0.28rem 0.65rem; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 0.35rem;">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Receipt
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-light" onclick="printReceiptDirect('${p.reference}')" title="Print Official Receipt" style="padding: 0.28rem 0.55rem; font-size: 0.78rem; color: var(--slate-700);">
+              🖨️
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 window.viewReceiptInAdmin = function(ref) {
-  if (typeof openOfficialReceiptModal === 'function') {
+  if (typeof ReceiptEngine !== 'undefined' && ReceiptEngine.openOfficialReceiptModal) {
+    ReceiptEngine.openOfficialReceiptModal(ref);
+  } else if (typeof openOfficialReceiptModal === 'function') {
     openOfficialReceiptModal(ref);
   } else {
     const payment = DataStore.findPaymentByRef(ref);
     if (payment) {
-      alert(`Payment Reference: ${payment.reference}\nReceipt #: ${payment.receiptNumber}\nPayer: ${payment.name}\nAmount: ₦${payment.amount.toLocaleString()}`);
+      alert(`Official Receipt: ${payment.receiptNumber || payment.reference}\nPayer: ${payment.name}\nAmount: ₦${Number(payment.amount).toLocaleString()}\nStatus: Verified`);
     }
   }
 };
 
+window.printReceiptDirect = function(ref) {
+  if (typeof ReceiptEngine !== 'undefined' && ReceiptEngine.downloadReceiptPdf) {
+    ReceiptEngine.downloadReceiptPdf(ref);
+  } else if (typeof openOfficialReceiptModal === 'function') {
+    openOfficialReceiptModal(ref);
+    setTimeout(() => window.print(), 300);
+  }
+};
+
 /**
- * Export Payments Ledger to CSV
+ * Export Payments & Payers Ledger to CSV
  */
 function exportPaymentsToCSV() {
   const payments = DataStore.getPayments();
@@ -640,18 +817,18 @@ function exportPaymentsToCSV() {
     return;
   }
 
-  const headers = ['Reference', 'Receipt Number', 'Payer Name', 'Phone', 'Email', 'Class Year', 'Payment Type', 'Amount (NGN)', 'Months', 'Gateway', 'Channel', 'Status', 'Date'];
+  const headers = ['Reference', 'Receipt Number', 'Payer Name', 'Phone', 'Email', 'Class Year', 'Dues Category', 'Coverage & Description', 'Amount (NGN)', 'Gateway', 'Channel', 'Status', 'Timestamp'];
   
   const rows = payments.map(p => [
-    `"${p.reference}"`,
+    `"${p.reference || ''}"`,
     `"${p.receiptNumber || ''}"`,
     `"${(p.name || '').replace(/"/g, '""')}"`,
     `"${p.phone || ''}"`,
     `"${p.email || ''}"`,
-    `"${p.classYear || ''}"`,
+    `"${p.classYear || 'Class of 1995'}"`,
     `"${p.paymentType || ''}"`,
-    p.amount,
-    `"${(p.selectedMonths || []).join(', ')}"`,
+    `"${(p.itemDescription || (p.selectedMonths && p.selectedMonths.join(', ')) || '').replace(/"/g, '""')}"`,
+    Number(p.amount || 0),
     `"${p.gateway || ''}"`,
     `"${p.channel || ''}"`,
     `"${p.status || 'Successful'}"`,
@@ -662,42 +839,114 @@ function exportPaymentsToCSV() {
   const encodedUri = encodeURI(csvContent);
   const link = document.createElement('a');
   link.setAttribute('href', encodedUri);
-  link.setAttribute('download', `High_Alumni_Payments_${new Date().toISOString().slice(0, 10)}.csv`);
+  link.setAttribute('download', `CIC_Alumni_Payers_Ledger_${new Date().toISOString().slice(0, 10)}.csv`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
 
 /**
- * Monthly Dues Tab Tracker
+ * All Dues & Levies Audit Tracker
+ * Tracks every due paid (Monthly Dues, Annual Membership, Welfare Levies, Special Project Levies)
  */
 function renderAdminMonthlyDuesTable() {
   const container = document.getElementById('adminMonthlyDuesTableBody');
+  const payments = DataStore.getPayments();
+
+  // 1. Calculate dues streams breakdown
+  let monthlyTotal = 0, monthlyCount = 0;
+  let annualTotal = 0, annualCount = 0;
+  let welfareTotal = 0, welfareCount = 0;
+  let allDuesTotal = 0;
+
+  payments.forEach(p => {
+    const amt = Number(p.amount || 0);
+    const pType = (p.paymentType || '').toLowerCase();
+
+    if (pType === 'monthly dues' || (p.selectedMonths && p.selectedMonths.length > 0)) {
+      monthlyTotal += amt;
+      monthlyCount++;
+      allDuesTotal += amt;
+    } else if (pType === 'annual dues') {
+      annualTotal += amt;
+      annualCount++;
+      allDuesTotal += amt;
+    } else if (pType.includes('welfare') || pType.includes('development') || pType.includes('levy')) {
+      welfareTotal += amt;
+      welfareCount++;
+      allDuesTotal += amt;
+    }
+  });
+
+  setElText('duesSummaryMonthlyTotal', `₦${monthlyTotal.toLocaleString()}`);
+  setElText('duesSummaryMonthlyCount', `${monthlyCount} payments cleared`);
+  setElText('duesSummaryAnnualTotal', `₦${annualTotal.toLocaleString()}`);
+  setElText('duesSummaryAnnualCount', `${annualCount} statutory dues cleared`);
+  setElText('duesSummaryWelfareTotal', `₦${welfareTotal.toLocaleString()}`);
+  setElText('duesSummaryWelfareCount', `${welfareCount} contributions recorded`);
+  setElText('adminDuesTotalCollected', `₦${allDuesTotal.toLocaleString()}`);
+
+  const cfg = (typeof DataStore !== 'undefined' && DataStore.getConfig) ? DataStore.getConfig() : null;
+  if (cfg) {
+    setElText('cfgDisplayMonthly', `₦${(cfg.monthlyDuesRate || 5000).toLocaleString()}`);
+    setElText('cfgDisplayAnnual', `₦${(cfg.annualDuesRate || 25000).toLocaleString()}`);
+  }
+
   if (!container) return;
 
-  const payments = DataStore.getPayments().filter(p => p.paymentType === 'Monthly Dues');
-  const config = DataStore.getConfig();
+  // 2. Filter for all dues streams
+  const duesList = payments.filter(p => {
+    const pType = (p.paymentType || '').toLowerCase();
+    return pType.includes('dues') || pType.includes('levy') || pType.includes('welfare') || (p.selectedMonths && p.selectedMonths.length > 0);
+  });
 
-  let totalDuesCollected = payments.reduce((acc, p) => acc + (p.amount || 0), 0);
-  setElText('adminDuesTotalCollected', `₦${totalDuesCollected.toLocaleString()}`);
-
-  if (payments.length === 0) {
-    container.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 2rem;">No monthly dues records found.</td></tr>`;
+  if (duesList.length === 0) {
+    container.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--slate-500); padding: 3rem 1.5rem;"><div style="font-weight: 600; color: var(--navy-900); font-size: 1rem; margin-bottom: 0.25rem;">No dues payments recorded yet</div><div style="font-size: 0.85rem;">When members pay dues online or via secretariat, records appear here immediately.</div></td></tr>`;
     return;
   }
 
-  container.innerHTML = payments.map(p => `
-    <tr>
-      <td><strong>${p.name}</strong><br><span style="font-size: 0.75rem; color: var(--slate-500);">${p.phone}</span></td>
-      <td>
-        <span style="font-weight: 700; color: var(--navy-900);">${(p.selectedMonths || []).length} Month(s)</span>
-        <div style="font-size: 0.78rem; color: var(--slate-600);">${(p.selectedMonths || []).join(', ')}</div>
-      </td>
-      <td style="font-weight: 800; color: var(--navy-900);">₦${p.amount.toLocaleString()}</td>
-      <td style="font-size: 0.8rem; color: var(--slate-600);">${p.date}</td>
-      <td><span class="status-badge successful">Cleared</span></td>
-    </tr>
-  `).join('');
+  container.innerHTML = duesList.map(p => {
+    const monthsStr = (p.selectedMonths && p.selectedMonths.length > 0)
+      ? p.selectedMonths.join(', ')
+      : (p.itemDescription || 'Statutory Session Dues');
+
+    return `
+      <tr>
+        <td>
+          <strong style="color: var(--navy-900); font-size: 0.92rem; display: block;">${escapeHtml(p.name)}</strong>
+          <div style="font-size: 0.78rem; color: var(--slate-500);">${escapeHtml(p.phone || p.email || 'N/A')}</div>
+        </td>
+        <td>
+          <span style="display: inline-block; padding: 2px 8px; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-700); border: 1px solid rgba(43, 87, 151, 0.2); border-radius: 4px; font-size: 0.78rem; font-weight: 700;">
+            ${escapeHtml(p.paymentType)}
+          </span>
+        </td>
+        <td>
+          <span style="font-size: 0.82rem; color: var(--slate-700); font-weight: 600;">
+            ${escapeHtml(monthsStr)}
+          </span>
+        </td>
+        <td>
+          <strong style="font-weight: 800; color: var(--navy-900); font-size: 0.98rem;">
+            ₦${Number(p.amount || 0).toLocaleString()}
+          </strong>
+        </td>
+        <td style="font-size: 0.8rem; color: var(--slate-600); white-space: nowrap;">
+          ${escapeHtml(p.date || 'N/A')}
+        </td>
+        <td>
+          <span class="status-badge successful" style="background: rgba(34, 197, 94, 0.12); color: #15803D; font-weight: 700;">
+            ✓ Cleared
+          </span>
+        </td>
+        <td style="text-align: right;">
+          <button type="button" class="btn btn-sm btn-outline-blue" onclick="viewReceiptInAdmin('${p.reference}')" title="View Official Receipt" style="font-weight: 700; padding: 0.25rem 0.6rem; font-size: 0.75rem;">
+            Receipt
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 /**
@@ -1764,60 +2013,6 @@ window.switchToPaymentsTab = function() {
 
   filterAndRenderPaymentsTable();
 };
-
-/**
- * Monthly Dues Tracker Table
- */
-function renderAdminMonthlyDuesTable() {
-  const container = document.getElementById('adminMonthlyDuesTableBody');
-  const totalDisplay = document.getElementById('adminDuesTotalCollected');
-  if (!container) return;
-
-  const payments = DataStore.getPayments();
-  const duesPayments = payments.filter(p => p.paymentType === 'Monthly Dues' || (p.selectedMonths && p.selectedMonths.length > 0));
-
-  let totalDues = 0;
-  duesPayments.forEach(p => totalDues += Number(p.amount || 0));
-  if (totalDisplay) totalDisplay.textContent = `₦${totalDues.toLocaleString()}`;
-
-  if (duesPayments.length === 0) {
-    container.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--slate-500); padding: 2rem;">No monthly dues records recorded yet.</td></tr>`;
-    return;
-  }
-
-  container.innerHTML = duesPayments.map(p => {
-    const monthsStr = (p.selectedMonths && p.selectedMonths.length > 0)
-      ? p.selectedMonths.join(', ')
-      : 'Class Statutory Period';
-    return `
-      <tr>
-        <td>
-          <strong style="color: var(--navy-900);">${escapeHtml(p.name)}</strong>
-          <div style="font-size: 0.78rem; color: var(--slate-500);">${escapeHtml(p.phone || p.email || 'N/A')}</div>
-        </td>
-        <td>
-          <span style="display: inline-block; padding: 2px 8px; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-700); border-radius: 4px; font-size: 0.8rem; font-weight: 600;">
-            ${escapeHtml(monthsStr)}
-          </span>
-        </td>
-        <td style="font-weight: 800; color: var(--navy-900);">
-          ₦${Number(p.amount || 0).toLocaleString()}
-        </td>
-        <td style="font-size: 0.82rem; color: var(--slate-600); white-space: nowrap;">
-          ${escapeHtml(p.date || 'N/A')}
-        </td>
-        <td>
-          <span class="status-badge successful">Cleared</span>
-        </td>
-        <td>
-          <button type="button" class="btn btn-sm btn-outline-gold" onclick="viewReceiptInAdmin('${p.reference}')">
-            Receipt
-          </button>
-        </td>
-      </tr>
-    `;
-  }).join('');
-}
 
 /**
  * Issue Member Dues Receipt Studio Controller

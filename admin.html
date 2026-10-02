@@ -179,12 +179,14 @@
 
         <button type="button" class="admin-tab-btn" data-pane="adminPane_Payments" onclick="switchAdminPane('adminPane_Payments')">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/></svg>
-          <span>Payments Ledger</span>
+          <span>Payments &amp; Dues Ledger</span>
+          <span class="admin-badge-count" id="sidebarPayersCount" style="margin-left: auto; font-size: 0.72rem; padding: 2px 7px; background: var(--cic-blue-100); color: var(--cic-blue-800); border-radius: 999px; font-weight: 700;">0</span>
         </button>
 
         <button type="button" class="admin-tab-btn" data-pane="adminPane_MonthlyDues" onclick="switchAdminPane('adminPane_MonthlyDues')">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-          <span>Monthly Dues Tracking</span>
+          <span>All Dues &amp; Levies Tracker</span>
+          <span class="admin-badge-count" id="sidebarDuesCount" style="margin-left: auto; font-size: 0.72rem; padding: 2px 7px; background: rgba(5, 150, 105, 0.12); color: #059669; border-radius: 999px; font-weight: 700;">0</span>
         </button>
 
         <button type="button" class="admin-tab-btn admin-tab-btn-emerald" data-pane="adminPane_IssueReceipt" id="adminTabBtn_IssueReceipt" onclick="switchAdminPane('adminPane_IssueReceipt')">
@@ -289,95 +291,184 @@
           </div>
         </div>
 
-        <!-- PANE: PAYMENTS LEDGER -->
+        <!-- PANE: PAYMENTS & DUES LEDGER (PAYERS DIRECTORY) -->
         <div class="admin-pane" id="adminPane_Payments">
-          <div class="admin-table-controls">
-            <div class="admin-search-box">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" id="adminSearchPayments" placeholder="Search by name, phone, email, reference...">
+          <!-- Executive Header & Real-time Payers KPI Cards -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="admin-tab-tag">Financial Secretariat</span>
+              <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; margin-top: 0.25rem;">
+                Payments &amp; Dues Ledger (Payers Directory)
+              </h3>
+              <p style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
+                Real-time audited ledger of all alumni dues, levies, project contributions, and donations with instant receipt verification and payer records.
+              </p>
             </div>
-
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-              <select id="adminCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
-                <option value="ALL">All Categories</option>
-              </select>
-              <button type="button" class="btn btn-sm btn-primary" onclick="switchToIssueReceiptTab()" style="background: linear-gradient(135deg, #059669, #047857); border-color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-sm btn-primary" onclick="switchToIssueReceiptTab()" style="background: linear-gradient(135deg, #059669, #047857); border-color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 0.45rem;">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                + Issue Receipt
+                + Issue Dues Receipt
               </button>
-              <button type="button" class="btn btn-sm btn-outline-light" id="btnExportPaymentsCsv" style="color: var(--slate-700); border-color: var(--slate-300);">
-                Export CSV
+              <button type="button" class="btn btn-sm btn-outline-dark" id="btnExportPaymentsCsv" onclick="exportPaymentsToCSV()" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 600;">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Export Ledger (CSV)
               </button>
             </div>
           </div>
 
+          <!-- Real-time Financial KPI Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-bottom: 1.75rem;">
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-xs);">
+              <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--slate-500); letter-spacing: 0.05em;">Total Collections</div>
+              <div id="ledgerKpiTotalAmount" style="font-family: var(--font-heading); font-size: 1.65rem; font-weight: 800; color: var(--cic-blue-900); margin-top: 0.35rem;">₦0</div>
+              <div style="font-size: 0.75rem; color: #059669; font-weight: 600; margin-top: 0.2rem;">✓ Audited &amp; Reconciled</div>
+            </div>
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-xs);">
+              <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--slate-500); letter-spacing: 0.05em;">Verified Payers</div>
+              <div id="ledgerKpiUniquePayers" style="font-family: var(--font-heading); font-size: 1.65rem; font-weight: 800; color: var(--navy-900); margin-top: 0.35rem;">0</div>
+              <div style="font-size: 0.75rem; color: var(--slate-500); margin-top: 0.2rem;">Distinct Alumni Members</div>
+            </div>
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-xs);">
+              <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--slate-500); letter-spacing: 0.05em;">Total Receipts Issued</div>
+              <div id="ledgerKpiTotalReceipts" style="font-family: var(--font-heading); font-size: 1.65rem; font-weight: 800; color: var(--navy-900); margin-top: 0.35rem;">0</div>
+              <div style="font-size: 0.75rem; color: var(--slate-500); margin-top: 0.2rem;">Digital &amp; Manual Transactions</div>
+            </div>
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem; box-shadow: var(--shadow-xs);">
+              <div style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; color: var(--slate-500); letter-spacing: 0.05em;">Latest Payer</div>
+              <div id="ledgerKpiLatestPayer" style="font-size: 1rem; font-weight: 700; color: var(--cic-blue-700); margin-top: 0.45rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
+              <div id="ledgerKpiLatestAmount" style="font-size: 0.75rem; color: var(--slate-500); margin-top: 0.2rem;">—</div>
+            </div>
+          </div>
+
+          <!-- Dues Filter Chips (For EVERY Dues Category) -->
+          <div style="margin-bottom: 1.25rem;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--slate-600); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.04em;">
+              Filter Payers by Dues Stream:
+            </div>
+            <div class="dues-chip-filter-bar" id="duesChipFilterBar" style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              <!-- Generated dynamically in js/admin.js -->
+            </div>
+          </div>
+
+          <!-- Table Controls: Search, Select, Export -->
+          <div class="admin-table-controls">
+            <div class="admin-search-box" style="flex: 1; max-width: 480px;">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" id="adminSearchPayments" placeholder="Search payers by name, phone, email, reference, or receipt #..." oninput="filterAndRenderPaymentsTable()">
+            </div>
+
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+              <select id="adminCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;" onchange="handleAdminCategoryFilterChange(this.value)">
+                <option value="ALL">All Categories &amp; Dues</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Full Payers & Payments Table -->
           <div class="table-responsive">
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>Reference / Receipt</th>
-                  <th>Payer Details</th>
-                  <th>Category &amp; Breakdown</th>
-                  <th>Amount</th>
-                  <th>Gateway / Channel</th>
+                  <th>Receipt / Reference</th>
+                  <th>Payer Information</th>
+                  <th>Dues Category &amp; Coverage</th>
+                  <th>Amount Paid</th>
+                  <th>Channel &amp; Gateway</th>
                   <th>Timestamp</th>
-                  <th>Action</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Official Receipt</th>
                 </tr>
               </thead>
               <tbody id="adminPaymentsTableBody">
-                <!-- Populated dynamically -->
+                <!-- Populated dynamically via filterAndRenderPaymentsTable() -->
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- PANE: MONTHLY DUES CONFIG & TRACKER -->
+        <!-- PANE: ALL DUES & LEVIES AUDIT TRACKER -->
         <div class="admin-pane" id="adminPane_MonthlyDues">
-          <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem; margin-bottom: 2rem;">
-            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem;">
-              <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem;">Configure Monthly Dues Rate</h4>
-              <p style="font-size: 0.82rem; color: var(--slate-600); margin-bottom: 1.25rem;">Changing this rate updates the dynamic multi-month calculator across the entire website instantly.</p>
-              
-              <form id="adminDuesRateForm">
-                <div class="form-group">
-                  <label class="form-label">Monthly Rate (₦)</label>
-                  <input type="number" id="adminMonthlyDuesInput" class="form-control" value="5000" min="500" step="500" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                  Update Dues Rate
-                </button>
-              </form>
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="section-badge" style="background: rgba(43, 87, 151, 0.1); color: var(--cic-blue-700); border-color: rgba(43, 87, 151, 0.25);">
+                Audit &amp; Compliance
+              </span>
+              <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; margin-top: 0.25rem;">
+                All Dues &amp; Levies Tracker
+              </h3>
+              <p style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
+                Track every due that is paid (Monthly Dues, Annual Membership, Welfare Levies, and Special Assessments) with individual payer audit logs.
+              </p>
             </div>
-
-            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between;">
-              <div>
-                <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.25rem;">Total Monthly Dues Collected</h4>
-                <div style="font-family: var(--font-heading); font-size: 2.2rem; font-weight: 800; color: var(--gold-600);" id="adminDuesTotalCollected">₦0</div>
-                <p style="font-size: 0.85rem; color: var(--slate-600); margin-top: 0.35rem;">Cumulative dues recorded through zero-login checkouts and direct member deposits.</p>
-              </div>
-              <div style="margin-top: 1rem;">
-                <button type="button" class="btn btn-sm btn-primary" onclick="switchToIssueReceiptTab()" style="background: linear-gradient(135deg, #059669, #047857); border-color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
-                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                  + Issue Member Dues Receipt
-                </button>
-              </div>
+            <div>
+              <button type="button" class="btn btn-sm btn-primary" onclick="switchToIssueReceiptTab()" style="background: linear-gradient(135deg, #059669, #047857); border-color: #059669; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                + Issue Member Dues Receipt
+              </button>
             </div>
           </div>
 
+          <!-- Dues Streams Breakdown Cards -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem;">
+              <div style="font-size: 0.8rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Monthly Dues</div>
+              <div id="duesSummaryMonthlyTotal" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--cic-blue-700); margin: 0.25rem 0;">₦0</div>
+              <div id="duesSummaryMonthlyCount" style="font-size: 0.8rem; color: var(--slate-500);">0 payments cleared</div>
+            </div>
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem;">
+              <div style="font-size: 0.8rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Annual Membership</div>
+              <div id="duesSummaryAnnualTotal" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: #059669; margin: 0.25rem 0;">₦0</div>
+              <div id="duesSummaryAnnualCount" style="font-size: 0.8rem; color: var(--slate-500);">0 statutory dues cleared</div>
+            </div>
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem;">
+              <div style="font-size: 0.8rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Welfare &amp; Development</div>
+              <div id="duesSummaryWelfareTotal" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: #D97706; margin: 0.25rem 0;">₦0</div>
+              <div id="duesSummaryWelfareCount" style="font-size: 0.8rem; color: var(--slate-500);">0 contributions recorded</div>
+            </div>
+            <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem;">
+              <div style="font-size: 0.8rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Total Dues Revenue</div>
+              <div id="adminDuesTotalCollected" style="font-family: var(--font-heading); font-size: 1.5rem; font-weight: 800; color: var(--gold-600); margin: 0.25rem 0;">₦0</div>
+              <div style="font-size: 0.8rem; color: var(--slate-500);">All Dues &amp; Levies Combined</div>
+            </div>
+          </div>
+
+          <!-- Configure Dues Rates Card -->
+          <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.5rem; margin-bottom: 2rem;">
+            <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.15rem; margin-bottom: 0.35rem;">
+              Configure Approved Dues Rates
+            </h4>
+            <p style="font-size: 0.84rem; color: var(--slate-600); margin-bottom: 1.25rem;">
+              Updating approved statutory dues rates synchronizes the multi-month dues calculator and checkout rates immediately across the entire platform.
+            </p>
+            <form id="adminDuesRateForm" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; align-items: flex-end;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Monthly Dues Rate (₦)</label>
+                <input type="number" id="adminMonthlyDuesInput" class="form-control" value="5000" min="500" step="500" required>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <button type="submit" class="btn btn-primary" style="height: 44px; width: 100%;">
+                  Save &amp; Update Dues Rate
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- All Dues Payers Table -->
           <div class="table-responsive">
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>Alumnus / Phone</th>
-                  <th>Months Cleared</th>
+                  <th>Alumnus / Payer</th>
+                  <th>Dues Stream</th>
+                  <th>Period / Coverage</th>
                   <th>Amount Paid</th>
                   <th>Date Paid</th>
                   <th>Status</th>
-                  <th>Action</th>
+                  <th style="text-align: right;">Receipt</th>
                 </tr>
               </thead>
               <tbody id="adminMonthlyDuesTableBody">
-                <!-- Monthly dues rows -->
+                <!-- Dynamically populated via renderAdminMonthlyDuesTable() -->
               </tbody>
             </table>
           </div>
