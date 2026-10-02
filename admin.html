@@ -8,6 +8,140 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <style>
+    .admin-tab-btn {
+      cursor: pointer !important;
+      user-select: none;
+    }
+    .admin-tab-btn * {
+      pointer-events: none !important;
+    }
+    .admin-subnav-tab {
+      cursor: pointer !important;
+      user-select: none;
+    }
+    .admin-subnav-tab * {
+      pointer-events: none !important;
+    }
+  </style>
+  <script>
+    // Immediate, un-cacheable inline tab switching function
+    function switchAdminPane(paneId) {
+      if (!paneId) return;
+
+      // 1. Update buttons
+      document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+        const p = btn.getAttribute('data-pane') || btn.dataset.pane;
+        if (p === paneId) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // 2. Update panes (both class and explicit inline style for 100% certainty)
+      document.querySelectorAll('.admin-pane').forEach(pane => {
+        if (pane.id === paneId) {
+          pane.classList.add('active');
+          pane.style.display = 'block';
+        } else {
+          pane.classList.remove('active');
+          pane.style.display = 'none';
+        }
+      });
+
+      // 3. Trigger rendering functions safely if loaded
+      try {
+        if (paneId === 'adminPane_Overview' && typeof loadAdminDashboardData === 'function') {
+          loadAdminDashboardData();
+        } else if (paneId === 'adminPane_Payments' && typeof filterAndRenderPaymentsTable === 'function') {
+          filterAndRenderPaymentsTable();
+        } else if (paneId === 'adminPane_MonthlyDues' && typeof renderAdminMonthlyDuesTable === 'function') {
+          renderAdminMonthlyDuesTable();
+        } else if (paneId === 'adminPane_Categories' && typeof renderAdminCategories === 'function') {
+          renderAdminCategories();
+        } else if (paneId === 'adminPane_Events' && typeof renderAdminEvents === 'function') {
+          renderAdminEvents();
+        } else if (paneId === 'adminPane_Projects' && typeof renderAdminProjects === 'function') {
+          renderAdminProjects();
+        } else if (paneId === 'adminPane_CreateProject') {
+          if (typeof initAdminProjectsStudio === 'function') initAdminProjectsStudio();
+          const titleInput = document.getElementById('newProjectTitle');
+          if (titleInput) titleInput.focus();
+        } else if (paneId === 'adminPane_IssueReceipt') {
+          if (typeof initIssueReceiptStudio === 'function') initIssueReceiptStudio();
+          const nameInput = document.getElementById('issueMemberName');
+          if (nameInput) nameInput.focus();
+        } else if (paneId === 'adminPane_News') {
+          if (typeof initAdminNewsStudio === 'function') initAdminNewsStudio();
+          if (typeof renderAdminNews === 'function') renderAdminNews();
+        } else if (paneId === 'adminPane_LeadershipMembers') {
+          if (typeof initAdminLeadershipMembers === 'function') initAdminLeadershipMembers();
+        }
+      } catch (err) {
+        console.warn('Pane render warning:', err);
+      }
+    }
+
+    function switchLeadershipMembersSubtab(tab) {
+      const leadersSec = document.getElementById('adminLeadersSection');
+      const membersSec = document.getElementById('adminMembersSection');
+      const bulkSec = document.getElementById('adminBulkUploadSection');
+
+      const subtabLeadersBtn = document.getElementById('subtabLeadersBtn');
+      const subtabMembersBtn = document.getElementById('subtabMembersBtn');
+      const subtabBulkBtn = document.getElementById('subtabBulkBtn');
+
+      [subtabLeadersBtn, subtabMembersBtn, subtabBulkBtn].forEach(b => {
+        if (b) b.classList.remove('active');
+      });
+
+      if (leadersSec) leadersSec.style.display = 'none';
+      if (membersSec) membersSec.style.display = 'none';
+      if (bulkSec) bulkSec.style.display = 'none';
+
+      if (tab === 'leaders') {
+        if (leadersSec) leadersSec.style.display = 'block';
+        if (subtabLeadersBtn) subtabLeadersBtn.classList.add('active');
+        if (typeof renderAdminLeadership === 'function') renderAdminLeadership();
+      } else if (tab === 'members') {
+        if (membersSec) membersSec.style.display = 'block';
+        if (subtabMembersBtn) subtabMembersBtn.classList.add('active');
+        if (typeof renderAdminMembers === 'function') renderAdminMembers();
+      } else if (tab === 'bulk') {
+        if (bulkSec) bulkSec.style.display = 'block';
+        if (subtabBulkBtn) subtabBulkBtn.classList.add('active');
+      }
+    }
+
+    function switchToCreateProjectTab() {
+      switchAdminPane('adminPane_CreateProject');
+    }
+
+    function toggleAdminLeaderForm(forceClose) {
+      const card = document.getElementById('adminLeaderFormCard');
+      if (!card) return;
+      if (forceClose || card.style.display === 'block') {
+        card.style.display = 'none';
+      } else {
+        card.style.display = 'block';
+        const nameInput = document.getElementById('leaderNameInput');
+        if (nameInput) nameInput.focus();
+      }
+    }
+
+    function toggleAdminMemberForm(forceClose) {
+      const card = document.getElementById('adminMemberFormCard');
+      if (!card) return;
+      if (forceClose || card.style.display === 'block') {
+        card.style.display = 'none';
+      } else {
+        card.style.display = 'block';
+        const nameInput = document.getElementById('memberFullNameInput');
+        if (nameInput) nameInput.focus();
+      }
+    }
+  </script>
 </head>
 <body class="admin-standalone">
 
@@ -1281,10 +1415,9 @@
     </div>
   </div>
 
-  <!-- Scripts -->
-  <script src="js/data.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/admin.js"></script>
+  <!-- Scripts with Cache-Busting -->
+  <script src="js/data.js?v=2.7"></script>
+  <script src="js/admin.js?v=2.7"></script>
 </body>
 </html>
 
