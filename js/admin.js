@@ -2026,6 +2026,47 @@ window.updateLeaderPhotoFromUrl = function(url) {
   }
 };
 
+window.handleQuickLeaderUpload = function(event) {
+  event.preventDefault();
+  const positionInput = document.getElementById('quickLeaderPosition');
+  const nameInput = document.getElementById('quickLeaderName');
+
+  const position = (positionInput ? positionInput.value : '').trim();
+  const name = (nameInput ? nameInput.value : '').trim();
+
+  if (!position || !name) {
+    alert('Please enter both the Executive Position and Full Name.');
+    return;
+  }
+
+  const defaultBio = `${name} serves as ${position} on the Executive Leadership Council of the CIC Alumni 1995 Set.`;
+  const newLeader = {
+    id: 'lead-' + Date.now(),
+    name: name,
+    position: position,
+    classYear: 'Class of 1995',
+    phone: '',
+    email: '',
+    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+    bio: defaultBio
+  };
+
+  DataStore.addLeader(newLeader);
+
+  if (positionInput) positionInput.value = '';
+  if (nameInput) nameInput.value = '';
+
+  if (typeof showReceiptToast === 'function') {
+    showReceiptToast(`✓ Uploaded "${name}" as ${position}!`, 'success');
+  } else {
+    alert(`✓ Successfully uploaded ${name} as ${position}!`);
+  }
+
+  updateLeadershipMembersCounts();
+  renderAdminLeadership();
+  if (typeof renderLeadership === 'function') renderLeadership();
+};
+
 window.saveAdminLeader = function(event) {
   event.preventDefault();
   const name = document.getElementById('leaderNameInput').value.trim();
@@ -2041,11 +2082,12 @@ window.saveAdminLeader = function(event) {
   const bio = (document.getElementById('leaderBioInput').value || '').trim();
   const editId = (document.getElementById('leaderEditId').value || '').trim();
 
-  if (!name || !bio) {
-    alert('Please complete all required fields.');
+  if (!name || !position) {
+    alert('Please enter both the Executive Position and Full Name.');
     return;
   }
 
+  const defaultBio = `${name} serves as ${position} on the Executive Leadership Council of the CIC Alumni 1995 Set.`;
   const leaderPayload = {
     id: editId || 'lead-' + Date.now(),
     name,
@@ -2053,8 +2095,8 @@ window.saveAdminLeader = function(event) {
     classYear,
     phone,
     email,
-    photo,
-    bio
+    photo: photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+    bio: bio || defaultBio
   };
 
   if (editId) {
@@ -2228,19 +2270,59 @@ function resetAdminMemberForm() {
   }
 }
 
+window.handleQuickMemberUpload = function(event) {
+  event.preventDefault();
+  const nameInput = document.getElementById('quickMemberName');
+  const emailInput = document.getElementById('quickMemberEmail');
+
+  const name = (nameInput ? nameInput.value : '').trim();
+  const email = (emailInput ? emailInput.value : '').trim();
+
+  if (!name || !email) {
+    alert('Please enter both Member Full Name and Email Address.');
+    return;
+  }
+
+  const newMember = {
+    id: 'mem-1995-' + Date.now(),
+    name: name,
+    email: email,
+    phone: '',
+    chapter: 'Enugu Central',
+    classYear: 'Class of 1995',
+    profession: 'Alumnus',
+    duesStatus: 'Active',
+    dateJoined: new Date().toISOString().split('T')[0]
+  };
+
+  DataStore.addMember(newMember);
+
+  if (nameInput) nameInput.value = '';
+  if (emailInput) emailInput.value = '';
+
+  if (typeof showReceiptToast === 'function') {
+    showReceiptToast(`✓ Uploaded member "${name}" (${email})!`, 'success');
+  } else {
+    alert(`✓ Successfully registered ${name} (${email}) into the roster!`);
+  }
+
+  updateLeadershipMembersCounts();
+  renderAdminMembers();
+};
+
 window.saveAdminMember = function(event) {
   event.preventDefault();
   const name = document.getElementById('memberNameInput').value.trim();
-  const phone = document.getElementById('memberPhoneInput').value.trim();
   const email = (document.getElementById('memberEmailInput').value || '').trim();
+  const phone = (document.getElementById('memberPhoneInput').value || '').trim();
   const chapter = document.getElementById('memberChapterSelect').value;
   const classYear = (document.getElementById('memberClassYearInput').value || '').trim() || 'Class of 1995';
   const profession = (document.getElementById('memberProfessionInput').value || '').trim() || 'Alumnus';
   const duesStatus = document.getElementById('memberDuesStatusSelect').value;
   const editId = (document.getElementById('memberEditId').value || '').trim();
 
-  if (!name || !phone) {
-    alert('Please enter member name and contact phone number.');
+  if (!name || !email) {
+    alert('Please enter both Member Full Name and Email Address.');
     return;
   }
 
@@ -2445,14 +2527,44 @@ window.handleAdminBulkCsvFile = function(event) {
   reader.readAsText(file);
 };
 
+window.handleBulkTargetChange = function() {
+  const targetSel = document.getElementById('bulkTargetSelect');
+  if (!targetSel) return;
+  const target = targetSel.value;
+
+  const formatDisp = document.getElementById('bulkFormatDisplay');
+  const textLabel = document.getElementById('bulkCsvTextInputLabel');
+  const textInput = document.getElementById('bulkCsvTextInput');
+  const btnL = document.getElementById('btnDownloadTemplateLeaders');
+  const btnM = document.getElementById('btnDownloadTemplateMembers');
+  const dropzoneTitle = document.getElementById('bulkDropzoneTitle');
+
+  if (target === 'leadership') {
+    if (formatDisp) formatDisp.innerHTML = '<code>Position, Name</code> (e.g. National President, Dr. Jude Okafor)';
+    if (textLabel) textLabel.textContent = 'Paste Leadership Records (Position, Name) — One per line:';
+    if (textInput) textInput.placeholder = 'National President, Dr. Jude Okafor\nVice President, Engr. Emeka Nwankwo\nFinancial Secretary, Engr. Ilo\nNational Treasurer, Dr. Chinwe Okonkwo\nGeneral Secretary, Barr. Tunde Balogun';
+    if (btnL) btnL.style.display = 'inline-flex';
+    if (btnM) btnM.style.display = 'none';
+    if (dropzoneTitle) dropzoneTitle.textContent = 'Upload Leadership CSV (Position, Name)';
+  } else {
+    if (formatDisp) formatDisp.innerHTML = '<code>Name, Email Address</code> (e.g. Chukwuebuka Eze, ebuka.eze@example.com)';
+    if (textLabel) textLabel.textContent = 'Paste Member Records (Name, Email Address) — One per line:';
+    if (textInput) textInput.placeholder = 'Chukwuebuka O. Eze, ebuka.eze@example.com\nEngr. Michael Adebayo, m.adebayo@cic1995.org\nDr. Jude N. Eze, jude.eze@example.com\nArc. Emeka Nnamani, e.nnamani@archstudio.com';
+    if (btnL) btnL.style.display = 'none';
+    if (btnM) btnM.style.display = 'inline-flex';
+    if (dropzoneTitle) dropzoneTitle.textContent = 'Upload Members CSV (Name, Email Address)';
+  }
+};
+
 window.processAdminBulkRosterUpload = function() {
   const textInput = document.getElementById('bulkCsvTextInput');
-  const target = document.getElementById('bulkTargetSelect').value;
+  const targetSel = document.getElementById('bulkTargetSelect');
+  const target = targetSel ? targetSel.value : 'members';
   const alertEl = document.getElementById('bulkUploadResultAlert');
 
   const rawText = (textInput ? textInput.value : '').trim();
   if (!rawText) {
-    alert('Please choose a CSV file or paste spreadsheet rows in the text area.');
+    alert('Please choose a CSV file or paste spreadsheet rows into the space provided.');
     return;
   }
 
@@ -2464,71 +2576,105 @@ window.processAdminBulkRosterUpload = function() {
 
   let startIdx = 0;
   const headerLower = lines[0].toLowerCase();
-  if (headerLower.includes('name') || headerLower.includes('chapter') || headerLower.includes('email') || headerLower.includes('position')) {
+  if (headerLower.includes('name') || headerLower.includes('position') || headerLower.includes('email') || headerLower.includes('chapter')) {
     startIdx = 1;
   }
 
-  const parsedItems = [];
-  for (let i = startIdx; i < lines.length; i++) {
-    const line = lines[i];
-    const parts = line.split(/[,\t]/).map(p => p.trim().replace(/^["']|["']$/g, ''));
-    if (parts.length >= 1 && parts[0]) {
-      parsedItems.push({
-        name: parts[0],
-        secondary: parts[1] || '',
-        phone: parts[2] || '',
-        email: parts[3] || '',
-        classYear: parts[4] || 'Class of 1995',
-        profession: parts[5] || 'Alumnus',
-        status: parts[6] || 'Active'
-      });
-    }
-  }
-
-  if (parsedItems.length === 0) {
-    alert('Could not parse any valid records from the provided content.');
-    return;
-  }
+  const knownPositions = [
+    'president', 'vice', 'secretary', 'treasurer', 'financial', 'pro', 'relations', 
+    'welfare', 'officer', 'legal', 'adviser', 'ex-officio', 'chairman', 'director', 'provost'
+  ];
 
   if (target === 'leadership') {
     let count = 0;
-    parsedItems.forEach((item, idx) => {
-      DataStore.addLeader({
-        id: 'lead-' + Date.now() + '-' + idx,
-        name: item.name,
-        position: item.secondary || 'Executive Committee Member',
-        classYear: item.classYear || 'Class of 1995',
-        phone: item.phone || '',
-        email: item.email || '',
-        photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
-        bio: `${item.name} serves the CIC Alumni 1995 Set Executive Leadership Council.`
-      });
-      count++;
-    });
+    for (let i = startIdx; i < lines.length; i++) {
+      const line = lines[i];
+      const parts = line.split(/[,\t]/).map(p => p.trim().replace(/^["']|["']$/g, ''));
+      if (parts.length >= 1 && parts[0]) {
+        let position = 'Executive Member';
+        let name = parts[0];
+
+        if (parts.length >= 2 && parts[1]) {
+          const p0Lower = parts[0].toLowerCase();
+          const isP0Pos = knownPositions.some(k => p0Lower.includes(k));
+          if (isP0Pos) {
+            position = parts[0];
+            name = parts[1];
+          } else {
+            name = parts[0];
+            position = parts[1];
+          }
+        }
+
+        DataStore.addLeader({
+          id: 'lead-' + Date.now() + '-' + i,
+          name: name,
+          position: position,
+          classYear: parts[2] || 'Class of 1995',
+          phone: parts[3] || '',
+          email: parts[4] || '',
+          photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80',
+          bio: `${name} serves as ${position} on the Executive Leadership Council of the CIC Alumni 1995 Set.`
+        });
+        count++;
+      }
+    }
 
     if (alertEl) {
       alertEl.style.display = 'block';
       alertEl.style.background = 'rgba(34, 197, 94, 0.12)';
       alertEl.style.color = '#15803D';
       alertEl.style.border = '1px solid #86EFAC';
-      alertEl.textContent = `✓ Successfully imported ${count} Executive Leadership profile(s)!`;
+      alertEl.textContent = `✓ Successfully imported and published ${count} Executive Leadership profile(s) (Position & Name)!`;
     }
 
-    alert(`✓ Successfully imported and published ${count} Executive Leadership profile(s)!`);
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast(`✓ Imported ${count} leadership profiles!`, 'success');
+    } else {
+      alert(`✓ Successfully imported and published ${count} Executive Leadership profile(s)!`);
+    }
+
     updateLeadershipMembersCounts();
     switchLeadershipMembersSubtab('leaders');
     if (typeof renderLeadership === 'function') renderLeadership();
 
   } else {
-    const membersToInsert = parsedItems.map(item => ({
-      name: item.name,
-      chapter: item.secondary || 'Enugu Central',
-      phone: item.phone,
-      email: item.email,
-      classYear: item.classYear || 'Class of 1995',
-      profession: item.profession || 'Alumnus',
-      duesStatus: item.status || 'Active'
-    }));
+    let count = 0;
+    const membersToInsert = [];
+
+    for (let i = startIdx; i < lines.length; i++) {
+      const line = lines[i];
+      const parts = line.split(/[,\t]/).map(p => p.trim().replace(/^["']|["']$/g, ''));
+      if (parts.length >= 1 && parts[0]) {
+        let name = parts[0];
+        let email = '';
+
+        if (parts.length >= 2 && parts[1]) {
+          if (parts[1].includes('@')) {
+            name = parts[0];
+            email = parts[1];
+          } else if (parts[0].includes('@')) {
+            email = parts[0];
+            name = parts[1];
+          } else {
+            name = parts[0];
+            email = parts[1];
+          }
+        } else {
+          email = `${name.toLowerCase().replace(/[^a-z0-9]/g, '.')}@cic1995.org`;
+        }
+
+        membersToInsert.push({
+          name: name,
+          email: email,
+          phone: parts[2] || '',
+          chapter: parts[3] || 'Enugu Central',
+          classYear: parts[4] || 'Class of 1995',
+          profession: parts[5] || 'Alumnus',
+          duesStatus: parts[6] || 'Active'
+        });
+      }
+    }
 
     const added = DataStore.bulkAddMembers(membersToInsert);
 
@@ -2537,10 +2683,15 @@ window.processAdminBulkRosterUpload = function() {
       alertEl.style.background = 'rgba(34, 197, 94, 0.12)';
       alertEl.style.color = '#15803D';
       alertEl.style.border = '1px solid #86EFAC';
-      alertEl.textContent = `✓ Successfully imported ${added} Alumni Member(s) into the Class of 1995 Roster!`;
+      alertEl.textContent = `✓ Successfully imported ${added} Alumni Member(s) with Name & Email Address!`;
     }
 
-    alert(`✓ Successfully imported ${added} Alumni Member(s) into the Class of 1995 Roster!`);
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast(`✓ Imported ${added} members into roster!`, 'success');
+    } else {
+      alert(`✓ Successfully imported ${added} Alumni Member(s) into the Class of 1995 Roster!`);
+    }
+
     updateLeadershipMembersCounts();
     switchLeadershipMembersSubtab('members');
   }
@@ -2548,18 +2699,39 @@ window.processAdminBulkRosterUpload = function() {
   if (textInput) textInput.value = '';
 };
 
-window.downloadMembersCsvTemplate = function() {
+window.downloadLeadershipCsvTemplate = function() {
   const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
-    'Name,ChapterOrPosition,Phone,Email,ClassYear,Profession,Status\n' +
-    'Engr. Michael C. Adebayo,Lagos Main,08034521109,m.adebayo@cic1995.org,Class of 1995,Civil Engineer,Active\n' +
-    'Dr. (Mrs.) Chinwe E. Okonkwo,Enugu Central,08029814452,c.okonkwo@cic1995.org,Class of 1995,Consultant Pediatrician,Active\n' +
-    'Barr. Tunde O. Balogun,Abuja FCT,08187762210,tunde.balogun@legalpartners.ng,Class of 1995,Senior Counsel,Active\n' +
-    'Mr. Franklyn I. Chukwuma,Lagos Main,07031189033,f.chukwuma@fincapital.com,Class of 1995,Chartered Accountant,Active\n' +
-    'Arc. Emeka J. Nnamani,Enugu Central,08039923411,e.nnamani@archstudio.com,Class of 1995,Principal Architect,Active'
+    'Position,Name\n' +
+    'National President,Dr. Jude O. Okafor\n' +
+    'Vice President,Engr. Emeka Nwankwo\n' +
+    'Financial Secretary,Engr. Ilo\n' +
+    'National Treasurer,Dr. Chinwe Okonkwo\n' +
+    'General Secretary,Barr. Tunde Balogun\n' +
+    'Public Relations Officer,Mr. Franklyn Chukwuma\n' +
+    'National Welfare Officer,Arc. Emeka Nnamani\n' +
+    'Legal Adviser,Barr. Obinna Umeh'
   );
   const link = document.createElement('a');
   link.setAttribute('href', csvContent);
-  link.setAttribute('download', 'cic_alumni_1995_members_template.csv');
+  link.setAttribute('download', 'CIC_Leadership_Position_Name_Template.csv');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
+window.downloadMembersCsvTemplate = function() {
+  const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(
+    'Name,Email\n' +
+    'Chukwuebuka O. Eze,ebuka.eze@example.com\n' +
+    'Engr. Michael C. Adebayo,m.adebayo@cic1995.org\n' +
+    'Dr. Chinwe E. Okonkwo,c.okonkwo@cic1995.org\n' +
+    'Barr. Tunde O. Balogun,tunde.balogun@legalpartners.ng\n' +
+    'Mr. Franklyn I. Chukwuma,f.chukwuma@fincapital.com\n' +
+    'Arc. Emeka J. Nnamani,e.nnamani@archstudio.com'
+  );
+  const link = document.createElement('a');
+  link.setAttribute('href', csvContent);
+  link.setAttribute('download', 'CIC_Members_Name_Email_Template.csv');
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

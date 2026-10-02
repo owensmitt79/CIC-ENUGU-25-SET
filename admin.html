@@ -988,10 +988,14 @@
                     Import multiple alumni members or leadership executives at once using CSV spreadsheets or pasted records.
                   </p>
                 </div>
-                <div style="display: flex; gap: 0.5rem;">
-                  <button type="button" class="btn btn-sm btn-outline-blue" onclick="downloadMembersCsvTemplate()">
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                  <button type="button" class="btn btn-sm btn-outline-blue" id="btnDownloadTemplateLeaders" onclick="downloadLeadershipCsvTemplate()" style="display: none;">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                    Download CSV Template
+                    Download Leadership CSV (Position, Name)
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-blue" id="btnDownloadTemplateMembers" onclick="downloadMembersCsvTemplate()">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    Download Members CSV (Name, Email)
                   </button>
                 </div>
               </div>
@@ -1000,15 +1004,15 @@
               <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;">
                 <div class="form-group" style="margin-bottom: 0;">
                   <label class="form-label" for="bulkTargetSelect">Import Destination Target <span class="req">*</span></label>
-                  <select id="bulkTargetSelect" class="form-control" style="font-weight: 600;">
-                    <option value="members">👥 Alumni Members Directory (General Set Roster)</option>
-                    <option value="leadership">🏛️ Executive Leadership Council (Portfolio Officers)</option>
+                  <select id="bulkTargetSelect" class="form-control" style="font-weight: 600;" onchange="handleBulkTargetChange()">
+                    <option value="members">👥 Alumni Members Directory (Name &amp; Email Address)</option>
+                    <option value="leadership">🏛️ Executive Leadership Council (Position &amp; Name)</option>
                   </select>
                 </div>
                 <div class="form-group" style="margin-bottom: 0;">
-                  <label class="form-label">Supported Columns Format</label>
-                  <div style="font-size: 0.82rem; color: var(--slate-600); background: var(--cic-blue-50); padding: 0.6rem 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--cic-blue-200);">
-                    <code>Name, Chapter/Position, Phone, Email, ClassYear, Profession, Status</code>
+                  <label class="form-label">Required Columns Format</label>
+                  <div style="font-size: 0.84rem; color: var(--navy-900); background: var(--cic-blue-50); padding: 0.6rem 0.85rem; border-radius: var(--radius-md); border: 1px solid var(--cic-blue-200); font-weight: 600;" id="bulkFormatDisplay">
+                    <code>Name, Email Address</code> (e.g. Chukwuebuka Eze, ebuka.eze@example.com)
                   </div>
                 </div>
               </div>
@@ -1019,20 +1023,20 @@
                 <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--white); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto; box-shadow: var(--shadow-sm);">
                   <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
                 </div>
-                <h5 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.1rem; margin-bottom: 0.25rem;">
+                <h5 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.1rem; margin-bottom: 0.25rem;" id="bulkDropzoneTitle">
                   Click to Browse or Drag &amp; Drop CSV File
                 </h5>
                 <p style="font-size: 0.85rem; color: var(--slate-500); margin: 0;" id="bulkCsvFileNameDisplay">
-                  Select official <code>.csv</code> spreadsheet exported from Excel, Google Sheets, or alumni records.
+                  Select official <code>.csv</code> spreadsheet with columns for Name and Email (or Position and Name for leadership).
                 </p>
               </div>
 
               <!-- Alternative: Direct Paste Box -->
               <div style="margin-top: 1.5rem;">
-                <label class="form-label" for="bulkCsvTextInput">
-                  Or Paste Spreadsheet Rows Directly (Comma or Tab separated):
+                <label class="form-label" for="bulkCsvTextInput" id="bulkCsvTextInputLabel" style="font-weight: 700; color: var(--navy-900);">
+                  Paste Member Records (Name, Email Address) — One per line:
                 </label>
-                <textarea id="bulkCsvTextInput" class="form-control" rows="4" style="font-family: monospace; font-size: 0.82rem;" placeholder="Engr. Emeka Okafor, Enugu Central, 08031234567, emeka@example.com, Class of 1995, Civil Engineer, Active&#10;Dr. Jude N. Eze, Lagos Main, 08029876543, jude.eze@example.com, Class of 1995, Consultant Surgeon, Active"></textarea>
+                <textarea id="bulkCsvTextInput" class="form-control" rows="4" style="font-family: monospace; font-size: 0.84rem;" placeholder="Chukwuebuka O. Eze, ebuka.eze@example.com&#10;Engr. Michael Adebayo, m.adebayo@cic1995.org&#10;Dr. Jude N. Eze, jude.eze@example.com&#10;Arc. Emeka Nnamani, e.nnamani@archstudio.com"></textarea>
               </div>
 
               <!-- Action Buttons & Notification -->
@@ -1055,7 +1059,61 @@
                SUBSECTION 2: EXECUTIVE LEADERSHIP
                ========================================== -->
           <div id="adminLeadersSection">
-            <!-- Add / Edit Executive Studio Card -->
+            <!-- Dedicated Space: Fast Upload Executive Leadership (Position & Name) -->
+            <div class="admin-quick-upload-card" style="border: 2px solid var(--cic-blue-600); margin-bottom: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                  <span class="section-badge" style="background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-700); font-size: 0.75rem;">Leadership Ingestion</span>
+                  <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0.25rem 0 0.15rem 0;">
+                    Upload Executive Leadership
+                  </h4>
+                  <p style="font-size: 0.88rem; color: var(--slate-600); margin: 0;">
+                    Provide the official <strong>Executive Position</strong> and <strong>Full Name</strong> to instantly register leadership into the association executive council.
+                  </p>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-blue" onclick="toggleAdminLeaderForm()">
+                  + Detailed Profile Form (Photo &amp; Bio)
+                </button>
+              </div>
+
+              <form id="quickLeaderUploadForm" onsubmit="handleQuickLeaderUpload(event)">
+                <div class="admin-quick-grid">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="quickLeaderPosition" style="font-weight: 700; color: var(--navy-900); font-size: 0.92rem;">
+                      Executive Position / Office <span class="req" style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" id="quickLeaderPosition" list="leadershipPositionsList" class="form-control" placeholder="e.g. National President" required style="font-weight: 600; height: 46px;">
+                    <datalist id="leadershipPositionsList">
+                      <option value="National President">
+                      <option value="Vice President">
+                      <option value="General Secretary">
+                      <option value="Assistant Secretary">
+                      <option value="Financial Secretary">
+                      <option value="National Treasurer">
+                      <option value="Public Relations Officer">
+                      <option value="National Welfare Officer">
+                      <option value="Legal Adviser">
+                      <option value="Ex-Officio Member">
+                      <option value="Committee Chairman">
+                    </datalist>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="quickLeaderName" style="font-weight: 700; color: var(--navy-900); font-size: 0.92rem;">
+                      Full Name &amp; Titles <span class="req" style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" id="quickLeaderName" class="form-control" placeholder="e.g. Dr. Jude O. Okafor" required style="font-weight: 600; height: 46px;">
+                  </div>
+
+                  <button type="submit" class="btn btn-primary btn-lg" style="height: 46px; white-space: nowrap; font-weight: 800; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0 1.75rem;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                    Upload Leadership
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Add / Edit Detailed Executive Studio Card -->
             <div id="adminLeaderFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
                 <h4 id="leaderFormHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
@@ -1071,11 +1129,6 @@
                 <input type="hidden" id="leaderEditId" value="">
 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
-                  <div class="form-group">
-                    <label class="form-label" for="leaderNameInput">Full Name &amp; Academic/Professional Titles <span class="req">*</span></label>
-                    <input type="text" id="leaderNameInput" class="form-control" placeholder="e.g. Engr. Michael C. Adebayo, FNSE" required>
-                  </div>
-
                   <div class="form-group">
                     <label class="form-label" for="leaderPositionSelect">Executive Office / Portfolio <span class="req">*</span></label>
                     <select id="leaderPositionSelect" class="form-control" required onchange="handleLeaderPositionChange()">
@@ -1095,24 +1148,29 @@
                   </div>
 
                   <div class="form-group">
+                    <label class="form-label" for="leaderNameInput">Full Name &amp; Academic/Professional Titles <span class="req">*</span></label>
+                    <input type="text" id="leaderNameInput" class="form-control" placeholder="e.g. Engr. Michael C. Adebayo, FNSE" required>
+                  </div>
+
+                  <div class="form-group">
                     <label class="form-label" for="leaderClassYearInput">Class / Set Year <span class="req">*</span></label>
                     <input type="text" id="leaderClassYearInput" class="form-control" value="Class of 1995" placeholder="e.g. Class of 1995" required>
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label" for="leaderPhoneInput">Official Contact Phone</label>
+                    <label class="form-label" for="leaderPhoneInput">Official Contact Phone (Optional)</label>
                     <input type="tel" id="leaderPhoneInput" class="form-control" placeholder="e.g. 0803 452 1109">
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label" for="leaderEmailInput">Official Email Address</label>
+                    <label class="form-label" for="leaderEmailInput">Official Email Address (Optional)</label>
                     <input type="email" id="leaderEmailInput" class="form-control" placeholder="e.g. m.adebayo@cic1995.org">
                   </div>
                 </div>
 
                 <!-- Executive Photo Upload Bar & Live Circular Preview -->
                 <div style="background: var(--cic-blue-50); border: 1px solid var(--cic-blue-200); border-radius: var(--radius-lg); padding: 1.25rem; margin: 1.25rem 0;">
-                  <label class="form-label" style="margin-bottom: 0.75rem; display: block;">Executive Official Portrait / Photo <span class="req">*</span></label>
+                  <label class="form-label" style="margin-bottom: 0.75rem; display: block;">Executive Official Portrait / Photo (Optional)</label>
                   <div style="display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
                     <div style="position: relative;">
                       <img id="leaderPhotoPreviewImg" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80" alt="Executive Portrait Preview" class="admin-leader-avatar" style="width: 76px; height: 76px; border: 3px solid var(--cic-blue-600);">
@@ -1132,8 +1190,8 @@
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label" for="leaderBioInput">Executive Biography, Citation &amp; Vision Summary <span class="req">*</span></label>
-                  <textarea id="leaderBioInput" class="form-control" rows="3" placeholder="Provide background on professional career, alma mater contributions, and committee portfolio responsibilities..." required></textarea>
+                  <label class="form-label" for="leaderBioInput">Executive Biography, Citation &amp; Vision Summary (Optional)</label>
+                  <textarea id="leaderBioInput" class="form-control" rows="3" placeholder="Provide background on professional career, alma mater contributions, and committee portfolio responsibilities..."></textarea>
                 </div>
 
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem;">
@@ -1169,6 +1227,47 @@
                SUBSECTION 3: ALUMNI MEMBERS DIRECTORY
                ========================================== -->
           <div id="adminMembersSection" style="display: none;">
+            <!-- Dedicated Space: Fast Upload Alumni Member (Name & Email Address) -->
+            <div class="admin-quick-upload-card" style="border: 2px solid var(--emerald-600); margin-bottom: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                  <span class="section-badge" style="background: rgba(5, 150, 105, 0.1); color: #059669; font-size: 0.75rem;">Roster Ingestion</span>
+                  <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0.25rem 0 0.15rem 0;">
+                    Upload Alumni Member
+                  </h4>
+                  <p style="font-size: 0.88rem; color: var(--slate-600); margin: 0;">
+                    Enter the alumnus <strong>Full Name</strong> and <strong>Email Address</strong> to register them into the official Class of 1995 directory.
+                  </p>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-blue" onclick="toggleAdminMemberForm()">
+                  + Detailed Member Form (Chapter &amp; Phone)
+                </button>
+              </div>
+
+              <form id="quickMemberUploadForm" onsubmit="handleQuickMemberUpload(event)">
+                <div class="admin-quick-grid">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="quickMemberName" style="font-weight: 700; color: var(--navy-900); font-size: 0.92rem;">
+                      Member Full Name <span class="req" style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" id="quickMemberName" class="form-control" placeholder="e.g. Chukwuebuka O. Eze" required style="font-weight: 600; height: 46px;">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="quickMemberEmail" style="font-weight: 700; color: var(--navy-900); font-size: 0.92rem;">
+                      Email Address <span class="req" style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="email" id="quickMemberEmail" class="form-control" placeholder="e.g. ebuka.eze@example.com" required style="font-weight: 600; height: 46px;">
+                  </div>
+
+                  <button type="submit" class="btn btn-emerald btn-lg" style="height: 46px; white-space: nowrap; font-weight: 800; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0 1.75rem;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                    Upload Member
+                  </button>
+                </div>
+              </form>
+            </div>
+
             <!-- Add Single Member Studio Card -->
             <div id="adminMemberFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
@@ -1191,13 +1290,13 @@
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label" for="memberPhoneInput">Phone Number <span class="req">*</span></label>
-                    <input type="tel" id="memberPhoneInput" class="form-control" placeholder="e.g. 0803 123 4567" required>
+                    <label class="form-label" for="memberEmailInput">Email Address <span class="req">*</span></label>
+                    <input type="email" id="memberEmailInput" class="form-control" placeholder="e.g. ebuka.eze@example.com" required>
                   </div>
 
                   <div class="form-group">
-                    <label class="form-label" for="memberEmailInput">Email Address</label>
-                    <input type="email" id="memberEmailInput" class="form-control" placeholder="e.g. ebuka.eze@example.com">
+                    <label class="form-label" for="memberPhoneInput">Phone Number (Optional)</label>
+                    <input type="tel" id="memberPhoneInput" class="form-control" placeholder="e.g. 0803 123 4567">
                   </div>
 
                   <div class="form-group">
