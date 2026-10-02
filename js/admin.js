@@ -1929,31 +1929,25 @@ window.switchLeadershipMembersSubtab = function(tab) {
   activeLeadershipMembersSubtab = tab;
   const leadersSec = document.getElementById('adminLeadersSection');
   const membersSec = document.getElementById('adminMembersSection');
-  const bulkSec = document.getElementById('adminBulkUploadSection');
 
   const subtabLeadersBtn = document.getElementById('subtabLeadersBtn');
   const subtabMembersBtn = document.getElementById('subtabMembersBtn');
-  const subtabBulkBtn = document.getElementById('subtabBulkBtn');
 
-  [subtabLeadersBtn, subtabMembersBtn, subtabBulkBtn].forEach(b => {
+  [subtabLeadersBtn, subtabMembersBtn].forEach(b => {
     if (b) b.classList.remove('active');
   });
 
   if (leadersSec) leadersSec.style.display = 'none';
   if (membersSec) membersSec.style.display = 'none';
-  if (bulkSec) bulkSec.style.display = 'none';
 
-  if (tab === 'leaders') {
-    if (leadersSec) leadersSec.style.display = 'block';
-    if (subtabLeadersBtn) subtabLeadersBtn.classList.add('active');
-    renderAdminLeadership();
-  } else if (tab === 'members') {
+  if (tab === 'members') {
     if (membersSec) membersSec.style.display = 'block';
     if (subtabMembersBtn) subtabMembersBtn.classList.add('active');
     renderAdminMembers();
-  } else if (tab === 'bulk') {
-    if (bulkSec) bulkSec.style.display = 'block';
-    if (subtabBulkBtn) subtabBulkBtn.classList.add('active');
+  } else {
+    if (leadersSec) leadersSec.style.display = 'block';
+    if (subtabLeadersBtn) subtabLeadersBtn.classList.add('active');
+    renderAdminLeadership();
   }
 };
 
@@ -2437,7 +2431,7 @@ function renderAdminMembers() {
       <tr>
         <td colspan="5" style="text-align: center; padding: 2.5rem; color: var(--slate-500);">
           <div style="font-size: 1rem; font-weight: 600; color: var(--navy-900); margin-bottom: 0.25rem;">No alumni members match your criteria</div>
-          <div style="font-size: 0.85rem; margin-bottom: 1rem;">Try clearing search filters or add members using the Bulk Upload bar.</div>
+          <div style="font-size: 0.85rem; margin-bottom: 1rem;">Try clearing search filters or add members using the quick upload form above.</div>
           <button type="button" class="btn btn-sm btn-primary" onclick="toggleAdminMemberForm()">+ Add Single Member</button>
         </td>
       </tr>
