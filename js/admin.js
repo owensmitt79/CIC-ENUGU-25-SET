@@ -26,16 +26,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Update gate display credentials
   updateAdminGateCredentialsDisplay();
 
-  // Check if admin is already authenticated in this browser session
-  if (sessionStorage.getItem('cic_admin_logged_in') === 'true') {
+  // Load Admin Dashboard directly on admin page
+  const mainDashboard = document.getElementById('adminMainDashboard');
+  if (mainDashboard) {
     isAdminAuthenticated = true;
-    const authGate = document.getElementById('adminAuthGate');
-    const mainDashboard = document.getElementById('adminMainDashboard');
-    if (authGate && mainDashboard) {
-      authGate.style.display = 'none';
-      mainDashboard.style.display = 'flex';
-      loadAdminDashboardData();
-    }
+    mainDashboard.style.display = 'flex';
+    loadAdminDashboardData();
   }
 
   // Admin Login form
