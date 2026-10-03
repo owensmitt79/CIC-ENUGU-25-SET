@@ -4139,5 +4139,24 @@ button, input, select, textarea {
   }
 }
 
+/* ==========================================================================
+   Project Studio Image Upload Dropzone Styles
+   ========================================================================== */
+.image-upload-dropzone {
+  border: 2px dashed var(--slate-300);
+  border-radius: var(--radius-lg);
+  background: var(--white);
+  transition: all 0.2s ease;
+  overflow: hidden;
+  cursor: pointer;
+}
 
+.image-upload-dropzone:hover {
+  border-color: var(--cic-blue-500);
+  background: rgba(43, 87, 151, 0.02);
+}
 
+.image-upload-dropzone.dragover {
+  border-color: var(--emerald-500);
+  background: rgba(16, 185, 129, 0.05);
+}

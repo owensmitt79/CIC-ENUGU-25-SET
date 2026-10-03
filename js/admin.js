@@ -1603,10 +1603,177 @@ function initAdminProjectsStudio() {
     }
   });
 
-  // Bind preset helper globally
+  // Helper for human-readable file sizes
+  function formatUploadFileSize(bytes) {
+    if (!bytes || bytes <= 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+  }
+
+  // Core file upload processor
+  window.processProjectImageFile = function(file) {
+    if (!file) return;
+    if (!file.type || !file.type.startsWith('image/')) {
+      alert('Please select a valid image file (PNG, JPG, JPEG, WEBP, or GIF).');
+      return;
+    }
+    // Check 5MB limit
+    if (file.size > 5 * 1024 * 1024) {
+      alert('The selected image is larger than 5MB. Please choose a smaller image for fast loading.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      const imgInput = document.getElementById('newProjectImage');
+      if (imgInput) imgInput.value = dataUrl;
+
+      const thumb = document.getElementById('projectUploadThumb');
+      if (thumb) thumb.src = dataUrl;
+
+      const nameEl = document.getElementById('projectUploadFileName');
+      if (nameEl) nameEl.textContent = file.name;
+
+      const statusEl = document.getElementById('projectUploadStatusText');
+      if (statusEl) {
+        statusEl.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Uploaded (${formatUploadFileSize(file.size)})`;
+      }
+
+      updateLivePreview();
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Browse files trigger
+  window.triggerProjectImageBrowse = function() {
+    const fileInput = document.getElementById('projectImageFileInput');
+    if (fileInput) fileInput.click();
+  };
+
+  // File input change handler
+  window.handleProjectImageUpload = function(event) {
+    const file = event.target && event.target.files ? event.target.files[0] : null;
+    if (file) {
+      window.processProjectImageFile(file);
+    }
+  };
+
+  // Remove uploaded image & reset to default
+  window.removeProjectUploadedImage = function() {
+    const imgInput = document.getElementById('newProjectImage');
+    if (imgInput) imgInput.value = 'campus.jpg';
+
+    const fileInput = document.getElementById('projectImageFileInput');
+    if (fileInput) fileInput.value = '';
+
+    const thumb = document.getElementById('projectUploadThumb');
+    if (thumb) thumb.src = 'campus.jpg';
+
+    const nameEl = document.getElementById('projectUploadFileName');
+    if (nameEl) nameEl.textContent = 'campus.jpg (Default Banner)';
+
+    const statusEl = document.getElementById('projectUploadStatusText');
+    if (statusEl) {
+      statusEl.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Ready for publishing`;
+    }
+
+    updateLivePreview();
+  };
+
+  // Toggle optional URL override
+  window.toggleProjectUrlInput = function() {
+    const grp = document.getElementById('projectUrlOverrideGroup');
+    const btn = document.getElementById('toggleProjectUrlBtn');
+    if (!grp) return;
+    if (grp.style.display === 'none' || !grp.style.display) {
+      grp.style.display = 'block';
+      if (btn) btn.textContent = 'Hide URL box';
+      const input = document.getElementById('projectUrlOverrideInput');
+      if (input) input.focus();
+    } else {
+      grp.style.display = 'none';
+      if (btn) btn.textContent = 'Or paste image URL';
+    }
+  };
+
+  // Apply custom URL override
+  window.applyProjectUrlOverride = function() {
+    const input = document.getElementById('projectUrlOverrideInput');
+    if (!input || !input.value.trim()) {
+      alert('Please enter a valid image URL.');
+      return;
+    }
+    const url = input.value.trim();
+    const imgInput = document.getElementById('newProjectImage');
+    if (imgInput) imgInput.value = url;
+
+    const thumb = document.getElementById('projectUploadThumb');
+    if (thumb) thumb.src = url;
+
+    const nameEl = document.getElementById('projectUploadFileName');
+    if (nameEl) nameEl.textContent = url.slice(0, 35) + (url.length > 35 ? '...' : '');
+
+    const statusEl = document.getElementById('projectUploadStatusText');
+    if (statusEl) {
+      statusEl.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> External URL applied`;
+    }
+
+    updateLivePreview();
+  };
+
+  // Dropzone drag-and-drop bindings
+  const dropzone = document.getElementById('projectUploadDropzone');
+  if (dropzone && !dropzone.dataset.boundDrop) {
+    dropzone.dataset.boundDrop = 'true';
+    ['dragenter', 'dragover'].forEach(evtName => {
+      dropzone.addEventListener(evtName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+      });
+    });
+    ['dragleave', 'drop'].forEach(evtName => {
+      dropzone.addEventListener(evtName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      });
+    });
+    dropzone.addEventListener('drop', (e) => {
+      if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        window.processProjectImageFile(e.dataTransfer.files[0]);
+      }
+    });
+  }
+
+  // Clear all projects helper for full admin control
+  window.clearAllAdminProjects = function() {
+    const count = DataStore.getProjects().length;
+    if (count === 0) {
+      alert('There are currently no projects in the directory.');
+      return;
+    }
+
+    if (confirm(`ADMIN CONFIRMATION:\n\nAre you sure you want to permanently clear all ${count} project(s) from the portal?\n\nThis will give you a clean slate to create and control brand-new initiatives.`)) {
+      DataStore.clearAllProjects();
+      renderAdminProjects();
+      loadAdminDashboardData();
+      if (typeof renderProjects === 'function') {
+        renderProjects();
+      }
+      alert('All projects have been cleared. The admin now has full control to create and publish new initiatives.');
+    }
+  };
+
+  // Bind preset helper globally for backwards compatibility
   window.setProjectStudioImage = function(url) {
     if (imageInput) {
       imageInput.value = url;
+      const thumb = document.getElementById('projectUploadThumb');
+      if (thumb) thumb.src = url;
       updateLivePreview();
     }
   };
@@ -1714,6 +1881,29 @@ window.resetProjectStudioForm = function() {
 
   const imageInput = document.getElementById('newProjectImage');
   if (imageInput) imageInput.value = 'campus.jpg';
+
+  const fileInput = document.getElementById('projectImageFileInput');
+  if (fileInput) fileInput.value = '';
+
+  const uploadThumb = document.getElementById('projectUploadThumb');
+  if (uploadThumb) uploadThumb.src = 'campus.jpg';
+
+  const uploadFileName = document.getElementById('projectUploadFileName');
+  if (uploadFileName) uploadFileName.textContent = 'campus.jpg (Default Banner)';
+
+  const uploadStatus = document.getElementById('projectUploadStatusText');
+  if (uploadStatus) {
+    uploadStatus.innerHTML = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Ready for publishing';
+  }
+
+  const urlOverrideGroup = document.getElementById('projectUrlOverrideGroup');
+  if (urlOverrideGroup) urlOverrideGroup.style.display = 'none';
+
+  const urlOverrideBtn = document.getElementById('toggleProjectUrlBtn');
+  if (urlOverrideBtn) urlOverrideBtn.textContent = 'Or paste image URL';
+
+  const urlOverrideInput = document.getElementById('projectUrlOverrideInput');
+  if (urlOverrideInput) urlOverrideInput.value = '';
 
   const targetInput = document.getElementById('newProjectTarget');
   if (targetInput) targetInput.value = '25000000';
@@ -1946,6 +2136,20 @@ window.editProjectInAdmin = function(projectId) {
   if (donorsInput) donorsInput.value = prj.donorCount || 0;
   if (imageInput) imageInput.value = prj.image || 'campus.jpg';
   if (descInput) descInput.value = prj.description || '';
+
+  // Update image upload preview card
+  const uploadThumb = document.getElementById('projectUploadThumb');
+  if (uploadThumb) uploadThumb.src = prj.image || 'campus.jpg';
+
+  const uploadFileName = document.getElementById('projectUploadFileName');
+  if (uploadFileName) {
+    uploadFileName.textContent = prj.title ? `${prj.title.slice(0, 30)} (Current Banner)` : 'Current Banner';
+  }
+
+  const uploadStatus = document.getElementById('projectUploadStatusText');
+  if (uploadStatus) {
+    uploadStatus.innerHTML = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Current banner loaded';
+  }
 
   // Update studio headers
   const headerTitle = document.getElementById('projectStudioHeaderTitle');

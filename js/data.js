@@ -282,52 +282,7 @@ const DEFAULT_EVENTS = [
   }
 ];
 
-const DEFAULT_PROJECTS = [
-  {
-    id: 'prj-01',
-    title: 'Modern Ultra-Modern Science & STEM Laboratories',
-    description: 'Refurbishment of Physics, Chemistry, and Biology laboratories with state-of-the-art digital sensors, robotics kits, and safety fixtures.',
-    targetAmount: 25000000,
-    raisedAmount: 18750000,
-    donorCount: 142,
-    status: 'active',
-    category: 'Infrastructure',
-    image: 'https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'prj-02',
-    title: 'Alumni Endowment & Indigent Scholarship Fund',
-    description: 'Providing tuition, book allowances, and campus stipends for 50 brilliant but economically challenged undergraduate students annually.',
-    targetAmount: 15000000,
-    raisedAmount: 12200000,
-    donorCount: 218,
-    status: 'active',
-    category: 'Scholarship',
-    image: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'prj-03',
-    title: 'High-Speed Campus ICT Hub & Solar Power Array',
-    description: 'Installation of a 30kW solar inverter system and 100-workstation digital research hub with fiber optic internet for students.',
-    targetAmount: 35000000,
-    raisedAmount: 29400000,
-    donorCount: 305,
-    status: 'active',
-    category: 'Technology',
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80'
-  },
-  {
-    id: 'prj-04',
-    title: 'Alumni Healthcare & Elderly Welfare Shield',
-    description: 'Subsidized health insurance pool and emergency distress support fund for elderly and disabled alumni members.',
-    targetAmount: 10000000,
-    raisedAmount: 6800000,
-    donorCount: 89,
-    status: 'active',
-    category: 'Welfare',
-    image: 'https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80'
-  }
-];
+const DEFAULT_PROJECTS = [];
 
 const DEFAULT_NEWS = [
   {
@@ -633,7 +588,15 @@ const DataStore = {
   },
 
   getProjects() {
-    return this.get(STORAGE_KEYS.PROJECTS) || DEFAULT_PROJECTS;
+    const raw = this.get(STORAGE_KEYS.PROJECTS);
+    if (!raw) return DEFAULT_PROJECTS;
+    // Filter out legacy dummy projects so admin has full control
+    const legacyIds = ['prj-01', 'prj-02', 'prj-03', 'prj-04'];
+    const cleaned = raw.filter(p => p && !legacyIds.includes(p.id));
+    if (cleaned.length !== raw.length) {
+      this.saveProjects(cleaned);
+    }
+    return cleaned;
   },
 
   saveProjects(prjs) {
@@ -652,6 +615,11 @@ const DataStore = {
     projects = projects.filter(p => p.id !== projectId);
     this.saveProjects(projects);
     return projects;
+  },
+
+  clearAllProjects() {
+    this.saveProjects([]);
+    return [];
   },
 
   updateProjectAmount(projectId, addedAmount) {

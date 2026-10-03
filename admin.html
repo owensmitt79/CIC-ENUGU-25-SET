@@ -724,13 +724,19 @@
                 Developmental Projects &amp; Initiatives
               </h3>
               <p style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
-                Manage alumni development goals, monitor donation inflows, record direct allocations, and publish new school projects.
+                Admin Controller: Full executive control to create, upload banners, publish, edit, monitor donations, and manage all alumni initiatives.
               </p>
             </div>
-            <button type="button" class="btn btn-primary" onclick="switchToCreateProjectTab()" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; padding: 0.75rem 1.4rem;">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-              + Create New Project
-            </button>
+            <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+              <button type="button" class="btn btn-outline-light" onclick="clearAllAdminProjects()" style="color: var(--danger); border-color: #fca5a5; font-size: 0.85rem;" title="Remove all projects and reset directory">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; vertical-align: middle;"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                Clear All Projects
+              </button>
+              <button type="button" class="btn btn-primary" onclick="switchToCreateProjectTab()" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700; padding: 0.75rem 1.4rem;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                + Create New Project
+              </button>
+            </div>
           </div>
 
           <!-- Project Financial Overview KPIs -->
@@ -866,17 +872,61 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1.25rem;">
-                  <label class="form-label" for="newProjectImage">Project Banner Image URL <span class="req" style="color: var(--danger);">*</span></label>
-                  <input type="text" id="newProjectImage" class="form-control" placeholder="campus.jpg or image URL" value="campus.jpg" required>
-                  <div style="display: flex; gap: 0.4rem; margin-top: 0.6rem; align-items: center; flex-wrap: wrap;">
-                    <span style="font-size: 0.78rem; color: var(--slate-500); font-weight: 600;">Presets:</span>
-                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('campus.jpg')">Campus</button>
-                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('hero-bg.jpg')">Panorama</button>
-                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('cic-statue.jpg')">Semper Fidelis</button>
-                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('https://images.unsplash.com/photo-1562774053-701939374585?auto=format&fit=crop&w=800&q=80')">STEM Labs</button>
-                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&q=80')">Scholarship</button>
-                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80')">ICT Solar</button>
-                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.55rem; font-size: 0.75rem;" onclick="setProjectStudioImage('https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=800&q=80')">Healthcare</button>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
+                    <label class="form-label" style="margin-bottom: 0;">Upload Project Banner Image <span class="req" style="color: var(--danger);">*</span></label>
+                    <button type="button" class="btn btn-link" id="toggleProjectUrlBtn" onclick="toggleProjectUrlInput()" style="font-size: 0.78rem; padding: 0; color: var(--cic-blue-600); text-decoration: underline; background: none; border: none; cursor: pointer;">
+                      Or paste image URL
+                    </button>
+                  </div>
+
+                  <!-- File Input (Hidden) -->
+                  <input type="file" id="projectImageFileInput" accept="image/*" style="display: none;" onchange="handleProjectImageUpload(event)">
+                  <!-- Stored Image Value (Base64 data URL or path) -->
+                  <input type="hidden" id="newProjectImage" value="campus.jpg" required>
+
+                  <!-- Modern Drag & Drop Zone -->
+                  <div id="projectUploadDropzone" class="image-upload-dropzone" onclick="triggerProjectImageBrowse()" style="padding: 1.5rem 1rem; text-align: center; border: 2px dashed var(--slate-300); border-radius: var(--radius-lg); background: var(--slate-50); cursor: pointer; transition: all 0.2s ease;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem auto;">
+                      <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <div style="font-weight: 700; color: var(--navy-900); font-size: 0.95rem; margin-bottom: 0.25rem;">
+                      Click to upload banner image, or drag &amp; drop here
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--slate-500); margin: 0; max-width: 380px; margin: 0 auto;">
+                      Supports PNG, JPG, JPEG, WEBP or GIF. Instant preview and saved directly into portal storage.
+                    </p>
+                  </div>
+
+                  <!-- Active Upload Preview Card (shown when an image is loaded) -->
+                  <div id="projectUploadPreviewCard" style="margin-top: 0.75rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; align-items: center; gap: 0.85rem; overflow: hidden;">
+                      <img id="projectUploadThumb" src="campus.jpg" alt="Banner Preview" style="width: 58px; height: 44px; object-fit: cover; border-radius: 6px; border: 1px solid var(--slate-200); flex-shrink: 0;" onerror="this.src='campus.jpg'">
+                      <div style="overflow: hidden;">
+                        <div id="projectUploadFileName" style="font-weight: 600; font-size: 0.88rem; color: var(--navy-900); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px;">
+                          campus.jpg (Default Banner)
+                        </div>
+                        <div id="projectUploadStatusText" style="font-size: 0.76rem; color: var(--emerald-600); font-weight: 600; display: flex; align-items: center; gap: 4px;">
+                          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                          Ready for publishing
+                        </div>
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 0.4rem; flex-shrink: 0;">
+                      <button type="button" class="btn btn-sm btn-outline-light" onclick="triggerProjectImageBrowse()" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;">
+                        Replace Image
+                      </button>
+                      <button type="button" class="btn btn-sm btn-outline-light" onclick="removeProjectUploadedImage()" style="padding: 0.3rem 0.65rem; font-size: 0.78rem; color: var(--danger); border-color: #fecaca;" title="Remove and reset">
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Optional URL override container (hidden by default) -->
+                  <div id="projectUrlOverrideGroup" style="display: none; margin-top: 0.75rem;">
+                    <div style="display: flex; gap: 0.5rem;">
+                      <input type="text" id="projectUrlOverrideInput" class="form-control" placeholder="Paste custom image URL (https://...)" style="font-size: 0.88rem;">
+                      <button type="button" class="btn btn-sm btn-primary" onclick="applyProjectUrlOverride()" style="white-space: nowrap;">Apply URL</button>
+                    </div>
                   </div>
                 </div>
 
