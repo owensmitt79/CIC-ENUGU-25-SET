@@ -234,8 +234,7 @@ The **Executive Admin Dashboard** (`.html` and `js/admin.js`) is protected by PI
 | `adminPane_CreateProject` | Project Creation Studio | New initiative publisher, **Image Upload Dropzone** (drag-and-drop, base64 file reader, preview thumbnail), live preview card |
 | `adminPane_Categories` | Dues Categories Controller | **Rename Dues**, **Delete Dues**, add custom payment types, inspect payer rosters per category with totals |
 | `adminPane_Leadership` | Executive Council Manager | Update executive names, offices, profiles, and upload profile pictures |
-| `adminPane_Members` | Member Directory Manager | Add new alumni, update dues status, edit contact information, filter by chapter |
-| `adminPane_News` | News Publishing Studio | Publish dispatches, toggle featured headline, multi-field search, delete articles |
+| `adminPane_NewsGallery` | News &amp; Photo Gallery Controller | Executive controller bar with dual sub-tabs: (1) News & Announcements Publishing Studio, (2) Alumni Photo Gallery Studio (drag-and-drop file upload, live preview, captions, categories, and live portal synchronization) |
 | `adminPane_Settings` | System Configuration | Adjust statutory monthly dues rate (₦5,000 default), switch payment gateway provider and Test/Live modes, update Admin PIN |
 
 ### 8.2 Project Banner Image Upload Component

@@ -23,11 +23,24 @@ window.addEventListener('storage', function(e) {
 window.switchAdminPane = function(paneId) {
   if (!paneId) return;
 
+  // Map alias panes for News & Gallery
+  let targetPaneId = paneId;
+  let requestedNewsGalleryTab = null;
+  if (paneId === 'adminPane_News') {
+    targetPaneId = 'adminPane_NewsGallery';
+    requestedNewsGalleryTab = 'news';
+  } else if (paneId === 'adminPane_Gallery') {
+    targetPaneId = 'adminPane_NewsGallery';
+    requestedNewsGalleryTab = 'gallery';
+  } else if (paneId === 'adminPane_NewsGallery') {
+    targetPaneId = 'adminPane_NewsGallery';
+  }
+
   // 1. Update buttons
   const allBtns = document.querySelectorAll('.admin-tab-btn');
   allBtns.forEach(btn => {
     const p = btn.dataset.pane || btn.getAttribute('data-pane');
-    if (p === paneId) {
+    if (p === targetPaneId || p === paneId) {
       btn.classList.add('active');
     } else {
       btn.classList.remove('active');
@@ -37,39 +50,52 @@ window.switchAdminPane = function(paneId) {
   // 2. Update panes
   const allPanes = document.querySelectorAll('.admin-pane');
   allPanes.forEach(pane => {
-    if (pane.id === paneId) {
+    if (pane.id === targetPaneId) {
       pane.classList.add('active');
+      pane.style.display = 'block';
     } else {
       pane.classList.remove('active');
+      pane.style.display = 'none';
     }
   });
 
   // 3. Lazy render specific pane data
   try {
-    if (paneId === 'adminPane_Overview') {
+    if (targetPaneId === 'adminPane_Overview') {
       if (typeof loadAdminDashboardData === 'function') loadAdminDashboardData();
-    } else if (paneId === 'adminPane_Payments') {
+    } else if (targetPaneId === 'adminPane_Payments') {
       if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
-    } else if (paneId === 'adminPane_MonthlyDues') {
+    } else if (targetPaneId === 'adminPane_MonthlyDues') {
       if (typeof renderAdminMonthlyDuesTable === 'function') renderAdminMonthlyDuesTable();
-    } else if (paneId === 'adminPane_Categories') {
+    } else if (targetPaneId === 'adminPane_Categories') {
       if (typeof renderAdminCategories === 'function') renderAdminCategories();
-    } else if (paneId === 'adminPane_Events') {
+    } else if (targetPaneId === 'adminPane_Events') {
       if (typeof renderAdminEvents === 'function') renderAdminEvents();
-    } else if (paneId === 'adminPane_Projects') {
+    } else if (targetPaneId === 'adminPane_Projects') {
       if (typeof renderAdminProjects === 'function') renderAdminProjects();
-    } else if (paneId === 'adminPane_CreateProject') {
+    } else if (targetPaneId === 'adminPane_CreateProject') {
       if (typeof initAdminProjectsStudio === 'function') initAdminProjectsStudio();
       const titleInput = document.getElementById('newProjectTitle');
       if (titleInput) titleInput.focus();
-    } else if (paneId === 'adminPane_IssueReceipt') {
+    } else if (targetPaneId === 'adminPane_IssueReceipt') {
       if (typeof initIssueReceiptStudio === 'function') initIssueReceiptStudio();
       const nameInput = document.getElementById('issueMemberName');
       if (nameInput) nameInput.focus();
-    } else if (paneId === 'adminPane_News') {
+    } else if (targetPaneId === 'adminPane_NewsGallery') {
       if (typeof initAdminNewsStudio === 'function') initAdminNewsStudio();
-      if (typeof renderAdminNews === 'function') renderAdminNews();
-    } else if (paneId === 'adminPane_LeadershipMembers') {
+      if (typeof initAdminGalleryStudio === 'function') initAdminGalleryStudio();
+      if (typeof updateNewsGalleryBadgeCounts === 'function') updateNewsGalleryBadgeCounts();
+      if (requestedNewsGalleryTab) {
+        if (typeof switchNewsGallerySubtab === 'function') switchNewsGallerySubtab(requestedNewsGalleryTab);
+      } else {
+        const galSec = document.getElementById('adminGallerySection');
+        if (galSec && galSec.style.display === 'block') {
+          if (typeof switchNewsGallerySubtab === 'function') switchNewsGallerySubtab('gallery');
+        } else {
+          if (typeof switchNewsGallerySubtab === 'function') switchNewsGallerySubtab('news');
+        }
+      }
+    } else if (targetPaneId === 'adminPane_LeadershipMembers') {
       if (typeof initAdminLeadershipMembers === 'function') initAdminLeadershipMembers();
     }
   } catch (err) {
@@ -2638,18 +2664,497 @@ function renderAdminNews() {
 
 window.renderAdminNews = renderAdminNews;
 
-window.switchToNewsTab = function() {
-  document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
+window.switchNewsGallerySubtab = function(tab) {
+  const newsSec = document.getElementById('adminNewsSection');
+  const gallerySec = document.getElementById('adminGallerySection');
 
-  const newsBtn = document.querySelector('[data-pane="adminPane_News"]');
-  const newsPane = document.getElementById('adminPane_News');
-  if (newsBtn) newsBtn.classList.add('active');
-  if (newsPane) newsPane.classList.add('active');
+  const subtabNewsBtn = document.getElementById('subtabNewsBtn');
+  const subtabGalleryBtn = document.getElementById('subtabGalleryBtn');
 
-  initAdminNewsStudio();
-  renderAdminNews();
+  [subtabNewsBtn, subtabGalleryBtn].forEach(b => {
+    if (b) b.classList.remove('active');
+  });
+
+  if (newsSec) newsSec.style.display = 'none';
+  if (gallerySec) gallerySec.style.display = 'none';
+
+  if (tab === 'gallery') {
+    if (gallerySec) gallerySec.style.display = 'block';
+    if (subtabGalleryBtn) subtabGalleryBtn.classList.add('active');
+    initAdminGalleryStudio();
+    renderAdminGallery();
+  } else {
+    if (newsSec) newsSec.style.display = 'block';
+    if (subtabNewsBtn) subtabNewsBtn.classList.add('active');
+    initAdminNewsStudio();
+    renderAdminNews();
+  }
+  updateNewsGalleryBadgeCounts();
 };
+
+window.updateNewsGalleryBadgeCounts = function() {
+  if (typeof DataStore !== 'undefined') {
+    const newsList = DataStore.getNews() || [];
+    const galleryList = DataStore.getGallery() || [];
+    const bNews = document.getElementById('badgeCountNews');
+    const bGal = document.getElementById('badgeCountGallery');
+    if (bNews) bNews.textContent = newsList.length;
+    if (bGal) bGal.textContent = galleryList.length;
+  }
+};
+
+window.switchToNewsTab = function() {
+  switchAdminPane('adminPane_NewsGallery');
+  switchNewsGallerySubtab('news');
+};
+
+window.switchToGalleryTab = function() {
+  switchAdminPane('adminPane_NewsGallery');
+  switchNewsGallerySubtab('gallery');
+};
+
+/**
+ * ============================================================================
+ * Alumni Photo Gallery Controller Suite
+ * ============================================================================
+ */
+function initAdminGalleryStudio() {
+  const form = document.getElementById('adminGalleryForm');
+  const searchInput = document.getElementById('adminSearchGallery');
+  const categoryFilter = document.getElementById('adminGalleryCategoryFilter');
+  const dropzone = document.getElementById('galleryImageDropzone');
+
+  // Bind live search input once
+  if (searchInput && !searchInput.dataset.bound) {
+    searchInput.dataset.bound = 'true';
+    searchInput.addEventListener('input', () => renderAdminGallery());
+  }
+
+  // Bind category filter once
+  if (categoryFilter && !categoryFilter.dataset.bound) {
+    categoryFilter.dataset.bound = 'true';
+    categoryFilter.addEventListener('change', () => renderAdminGallery());
+  }
+
+  // Bind dropzone drag-and-drop once
+  if (dropzone && !dropzone.dataset.bound) {
+    dropzone.dataset.bound = 'true';
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const files = dt.files;
+      if (files && files.length > 0) {
+        handleGalleryPhotoUpload(files[0]);
+      }
+    }, false);
+  }
+}
+
+window.handleGalleryFileSelect = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (file) {
+    handleGalleryPhotoUpload(file);
+  }
+};
+
+function handleGalleryPhotoUpload(file) {
+  if (!file.type.startsWith('image/')) {
+    alert('Please select a valid image file (PNG, JPG, JPEG, WebP).');
+    return;
+  }
+
+  // Read file as Data URL
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
+    const previewBox = document.getElementById('galleryPhotoPreviewBox');
+    const previewImg = document.getElementById('galleryPreviewImg');
+    const fileNameEl = document.getElementById('galleryPreviewFileName');
+    const statusBadge = document.getElementById('galleryPreviewStatusBadge');
+
+    if (dataUrlHidden) dataUrlHidden.value = dataUrl;
+    if (previewImg) previewImg.src = dataUrl;
+    if (fileNameEl) fileNameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    if (statusBadge) statusBadge.textContent = 'File Uploaded & Ready';
+    if (previewBox) previewBox.style.display = 'block';
+
+    // Clear text URL to avoid confusion
+    const urlInput = document.getElementById('galleryPhotoUrlInput');
+    if (urlInput) urlInput.value = '';
+  };
+  reader.readAsDataURL(file);
+}
+
+window.handleGalleryUrlInput = function(val) {
+  val = (val || '').trim();
+  const previewBox = document.getElementById('galleryPhotoPreviewBox');
+  const previewImg = document.getElementById('galleryPreviewImg');
+  const fileNameEl = document.getElementById('galleryPreviewFileName');
+  const statusBadge = document.getElementById('galleryPreviewStatusBadge');
+  const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
+
+  if (val && (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('images/'))) {
+    if (dataUrlHidden) dataUrlHidden.value = val;
+    if (previewImg) {
+      previewImg.src = val;
+      previewImg.onerror = () => {
+        if (previewBox) previewBox.style.display = 'none';
+      };
+      previewImg.onload = () => {
+        if (previewBox) previewBox.style.display = 'block';
+      };
+    }
+    if (fileNameEl) fileNameEl.textContent = val.length > 50 ? val.substring(0, 47) + '...' : val;
+    if (statusBadge) statusBadge.textContent = 'External Image URL';
+    if (previewBox) previewBox.style.display = 'block';
+  } else if (!val && (!dataUrlHidden || !dataUrlHidden.value)) {
+    if (previewBox) previewBox.style.display = 'none';
+  }
+};
+
+window.setGalleryPreset = function(url, title, category, caption) {
+  const urlInput = document.getElementById('galleryPhotoUrlInput');
+  const titleInput = document.getElementById('galleryPhotoTitleInput');
+  const catSelect = document.getElementById('galleryPhotoCategorySelect');
+  const captionInput = document.getElementById('galleryPhotoCaptionInput');
+
+  if (urlInput) urlInput.value = url;
+  if (titleInput) titleInput.value = title;
+  if (catSelect) catSelect.value = category;
+  if (captionInput) captionInput.value = caption;
+
+  handleGalleryUrlInput(url);
+};
+
+window.clearGalleryPhotoPreview = function() {
+  const fileInput = document.getElementById('galleryPhotoFileInput');
+  const urlInput = document.getElementById('galleryPhotoUrlInput');
+  const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
+  const previewBox = document.getElementById('galleryPhotoPreviewBox');
+  const previewImg = document.getElementById('galleryPreviewImg');
+
+  if (fileInput) fileInput.value = '';
+  if (urlInput) urlInput.value = '';
+  if (dataUrlHidden) dataUrlHidden.value = '';
+  if (previewImg) previewImg.src = '';
+  if (previewBox) previewBox.style.display = 'none';
+};
+
+window.toggleAdminGalleryForm = function(forceOpen) {
+  const card = document.getElementById('adminGalleryFormCard');
+  if (!card) return;
+
+  const isHidden = card.style.display === 'none' || !card.style.display;
+  const shouldOpen = forceOpen !== undefined ? forceOpen : isHidden;
+
+  if (shouldOpen) {
+    card.style.display = 'block';
+    const titleInput = document.getElementById('galleryPhotoTitleInput');
+    if (titleInput) titleInput.focus();
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } else {
+    cancelGalleryEdit();
+  }
+};
+
+window.cancelGalleryEdit = function() {
+  const card = document.getElementById('adminGalleryFormCard');
+  const form = document.getElementById('adminGalleryForm');
+  const editId = document.getElementById('galleryPhotoEditId');
+  const headerTitle = document.getElementById('galleryFormHeaderTitle');
+  const btnSave = document.getElementById('btnSaveGalleryPhoto');
+
+  if (form) form.reset();
+  if (editId) editId.value = '';
+  clearGalleryPhotoPreview();
+
+  if (headerTitle) {
+    headerTitle.innerHTML = `
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+      <span>Upload Photo to Alumni Gallery</span>
+    `;
+  }
+
+  if (btnSave) {
+    btnSave.innerHTML = `
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      Save Photo to Gallery
+    `;
+  }
+
+  if (card) card.style.display = 'none';
+};
+
+window.saveAdminGalleryPhoto = function(event) {
+  event.preventDefault();
+
+  const editId = (document.getElementById('galleryPhotoEditId')?.value || '').trim();
+  const title = (document.getElementById('galleryPhotoTitleInput')?.value || '').trim();
+  const category = document.getElementById('galleryPhotoCategorySelect')?.value || 'Reunions';
+  const caption = (document.getElementById('galleryPhotoCaptionInput')?.value || '').trim();
+  const dataUrl = (document.getElementById('galleryPhotoDataUrl')?.value || '').trim();
+  const directUrl = (document.getElementById('galleryPhotoUrlInput')?.value || '').trim();
+  const image = dataUrl || directUrl;
+
+  if (!title) {
+    alert('Please enter a photo title or event name.');
+    return;
+  }
+
+  if (!image) {
+    alert('Please upload an image file or provide a valid photo URL.');
+    return;
+  }
+
+  if (!caption) {
+    alert('Please provide a short caption or context for this photo.');
+    return;
+  }
+
+  if (editId) {
+    // Update existing photo
+    const updated = DataStore.updateGalleryItem({
+      id: editId,
+      title,
+      category,
+      image,
+      caption
+    });
+
+    if (updated) {
+      alert(`✓ Photo "${title}" successfully updated!`);
+    }
+  } else {
+    // Add new photo
+    const newPhoto = {
+      id: 'gal-' + Date.now(),
+      title,
+      category,
+      image,
+      caption
+    };
+
+    DataStore.addGalleryItem(newPhoto);
+    alert(`✓ Photo "${title}" added to the Alumni Gallery! It is now live across the portal.`);
+  }
+
+  cancelGalleryEdit();
+  renderAdminGallery();
+  updateNewsGalleryBadgeCounts();
+
+  // Immediately synchronize public gallery if on page
+  if (typeof renderGallery === 'function') {
+    renderGallery();
+  }
+};
+
+window.editGalleryPhotoInAdmin = function(photoId) {
+  const item = DataStore.findGalleryItemById(photoId);
+  if (!item) {
+    alert('Gallery photo not found.');
+    return;
+  }
+
+  const card = document.getElementById('adminGalleryFormCard');
+  const editId = document.getElementById('galleryPhotoEditId');
+  const titleInput = document.getElementById('galleryPhotoTitleInput');
+  const categorySelect = document.getElementById('galleryPhotoCategorySelect');
+  const captionInput = document.getElementById('galleryPhotoCaptionInput');
+  const urlInput = document.getElementById('galleryPhotoUrlInput');
+  const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
+  const headerTitle = document.getElementById('galleryFormHeaderTitle');
+  const btnSave = document.getElementById('btnSaveGalleryPhoto');
+
+  if (editId) editId.value = item.id;
+  if (titleInput) titleInput.value = item.title || '';
+  if (categorySelect) categorySelect.value = item.category || 'Reunions';
+  if (captionInput) captionInput.value = item.caption || '';
+  if (dataUrlHidden) dataUrlHidden.value = item.image || '';
+
+  if (item.image && (item.image.startsWith('http') || item.image.startsWith('images/'))) {
+    if (urlInput) urlInput.value = item.image;
+  } else {
+    if (urlInput) urlInput.value = '';
+  }
+
+  // Display preview box
+  const previewBox = document.getElementById('galleryPhotoPreviewBox');
+  const previewImg = document.getElementById('galleryPreviewImg');
+  const fileNameEl = document.getElementById('galleryPreviewFileName');
+  const statusBadge = document.getElementById('galleryPreviewStatusBadge');
+
+  if (previewImg) previewImg.src = item.image || '';
+  if (fileNameEl) fileNameEl.textContent = item.title || 'Current Photo';
+  if (statusBadge) statusBadge.textContent = 'Existing Photo Loaded';
+  if (previewBox) previewBox.style.display = 'block';
+
+  if (headerTitle) {
+    headerTitle.innerHTML = `
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+      <span>Edit Photo: "${escapeHtml(item.title)}"</span>
+    `;
+  }
+
+  if (btnSave) {
+    btnSave.innerHTML = `
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      Save Changes &amp; Update
+    `;
+  }
+
+  if (card) {
+    card.style.display = 'block';
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  if (titleInput) titleInput.focus();
+};
+
+window.deleteGalleryPhotoInAdmin = function(photoId) {
+  const item = DataStore.findGalleryItemById(photoId);
+  if (!item) return;
+
+  if (confirm(`Are you sure you want to permanently delete this photo from the gallery?\n\n"${item.title}"\n\nThis will remove it immediately from both the administrative gallery and the public portal.`)) {
+    DataStore.deleteGalleryItem(photoId);
+
+    const editId = document.getElementById('galleryPhotoEditId');
+    if (editId && editId.value === photoId) {
+      cancelGalleryEdit();
+    }
+
+    renderAdminGallery();
+    updateNewsGalleryBadgeCounts();
+
+    if (typeof renderGallery === 'function') {
+      renderGallery();
+    }
+
+    alert(`✓ Photo "${item.title}" has been deleted from the gallery.`);
+  }
+};
+
+window.previewGalleryPhotoInAdmin = function(photoId) {
+  const item = DataStore.findGalleryItemById(photoId);
+  if (!item) return;
+
+  if (typeof openGenericModal === 'function') {
+    openGenericModal(`
+      <div>
+        <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 100%; max-height: 480px; object-fit: contain; background: #0b1120; border-radius: var(--radius-lg) var(--radius-lg) 0 0;" onerror="this.src='images/campus.jpg'">
+        <div style="padding: 1.75rem;">
+          <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+            <span style="background: var(--cic-blue-50); color: var(--cic-blue-700); border: 1px solid var(--cic-blue-200); font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 9999px; text-transform: uppercase;">
+              ${escapeHtml(item.category || 'Gallery')}
+            </span>
+          </div>
+          <h2 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.45rem; line-height: 1.35; margin-bottom: 0.75rem;">
+            ${escapeHtml(item.title)}
+          </h2>
+          <p style="font-size: 0.96rem; color: var(--slate-700); line-height: 1.6; margin: 0;">
+            ${escapeHtml(item.caption)}
+          </p>
+        </div>
+      </div>
+    `);
+  } else {
+    alert(`${item.title}\n\nCategory: ${item.category}\n\n${item.caption}`);
+  }
+};
+
+function renderAdminGallery() {
+  const container = document.getElementById('adminGalleryGrid');
+  if (!container) return;
+
+  const searchVal = (document.getElementById('adminSearchGallery')?.value || '').trim().toLowerCase();
+  const categoryVal = document.getElementById('adminGalleryCategoryFilter')?.value || 'ALL';
+
+  let galleryList = DataStore.getGallery();
+
+  if (categoryVal !== 'ALL') {
+    galleryList = galleryList.filter(g => (g.category || '').toLowerCase() === categoryVal.toLowerCase());
+  }
+
+  if (searchVal) {
+    galleryList = galleryList.filter(g =>
+      (g.title && g.title.toLowerCase().includes(searchVal)) ||
+      (g.caption && g.caption.toLowerCase().includes(searchVal)) ||
+      (g.category && g.category.toLowerCase().includes(searchVal))
+    );
+  }
+
+  if (galleryList.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3.5rem 1.5rem; background: var(--white); border: 1.5px dashed var(--slate-300); border-radius: var(--radius-xl);">
+        <div style="width: 56px; height: 56px; border-radius: 50%; background: var(--slate-100); color: var(--slate-400); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+          <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <h4 style="color: var(--navy-900); font-weight: 700; margin-bottom: 0.35rem; font-family: var(--font-heading); font-size: 1.25rem;">No Photos Found in Archive</h4>
+        <p style="color: var(--slate-500); font-size: 0.9rem; max-width: 440px; margin: 0 auto 1.5rem;">
+          ${searchVal || categoryVal !== 'ALL' ? 'No photos match your active search keyword or category filter.' : 'There are currently no photos uploaded to the Alumni Gallery archive.'}
+        </p>
+        <button type="button" class="btn btn-primary" onclick="toggleAdminGalleryForm(true)" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          + Upload First Photo
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = galleryList.map(item => `
+    <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease;" class="admin-gallery-card-item">
+      <div style="position: relative; height: 210px; background: #0f172a; overflow: hidden; cursor: pointer;" onclick="previewGalleryPhotoInAdmin('${item.id}')">
+        <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease;" onerror="this.src='images/campus.jpg'" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+        <div style="position: absolute; top: 12px; left: 12px;">
+          <span style="background: rgba(15, 23, 42, 0.85); color: #fff; backdrop-filter: blur(4px); font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.65rem; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.2);">
+            ${escapeHtml(item.category || 'General')}
+          </span>
+        </div>
+      </div>
+      <div style="padding: 1.25rem; display: flex; flex-direction: column; flex: 1;">
+        <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.08rem; font-weight: 700; margin-bottom: 0.4rem; line-height: 1.35;">
+          ${escapeHtml(item.title)}
+        </h4>
+        <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 1.25rem; line-height: 1.5; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;">
+          ${escapeHtml(item.caption || '')}
+        </p>
+        <div style="display: flex; gap: 0.5rem; align-items: center; border-top: 1px solid var(--slate-100); padding-top: 0.85rem; flex-wrap: wrap;">
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="previewGalleryPhotoInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.3rem 0.65rem; color: var(--cic-blue-700); border-color: var(--cic-blue-200); font-weight: 600;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 2px;"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            Preview
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="editGalleryPhotoInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.3rem 0.65rem; color: var(--slate-700); border-color: var(--slate-300); font-weight: 600;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 2px;"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Edit
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="deleteGalleryPhotoInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.3rem 0.65rem; color: var(--danger); border-color: rgba(220, 38, 38, 0.3); font-weight: 600; margin-left: auto;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 2px;"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.renderAdminGallery = renderAdminGallery;
+window.initAdminGalleryStudio = initAdminGalleryStudio;
 
 /**
  * Switcher Helpers

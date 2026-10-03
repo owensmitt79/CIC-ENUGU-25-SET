@@ -29,10 +29,23 @@
     function switchAdminPane(paneId) {
       if (!paneId) return;
 
+      // Map alias panes for News & Gallery
+      let targetPaneId = paneId;
+      let requestedNewsGalleryTab = null;
+      if (paneId === 'adminPane_News') {
+        targetPaneId = 'adminPane_NewsGallery';
+        requestedNewsGalleryTab = 'news';
+      } else if (paneId === 'adminPane_Gallery') {
+        targetPaneId = 'adminPane_NewsGallery';
+        requestedNewsGalleryTab = 'gallery';
+      } else if (paneId === 'adminPane_NewsGallery') {
+        targetPaneId = 'adminPane_NewsGallery';
+      }
+
       // 1. Update buttons
       document.querySelectorAll('.admin-tab-btn').forEach(btn => {
         const p = btn.getAttribute('data-pane') || btn.dataset.pane;
-        if (p === paneId) {
+        if (p === targetPaneId || p === paneId) {
           btn.classList.add('active');
         } else {
           btn.classList.remove('active');
@@ -41,7 +54,7 @@
 
       // 2. Update panes (both class and explicit inline style for 100% certainty)
       document.querySelectorAll('.admin-pane').forEach(pane => {
-        if (pane.id === paneId) {
+        if (pane.id === targetPaneId) {
           pane.classList.add('active');
           pane.style.display = 'block';
         } else {
@@ -52,34 +65,84 @@
 
       // 3. Trigger rendering functions safely if loaded
       try {
-        if (paneId === 'adminPane_Overview' && typeof loadAdminDashboardData === 'function') {
+        if (targetPaneId === 'adminPane_Overview' && typeof loadAdminDashboardData === 'function') {
           loadAdminDashboardData();
-        } else if (paneId === 'adminPane_Payments' && typeof filterAndRenderPaymentsTable === 'function') {
+        } else if (targetPaneId === 'adminPane_Payments' && typeof filterAndRenderPaymentsTable === 'function') {
           filterAndRenderPaymentsTable();
-        } else if (paneId === 'adminPane_MonthlyDues' && typeof renderAdminMonthlyDuesTable === 'function') {
+        } else if (targetPaneId === 'adminPane_MonthlyDues' && typeof renderAdminMonthlyDuesTable === 'function') {
           renderAdminMonthlyDuesTable();
-        } else if (paneId === 'adminPane_Categories' && typeof renderAdminCategories === 'function') {
+        } else if (targetPaneId === 'adminPane_Categories' && typeof renderAdminCategories === 'function') {
           renderAdminCategories();
-        } else if (paneId === 'adminPane_Events' && typeof renderAdminEvents === 'function') {
+        } else if (targetPaneId === 'adminPane_Events' && typeof renderAdminEvents === 'function') {
           renderAdminEvents();
-        } else if (paneId === 'adminPane_Projects' && typeof renderAdminProjects === 'function') {
+        } else if (targetPaneId === 'adminPane_Projects' && typeof renderAdminProjects === 'function') {
           renderAdminProjects();
-        } else if (paneId === 'adminPane_CreateProject') {
+        } else if (targetPaneId === 'adminPane_CreateProject') {
           if (typeof initAdminProjectsStudio === 'function') initAdminProjectsStudio();
           const titleInput = document.getElementById('newProjectTitle');
           if (titleInput) titleInput.focus();
-        } else if (paneId === 'adminPane_IssueReceipt') {
+        } else if (targetPaneId === 'adminPane_IssueReceipt') {
           if (typeof initIssueReceiptStudio === 'function') initIssueReceiptStudio();
           const nameInput = document.getElementById('issueMemberName');
           if (nameInput) nameInput.focus();
-        } else if (paneId === 'adminPane_News') {
+        } else if (targetPaneId === 'adminPane_NewsGallery') {
           if (typeof initAdminNewsStudio === 'function') initAdminNewsStudio();
-          if (typeof renderAdminNews === 'function') renderAdminNews();
-        } else if (paneId === 'adminPane_LeadershipMembers') {
+          if (typeof initAdminGalleryStudio === 'function') initAdminGalleryStudio();
+          if (typeof updateNewsGalleryBadgeCounts === 'function') updateNewsGalleryBadgeCounts();
+          if (requestedNewsGalleryTab) {
+            switchNewsGallerySubtab(requestedNewsGalleryTab);
+          } else {
+            const galSec = document.getElementById('adminGallerySection');
+            if (galSec && galSec.style.display === 'block') {
+              switchNewsGallerySubtab('gallery');
+            } else {
+              switchNewsGallerySubtab('news');
+            }
+          }
+        } else if (targetPaneId === 'adminPane_LeadershipMembers') {
           if (typeof initAdminLeadershipMembers === 'function') initAdminLeadershipMembers();
         }
       } catch (err) {
         console.warn('Pane render warning:', err);
+      }
+    }
+
+    function switchNewsGallerySubtab(tab) {
+      const newsSec = document.getElementById('adminNewsSection');
+      const gallerySec = document.getElementById('adminGallerySection');
+
+      const subtabNewsBtn = document.getElementById('subtabNewsBtn');
+      const subtabGalleryBtn = document.getElementById('subtabGalleryBtn');
+
+      [subtabNewsBtn, subtabGalleryBtn].forEach(b => {
+        if (b) b.classList.remove('active');
+      });
+
+      if (newsSec) newsSec.style.display = 'none';
+      if (gallerySec) gallerySec.style.display = 'none';
+
+      if (tab === 'gallery') {
+        if (gallerySec) gallerySec.style.display = 'block';
+        if (subtabGalleryBtn) subtabGalleryBtn.classList.add('active');
+        if (typeof renderAdminGallery === 'function') renderAdminGallery();
+      } else {
+        if (newsSec) newsSec.style.display = 'block';
+        if (subtabNewsBtn) subtabNewsBtn.classList.add('active');
+        if (typeof renderAdminNews === 'function') renderAdminNews();
+      }
+      if (typeof updateNewsGalleryBadgeCounts === 'function') {
+        updateNewsGalleryBadgeCounts();
+      }
+    }
+
+    function updateNewsGalleryBadgeCounts() {
+      if (typeof DataStore !== 'undefined') {
+        const newsCount = (DataStore.getNews() || []).length;
+        const galleryCount = (DataStore.getGallery() || []).length;
+        const bNews = document.getElementById('badgeCountNews');
+        const bGal = document.getElementById('badgeCountGallery');
+        if (bNews) bNews.textContent = newsCount;
+        if (bGal) bGal.textContent = galleryCount;
       }
     }
 
@@ -220,9 +283,9 @@
           <span>+ Create Project</span>
         </button>
 
-        <button type="button" class="admin-tab-btn" data-pane="adminPane_News" onclick="switchAdminPane('adminPane_News')">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-          <span>News &amp; Notices</span>
+        <button type="button" class="admin-tab-btn" data-pane="adminPane_NewsGallery" id="adminTabBtn_NewsGallery" onclick="switchAdminPane('adminPane_NewsGallery')">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/><circle cx="17" cy="15" r="2"/></svg>
+          <span>News &amp; Gallery</span>
         </button>
 
         <button type="button" class="admin-tab-btn" data-pane="adminPane_Gateway" onclick="switchAdminPane('adminPane_Gateway')">
@@ -1005,136 +1068,298 @@
           </div>
         </div>
 
-        <!-- PANE: NEWS & NOTICES (FULL ADMIN CONTROL SUITE) -->
-        <div class="admin-pane" id="adminPane_News">
-          <!-- Header Bar with Quick Action -->
+        <!-- PANE: NEWS & PHOTO GALLERY CONTROLLER (UNIFIED COMMUNICATIONS & MEDIA SUITE) -->
+        <div class="admin-pane" id="adminPane_NewsGallery">
+          <!-- Header Bar with Quick Action Buttons -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
             <div>
               <span class="section-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); border-color: rgba(43, 87, 151, 0.20);">
-                Secretariat Media &amp; Publications
+                Secretariat Media &amp; Alumni Archive Studio
               </span>
               <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; margin-top: 0.25rem;">
-                News, Notices &amp; Executive Bulletins
+                News &amp; Announcements &amp; Photo Gallery Controller
               </h3>
               <p style="font-size: 0.9rem; color: var(--slate-600); margin-top: 0.25rem;">
-                Publish official dispatches, general meeting circulars, executive resolutions, and alumni recognitions directly to the website.
+                Publish official dispatches, press statements, meeting notices, and curate the high-resolution Alumni Photo Gallery.
               </p>
             </div>
-            <div style="display: flex; gap: 0.75rem;">
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
               <button type="button" class="btn btn-primary" id="btnToggleNewsForm" onclick="toggleAdminNewsForm()" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
                 + New Announcement
               </button>
-            </div>
-          </div>
-
-          <!-- Publish / Edit News Studio Box -->
-          <div id="adminNewsFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
-              <h4 id="newsFormHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                Publish New Announcement
-              </h4>
-              <button type="button" class="btn btn-sm btn-outline-light" onclick="cancelNewsEdit()" style="color: var(--slate-600); border-color: var(--slate-300);">
-                &times; Close Studio
+              <button type="button" class="btn btn-outline-blue" id="btnToggleGalleryForm" onclick="toggleAdminGalleryForm()" style="display: inline-flex; align-items: center; gap: 0.5rem; font-weight: 700;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/><path d="M12 4v6m3-3H9"/></svg>
+                + Upload Gallery Photo
               </button>
             </div>
+          </div>
 
-            <form id="adminNewsForm">
-              <input type="hidden" id="newsEditId" value="">
+          <!-- Interactive Executive Controller Bar -->
+          <div class="admin-subnav-bar" style="margin-bottom: 2rem;">
+            <button type="button" class="admin-subnav-tab active" id="subtabNewsBtn" onclick="switchNewsGallerySubtab('news')">
+              📰 News &amp; Announcements <span class="admin-badge-count" id="badgeCountNews">0</span>
+            </button>
+            <button type="button" class="admin-subnav-tab" id="subtabGalleryBtn" onclick="switchNewsGallerySubtab('gallery')">
+              📸 Alumni Photo Gallery <span class="admin-badge-count" id="badgeCountGallery">0</span>
+            </button>
+          </div>
 
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label" for="newsTitleInput">Announcement / Article Title <span class="req" style="color: var(--danger);">*</span></label>
-                  <input type="text" id="newsTitleInput" class="form-control" placeholder="e.g. Notice of 2026 Grand Alumni Gala &amp; AGM in Enugu" required>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label" for="newsCategorySelect">Category <span class="req" style="color: var(--danger);">*</span></label>
-                  <select id="newsCategorySelect" class="form-control" required style="font-weight: 600;">
-                    <option value="Alumni News" selected>Alumni News</option>
-                    <option value="Meeting Notices">Meeting Notices</option>
-                    <option value="Event Announcements">Event Announcements</option>
-                    <option value="Project Updates">Project Updates</option>
-                    <option value="Executive Resolutions">Executive Resolutions</option>
-                    <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
-                  </select>
-                </div>
+          <!-- ==========================================
+               SUBSECTION 1: NEWS & ANNOUNCEMENTS
+               ========================================== -->
+          <div id="adminNewsSection">
+            <!-- Publish / Edit News Studio Box -->
+            <div id="adminNewsFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
+                <h4 id="newsFormHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                  <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  Publish New Announcement
+                </h4>
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="cancelNewsEdit()" style="color: var(--slate-600); border-color: var(--slate-300);">
+                  &times; Close Studio
+                </button>
               </div>
 
-              <div class="form-grid-2">
-                <div class="form-group">
-                  <label class="form-label" for="newsDateInput">Publication Date <span class="req" style="color: var(--danger);">*</span></label>
-                  <input type="date" id="newsDateInput" class="form-control" required>
+              <form id="adminNewsForm">
+                <input type="hidden" id="newsEditId" value="">
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="newsTitleInput">Announcement / Article Title <span class="req" style="color: var(--danger);">*</span></label>
+                    <input type="text" id="newsTitleInput" class="form-control" placeholder="e.g. Notice of 2026 Grand Alumni Gala &amp; AGM in Enugu" required>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="newsCategorySelect">Category <span class="req" style="color: var(--danger);">*</span></label>
+                    <select id="newsCategorySelect" class="form-control" required style="font-weight: 600;">
+                      <option value="Alumni News" selected>Alumni News</option>
+                      <option value="Meeting Notices">Meeting Notices</option>
+                      <option value="Event Announcements">Event Announcements</option>
+                      <option value="Project Updates">Project Updates</option>
+                      <option value="Executive Resolutions">Executive Resolutions</option>
+                      <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
+                    </select>
+                  </div>
                 </div>
 
-                <div class="form-group" style="display: flex; flex-direction: column; justify-content: center;">
-                  <label class="form-label">Display Priority</label>
-                  <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-size: 0.9rem; color: var(--navy-900); font-weight: 600; margin-top: 0.25rem;">
-                    <input type="checkbox" id="newsFeaturedCheckbox" style="width: 18px; height: 18px; accent-color: var(--cic-blue-600);">
-                    <span>Pin as Featured Headline Announcement</span>
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="newsDateInput">Publication Date <span class="req" style="color: var(--danger);">*</span></label>
+                    <input type="date" id="newsDateInput" class="form-control" required>
+                  </div>
+
+                  <div class="form-group" style="display: flex; flex-direction: column; justify-content: center;">
+                    <label class="form-label">Display Priority</label>
+                    <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer; font-size: 0.9rem; color: var(--navy-900); font-weight: 600; margin-top: 0.25rem;">
+                      <input type="checkbox" id="newsFeaturedCheckbox" style="width: 18px; height: 18px; accent-color: var(--cic-blue-600);">
+                      <span>Pin as Featured Headline Announcement</span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newsImageInput">Cover Banner Image URL <span class="req" style="color: var(--danger);">*</span></label>
+                  <input type="text" id="newsImageInput" class="form-control" placeholder="e.g. images/campus.jpg or image URL" value="images/campus.jpg" required>
+                  <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
+                    <span style="font-size: 0.78rem; color: var(--slate-500);">Quick Presets:</span>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='images/campus.jpg'">Campus</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='images/hero-bg.jpg'">Panorama</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='images/cic-statue.jpg'">Semper Fidelis</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80'">Meeting</button>
+                    <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80'">Executive</button>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newsSummaryInput">Summary / Lead Brief (Card Preview) <span class="req" style="color: var(--danger);">*</span></label>
+                  <textarea id="newsSummaryInput" class="form-control" rows="2" placeholder="Brief 1-2 sentence overview shown on the card..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="newsContentInput">Full Announcement Body &amp; Notice Details <span class="req" style="color: var(--danger);">*</span></label>
+                  <textarea id="newsContentInput" class="form-control" rows="6" placeholder="Provide complete notice details, agenda, resolutions, dates, and instructions for alumni..." required></textarea>
+                </div>
+
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; border-top: 1px solid var(--slate-200); padding-top: 1.25rem; margin-top: 1.5rem;">
+                  <button type="button" class="btn btn-outline-light" onclick="cancelNewsEdit()" style="color: var(--slate-700); border-color: var(--slate-300);">
+                    Cancel
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg" id="btnSaveNews" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                    Publish Announcement
+                  </button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Filter & Search Controls -->
+            <div class="admin-table-controls" style="margin-bottom: 1.5rem;">
+              <div class="admin-search-box">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="adminSearchNews" placeholder="Search bulletins by title, topic, or date...">
+              </div>
+
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <select id="adminNewsCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
+                  <option value="ALL">All Categories</option>
+                  <option value="Alumni News">Alumni News</option>
+                  <option value="Meeting Notices">Meeting Notices</option>
+                  <option value="Event Announcements">Event Announcements</option>
+                  <option value="Project Updates">Project Updates</option>
+                  <option value="Executive Resolutions">Executive Resolutions</option>
+                  <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Dynamic News List -->
+            <div id="adminNewsList">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- ==========================================
+               SUBSECTION 2: ALUMNI PHOTO GALLERY
+               ========================================== -->
+          <div id="adminGallerySection" style="display: none;">
+            <!-- Upload / Add Gallery Photo Studio Card -->
+            <div id="adminGalleryFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
+                <h4 id="galleryFormHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                  <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                  <span>Upload Photo to Alumni Gallery</span>
+                </h4>
+                <button type="button" class="btn btn-sm btn-outline-light" onclick="cancelGalleryEdit()" style="color: var(--slate-600); border-color: var(--slate-300);">
+                  &times; Close Studio
+                </button>
+              </div>
+
+              <form id="adminGalleryForm" onsubmit="saveAdminGalleryPhoto(event)">
+                <input type="hidden" id="galleryPhotoEditId" value="">
+                <input type="hidden" id="galleryPhotoDataUrl" value="">
+
+                <!-- Visual Image Upload Dropzone & Live Preview -->
+                <div class="form-group">
+                  <label class="form-label" style="font-weight: 700; color: var(--navy-900);">
+                    Gallery Photo File or Image URL <span class="req" style="color: var(--danger);">*</span>
                   </label>
+
+                  <!-- Drag & Drop Zone -->
+                  <div class="image-upload-dropzone" id="galleryImageDropzone" onclick="document.getElementById('galleryPhotoFileInput').click()" style="padding: 1.75rem; text-align: center; margin-bottom: 1rem; cursor: pointer;">
+                    <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+                      <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    </div>
+                    <h5 style="color: var(--navy-900); font-size: 1rem; font-weight: 700; margin-bottom: 0.35rem;">
+                      Click or Drag &amp; Drop Photo Here
+                    </h5>
+                    <p style="font-size: 0.84rem; color: var(--slate-500); margin: 0;">
+                      Supports high-resolution PNG, JPG, JPEG, and WebP (reunion photos, landmarks, milestones)
+                    </p>
+                    <input type="file" id="galleryPhotoFileInput" accept="image/*" style="display: none;" onchange="handleGalleryFileSelect(event)">
+                  </div>
+
+                  <!-- Live Image Preview Card -->
+                  <div id="galleryPhotoPreviewBox" style="display: none; background: var(--slate-50); border: 1.5px solid var(--cic-blue-200); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                      <img id="galleryPreviewImg" src="" alt="Photo Preview" style="width: 120px; height: 85px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+                      <div style="flex: 1; min-width: 0;">
+                        <span id="galleryPreviewStatusBadge" style="font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 999px; background: rgba(5, 150, 105, 0.12); color: #059669;">
+                          Photo Selected &amp; Ready
+                        </span>
+                        <div id="galleryPreviewFileName" style="font-size: 0.88rem; font-weight: 600; color: var(--navy-900); margin-top: 0.35rem; word-break: break-all;">
+                          Selected Photo
+                        </div>
+                      </div>
+                      <button type="button" class="btn btn-sm btn-outline-light" onclick="clearGalleryPhotoPreview()" style="color: var(--danger); border-color: rgba(220, 38, 38, 0.3); font-size: 0.8rem;">
+                        Remove Photo
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Direct URL Fallback & Quick Presets -->
+                  <div style="margin-top: 0.75rem;">
+                    <label class="form-label" for="galleryPhotoUrlInput" style="font-size: 0.84rem; color: var(--slate-600); margin-bottom: 0.3rem;">
+                      Or Enter Direct Photo URL:
+                    </label>
+                    <input type="url" id="galleryPhotoUrlInput" class="form-control" placeholder="https://images.unsplash.com/..." oninput="handleGalleryUrlInput(this.value)">
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
+                      <span style="font-size: 0.78rem; color: var(--slate-500);">Archive Presets:</span>
+                      <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="setGalleryPreset('https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=80', 'Silver Jubilee Reunion Gala', 'Reunions', 'Alumni celebrating at the Grand Ballroom.')">Reunion Gala</button>
+                      <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="setGalleryPreset('https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=80', 'ICT Center Solar Array', 'Community Projects', 'Solar electrification project handover at the college.')">Solar Project</button>
+                      <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="setGalleryPreset('https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=900&q=80', 'Annual General Meeting Delegates', 'Annual General Meetings', 'Parliamentary session during the National Congress.')">Congress AGM</button>
+                      <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="setGalleryPreset('https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=900&q=80', 'Distinguished Fellowships & Awards', 'Award Ceremonies', 'Conferment of Alumni Merit Medals to notable trailblazers.')">Merit Awards</button>
+                      <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="setGalleryPreset('https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=900&q=80', 'Alumni Tech & Career Networking Mixer', 'Networking Events', 'Mentorship and professional collaboration session.')">Tech Mixer</button>
+                    </div>
+                  </div>
                 </div>
-              </div>
 
-              <div class="form-group">
-                <label class="form-label" for="newsImageInput">Cover Banner Image URL <span class="req" style="color: var(--danger);">*</span></label>
-                <input type="text" id="newsImageInput" class="form-control" placeholder="e.g. images/campus.jpg or image URL" value="images/campus.jpg" required>
-                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; flex-wrap: wrap;">
-                  <span style="font-size: 0.78rem; color: var(--slate-500);">Quick Presets:</span>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='images/campus.jpg'">Campus</button>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='images/hero-bg.jpg'">Panorama</button>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='images/cic-statue.jpg'">Semper Fidelis</button>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80'">Meeting</button>
-                  <button type="button" class="btn btn-sm btn-outline-light" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;" onclick="document.getElementById('newsImageInput').value='https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80'">Executive</button>
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label class="form-label" for="galleryPhotoTitleInput">Photo Title / Event Name <span class="req" style="color: var(--danger);">*</span></label>
+                    <input type="text" id="galleryPhotoTitleInput" class="form-control" placeholder="e.g. Class of 1995 30-Year Grand Reunion Dinner" required style="font-weight: 600;">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="galleryPhotoCategorySelect">Gallery Category <span class="req" style="color: var(--danger);">*</span></label>
+                    <select id="galleryPhotoCategorySelect" class="form-control" required style="font-weight: 600;">
+                      <option value="Reunions" selected>Reunions</option>
+                      <option value="Community Projects">Community Projects</option>
+                      <option value="Annual General Meetings">Annual General Meetings</option>
+                      <option value="Award Ceremonies">Award Ceremonies</option>
+                      <option value="Networking Events">Networking Events</option>
+                      <option value="Campus Landmarks">Campus Landmarks</option>
+                      <option value="Executive Sessions">Executive Sessions</option>
+                    </select>
+                  </div>
                 </div>
-              </div>
 
-              <div class="form-group">
-                <label class="form-label" for="newsSummaryInput">Summary / Lead Brief (Card Preview) <span class="req" style="color: var(--danger);">*</span></label>
-                <textarea id="newsSummaryInput" class="form-control" rows="2" placeholder="Brief 1-2 sentence overview shown on the card..." required></textarea>
-              </div>
+                <div class="form-group">
+                  <label class="form-label" for="galleryPhotoCaptionInput">Photo Caption &amp; Historical Context <span class="req" style="color: var(--danger);">*</span></label>
+                  <textarea id="galleryPhotoCaptionInput" class="form-control" rows="3" placeholder="Describe the photo, participants, location, or milestone celebration..." required></textarea>
+                </div>
 
-              <div class="form-group">
-                <label class="form-label" for="newsContentInput">Full Announcement Body &amp; Notice Details <span class="req" style="color: var(--danger);">*</span></label>
-                <textarea id="newsContentInput" class="form-control" rows="6" placeholder="Provide complete notice details, agenda, resolutions, dates, and instructions for alumni..." required></textarea>
-              </div>
-
-              <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; border-top: 1px solid var(--slate-200); padding-top: 1.25rem; margin-top: 1.5rem;">
-                <button type="button" class="btn btn-outline-light" onclick="cancelNewsEdit()" style="color: var(--slate-700); border-color: var(--slate-300);">
-                  Cancel
-                </button>
-                <button type="submit" class="btn btn-primary btn-lg" id="btnSaveNews" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem;">
-                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-                  Publish Announcement
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <!-- Filter & Search Controls -->
-          <div class="admin-table-controls" style="margin-bottom: 1.5rem;">
-            <div class="admin-search-box">
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-              <input type="text" id="adminSearchNews" placeholder="Search bulletins by title, topic, or date...">
+                <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; border-top: 1px solid var(--slate-200); padding-top: 1.25rem; margin-top: 1.5rem;">
+                  <button type="button" class="btn btn-outline-light" onclick="cancelGalleryEdit()" style="color: var(--slate-700); border-color: var(--slate-300);">
+                    Cancel
+                  </button>
+                  <button type="submit" class="btn btn-primary btn-lg" id="btnSaveGalleryPhoto" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                    Save Photo to Gallery
+                  </button>
+                </div>
+              </form>
             </div>
 
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-              <select id="adminNewsCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
-                <option value="ALL">All Categories</option>
-                <option value="Alumni News">Alumni News</option>
-                <option value="Meeting Notices">Meeting Notices</option>
-                <option value="Event Announcements">Event Announcements</option>
-                <option value="Project Updates">Project Updates</option>
-                <option value="Executive Resolutions">Executive Resolutions</option>
-                <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
-              </select>
-            </div>
-          </div>
+            <!-- Filter & Search Controls for Gallery -->
+            <div class="admin-table-controls" style="margin-bottom: 1.5rem;">
+              <div class="admin-search-box">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                <input type="text" id="adminSearchGallery" placeholder="Search gallery by title, category, or caption..." oninput="renderAdminGallery()">
+              </div>
 
-          <!-- Dynamic News List -->
-          <div id="adminNewsList">
-            <!-- Rendered dynamically -->
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+                <select id="adminGalleryCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;" onchange="renderAdminGallery()">
+                  <option value="ALL">All Categories</option>
+                  <option value="Reunions">Reunions</option>
+                  <option value="Community Projects">Community Projects</option>
+                  <option value="Annual General Meetings">Annual General Meetings</option>
+                  <option value="Award Ceremonies">Award Ceremonies</option>
+                  <option value="Networking Events">Networking Events</option>
+                  <option value="Campus Landmarks">Campus Landmarks</option>
+                  <option value="Executive Sessions">Executive Sessions</option>
+                </select>
+                <a href="gallery.html" target="_blank" class="btn btn-sm btn-outline-light" style="font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; color: var(--cic-blue-700); border-color: var(--cic-blue-200);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  View Public Gallery
+                </a>
+              </div>
+            </div>
+
+            <!-- Dynamic Gallery Cards Grid -->
+            <div id="adminGalleryGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem;">
+              <!-- Populated dynamically via renderAdminGallery() -->
+            </div>
           </div>
         </div>
 

@@ -694,6 +694,39 @@ const DataStore = {
     this.set(STORAGE_KEYS.GALLERY, gal);
   },
 
+  addGalleryItem(item) {
+    const list = this.getGallery();
+    if (!item.id) {
+      item.id = 'gal-' + Date.now();
+    }
+    list.unshift(item);
+    this.saveGallery(list);
+    return item;
+  },
+
+  updateGalleryItem(item) {
+    let list = this.getGallery();
+    const idx = list.findIndex(g => g.id === item.id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...item };
+      this.saveGallery(list);
+      return list[idx];
+    }
+    return null;
+  },
+
+  deleteGalleryItem(id) {
+    let list = this.getGallery();
+    list = list.filter(g => g.id !== id);
+    this.saveGallery(list);
+    return true;
+  },
+
+  findGalleryItemById(id) {
+    const list = this.getGallery();
+    return list.find(g => g.id === id) || null;
+  },
+
   getLeadership() {
     return this.get(STORAGE_KEYS.LEADERSHIP) || DEFAULT_LEADERSHIP;
   },
