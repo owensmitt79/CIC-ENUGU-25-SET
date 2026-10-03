@@ -356,7 +356,7 @@ python -m http.server 8080
 ## 12. Administrator & User Manual
 
 ### 12.1 For Alumni Members: How to Pay Dues
-1. Navigate to **Pay Dues** on the homepage or open `.html`.
+1. Navigate to **Pay Dues** on the homepage or open `payment.html`.
 2. Enter your Name, Phone Number, and Email Address.
 3. Select **Monthly Dues** and click the months you wish to pay for (e.g. Jan - Dec).
 4. Choose your payment method (Card, Transfer, USSD).
@@ -364,13 +364,13 @@ python -m http.server 8080
 6. Click **Print Receipt** or **Download Receipt** for your personal records.
 
 ### 12.2 For Alumni Members: How to Verify a Payment
-1. Navigate to `.html`.
+1. Navigate to `verify.html`.
 2. Enter the transaction reference (e.g. `HAA-2026-84920`) or receipt number.
 3. Click **Verify Transaction**.
 4. The system validates the record and displays the full official receipt.
 
 ### 12.3 For Administrators: How to Issue an Offline Receipt
-1. Log in to `.html` using the Admin PIN (`admin123`).
+1. Log in to `login.html` using the Admin PIN (`admin123`).
 2. Go to **Issue Dues Receipt** (`adminPane_IssueReceipt`).
 3. Enter the alumnus name, email, phone, and select payment channel (Bank Transfer / Cash).
 4. Select the dues category or check off cleared months.
@@ -382,7 +382,7 @@ python -m http.server 8080
 3. Enter Project Title, Category, and Target Funding Goal.
 4. Drag and drop or browse for a banner image in the **Upload Project Banner Image** dropzone.
 5. Provide the project description and click **Create & Publish Project**.
-6. The new project immediately appears live on `.html` and `index.html`.
+6. The new project immediately appears live on `projects.html` and `index.html`.
 
 ### 12.5 For Administrators: How to Rename or Delete Dues Categories
 1. In the Admin Suite, navigate to **Dues Categories**.
