@@ -180,7 +180,7 @@
         <!-- Receipt Header with Crest -->
         <div class="receipt-header">
           <div class="receipt-brand">
-            <img src="logo.png" alt="CIC Alumni Official Crest" class="receipt-crest-img">
+            <img src="../images/logo.png" alt="CIC Alumni Official Crest" class="receipt-crest-img">
             <div class="receipt-brand-text">
               <h3>COLLEGE OF THE IMMACULATE CONCEPTION</h3>
               <div class="receipt-brand-sub">ENUGU &bull; ALUMNI 1995 GRADUATING SET</div>
