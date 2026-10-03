@@ -124,39 +124,39 @@ Eng ilo/
 
 ## 5. Public Portal Modules & Pages
 
-### 5.1 Homepage (`html/index.html`)
+### 5.1 Homepage (`index.html`)
 * **Hero Banner:** Widescreen visual background with Semper Fidelis student monument highlight, mission slogan, and quick action buttons (**PAY DUES** and **ABOUT US**).
 * **Key Set Metrics:** Class cohort size (200 Members), 100% automated receipts, and capital goals.
 * **Project Preview Grid:** Displays top active developmental projects with real-time funding progress bars.
 * **News & Bulletins:** Highlights the latest executive resolutions, meeting notices, and announcements.
 * **Gallery Preview & Lightbox:** Recent reunion photos and campus views with one-click full-screen viewer.
 
-### 5.2 About the Association (`html/about.html`)
+### 5.2 About the Association (`.html`)
 * Dedicated narrative covering the history of the College of the Immaculate Conception (founded in 1940 by Catholic missionaries).
 * The story and reunion ethos of the Class of 1995 Set.
 * The 7 Pillars of Brotherhood: Alma Mater Rehabilitation, Indigent Student Scholarships, Teacher Excellence Grants, Member Welfare Safety Net, Mentorship Programs, Annual Reunion Assemblies, and Institutional Integrity.
 
-### 5.3 Leadership Directory (`html/leadership.html`)
+### 5.3 Leadership Directory (`.html`)
 * Profiles of the Executive Council: President, Vice President, General Secretary, Financial Secretary, Treasurer, Public Relations Officer (PRO), and Welfare Officer.
 * Direct modal reader presenting executive profiles, professional backgrounds, and contact desk references.
 * Live synchronization with the administrative executive updates.
 
-### 5.4 Members Directory (`html/members.html`)
+### 5.4 Members Directory (`.html`)
 * Roster of Class of 1995 alumni worldwide.
 * Real-time search by Alumnus Name, Email, Chapter Location, or Profession.
 * Filter tabs: *All Members*, *Lagos Chapter*, *Enugu Chapter*, *Abuja FCT*, *Diaspora (USA/UK/Canada)*, and *Dues Status*.
 
-### 5.5 Development Projects (`html/projects.html`)
+### 5.5 Development Projects (`.html`)
 * Complete catalog of developmental initiatives launched by the set.
 * Real-time financial summary KPI strip: Active Initiatives, Total Capital Raised, Cumulative Goal, and Verified Alumni Backers.
 * Filter by category: *All*, *Infrastructure*, *Scholarship*, *Technology*, *Welfare*, *Academic*, *Sports*.
 * Instant **"SUPPORT THIS PROJECT"** action button that directly opens `payment.html` with project title and ID pre-selected.
 
-### 5.6 Alumni Photo Gallery (`html/gallery.html`)
+### 5.6 Alumni Photo Gallery (`.html`)
 * Curated photo repository sorted by event tags (*All*, *Reunions*, *Campus*, *Projects*, *Achievements*).
 * Responsive lightbox overlay displaying full-resolution imagery with titles and historic descriptions.
 
-### 5.7 Secretariat Desk (`html/contact.html`)
+### 5.7 Secretariat Desk (`.html`)
 * Official physical secretariat address at CIC Enugu campus.
 * Interactive inquiry form for member reconnects, welfare inquiries, and secretariat communications.
 * Official contact phone lines, emails, and bank details for wire transfers.
@@ -165,7 +165,7 @@ Eng ilo/
 
 ## 6. Payment Processing Engine
 
-The checkout engine in `html/payment.html` and `js/app.js` is engineered around a **4-step responsive stepper flow**:
+The checkout engine in `.html` and `js/app.js` is engineered around a **4-step responsive stepper flow**:
 
 ```text
 [Step 1: Alumnus Details] ➔ [Step 2: Category & Amount] ➔ [Step 3: Gateway Selection] ➔ [Step 4: Instant Official Receipt]
@@ -212,7 +212,7 @@ Every generated receipt contains:
 * **Dynamic QR Code:** Scannable QR code encoding the direct URL to `verify.html?ref=HAA-YYYY-XXXXX`.
 * **Complete Metadata:** Payer Name, Email, Phone, Payment Type, Months Cleared (if monthly dues), Channel, Date & Timestamp, and Authorized Secretariat Signature.
 
-### 7.2 Public Verification Portal (`html/verify.html`)
+### 7.2 Public Verification Portal (`.html`)
 * Allows any member, bank, auditor, or executive to verify any payment reference or receipt number.
 * Form takes either `HAA-2026-XXXXX` or `REC-2026-XXXX`.
 * URL parameter support: Opening `verify.html?ref=HAA-2026-12345` automatically performs the lookup on page load.
@@ -222,7 +222,7 @@ Every generated receipt contains:
 
 ## 8. Executive Admin Control Suite
 
-The **Executive Admin Dashboard** (`html/admin.html` and `js/admin.js`) is protected by PIN authorization (Default PIN: `admin123`).
+The **Executive Admin Dashboard** (`.html` and `js/admin.js`) is protected by PIN authorization (Default PIN: `admin123`).
 
 ### 8.1 Key Admin Panels
 | Pane ID | Title | Key Capabilities |
@@ -345,18 +345,18 @@ python -m http.server 8080
 ### 11.2 Production Web Hosting
 * **GitHub Pages:**
   1. Ensure repository settings have GitHub Pages enabled on branch `main` at root `/`.
-  2. The root `index.html` immediately routes visitors to `html/index.html`.
-* **Vercel / Netlify:**
-  * Zero configuration required. Deploy repository as a static site.
-* **Apache / Nginx:**
-  * Point document root to the repository directory. All assets inside `html/`, `images/`, `css/`, and `js/` will serve cleanly.
+  2. Visitors landing on the root domain or `/` are served directly without displaying file extensions.
+* **Vercel / Netlify / Cloudflare Pages:**
+  * Zero configuration required. Deploy repository as a static site with clean URLs enabled.
+* **Apache / Nginx / Serve:**
+  * Point document root to the repository directory. Uses `serve.json` for clean URLs and redirects `/index.html` to root `/`. All assets inside `images/`, `css/`, and `js/` serve with instant caching.
 
 ---
 
 ## 12. Administrator & User Manual
 
 ### 12.1 For Alumni Members: How to Pay Dues
-1. Navigate to **Pay Dues** on the homepage or open `html/payment.html`.
+1. Navigate to **Pay Dues** on the homepage or open `.html`.
 2. Enter your Name, Phone Number, and Email Address.
 3. Select **Monthly Dues** and click the months you wish to pay for (e.g. Jan - Dec).
 4. Choose your payment method (Card, Transfer, USSD).
@@ -364,13 +364,13 @@ python -m http.server 8080
 6. Click **Print Receipt** or **Download Receipt** for your personal records.
 
 ### 12.2 For Alumni Members: How to Verify a Payment
-1. Navigate to `html/verify.html`.
+1. Navigate to `.html`.
 2. Enter the transaction reference (e.g. `HAA-2026-84920`) or receipt number.
 3. Click **Verify Transaction**.
 4. The system validates the record and displays the full official receipt.
 
 ### 12.3 For Administrators: How to Issue an Offline Receipt
-1. Log in to `html/login.html` using the Admin PIN (`admin123`).
+1. Log in to `.html` using the Admin PIN (`admin123`).
 2. Go to **Issue Dues Receipt** (`adminPane_IssueReceipt`).
 3. Enter the alumnus name, email, phone, and select payment channel (Bank Transfer / Cash).
 4. Select the dues category or check off cleared months.
@@ -382,7 +382,7 @@ python -m http.server 8080
 3. Enter Project Title, Category, and Target Funding Goal.
 4. Drag and drop or browse for a banner image in the **Upload Project Banner Image** dropzone.
 5. Provide the project description and click **Create & Publish Project**.
-6. The new project immediately appears live on `html/projects.html` and `html/index.html`.
+6. The new project immediately appears live on `.html` and `index.html`.
 
 ### 12.5 For Administrators: How to Rename or Delete Dues Categories
 1. In the Admin Suite, navigate to **Dues Categories**.

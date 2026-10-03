@@ -4,6 +4,17 @@
  * interactive project support, event registrations, and public verification lookup.
  */
 
+// Automatically clean URL if opened as /index.html in browser address bar
+(function cleanIndexHtmlUrl() {
+  if (typeof window !== 'undefined' && window.location && window.history && window.history.replaceState) {
+    const pathname = window.location.pathname;
+    if (pathname.endsWith('/index.html')) {
+      const cleanPath = pathname.replace(/\/index\.html$/, '/') + window.location.search + window.location.hash;
+      window.history.replaceState(null, '', cleanPath);
+    }
+  }
+})();
+
 // Global state for payment stepper
 const paymentState = {
   step: 1,

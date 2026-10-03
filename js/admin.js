@@ -513,7 +513,7 @@ function openAdminPortal() {
       loadAdminDashboardData();
     }
   } else {
-    window.location.href = 'index.html?openAdmin=true';
+    window.location.href = './?openAdmin=true';
   }
 }
 
