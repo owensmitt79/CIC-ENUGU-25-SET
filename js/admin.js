@@ -1474,35 +1474,326 @@ window.resetDefaultCategories = function() {
 };
 
 /**
- * Admin Events Management
+ * ============================================================================
+ * Admin Events Scheduling & Ingestion Management Suite
+ * ============================================================================
  */
+
+function formatDisplayDate(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return dateStr;
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+window.handleQuickEventFile = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  if (!file.type.startsWith('image/')) {
+    alert('Please select a valid image file (PNG, JPG, JPEG, WebP).');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const dataUrl = e.target.result;
+    const dataUrlHidden = document.getElementById('quickEventDataUrl');
+    const previewBox = document.getElementById('quickEventPreviewBox');
+    const previewImg = document.getElementById('quickEventPreviewImg');
+    const previewName = document.getElementById('quickEventPreviewName');
+
+    if (dataUrlHidden) dataUrlHidden.value = dataUrl;
+    if (previewImg) previewImg.src = dataUrl;
+    if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+    if (previewBox) previewBox.style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearQuickEventPreview = function() {
+  const fileInput = document.getElementById('quickEventImageFile');
+  const dataUrlHidden = document.getElementById('quickEventDataUrl');
+  const previewBox = document.getElementById('quickEventPreviewBox');
+  const previewImg = document.getElementById('quickEventPreviewImg');
+
+  if (fileInput) fileInput.value = '';
+  if (dataUrlHidden) dataUrlHidden.value = '';
+  if (previewImg) previewImg.src = '';
+  if (previewBox) previewBox.style.display = 'none';
+};
+
+window.focusEventUpload = function() {
+  const titleInput = document.getElementById('quickEventTitle');
+  if (titleInput) {
+    titleInput.focus();
+    titleInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+};
+
+window.handleQuickEventUpload = function(event) {
+  event.preventDefault();
+
+  const editId = (document.getElementById('eventEditId')?.value || '').trim();
+  const title = (document.getElementById('quickEventTitle')?.value || '').trim();
+  const category = document.getElementById('quickEventCategory')?.value || 'Reunions';
+  const date = (document.getElementById('quickEventDate')?.value || '').trim();
+  const time = (document.getElementById('quickEventTime')?.value || '').trim() || '10:00 AM Prompt';
+  const location = (document.getElementById('quickEventVenue')?.value || '').trim();
+  const fee = parseInt(document.getElementById('quickEventFee')?.value || '0', 10) || 0;
+  const dataUrl = (document.getElementById('quickEventDataUrl')?.value || '').trim();
+  const directUrl = (document.getElementById('quickEventImageUrl')?.value || '').trim();
+  const image = dataUrl || directUrl || 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80';
+  const featured = !!document.getElementById('quickEventFeatured')?.checked;
+  const description = (document.getElementById('quickEventDesc')?.value || '').trim();
+
+  if (!title || !date || !location || !description) {
+    alert('Please fill in all required fields: Title, Date, Venue, and Description.');
+    return;
+  }
+
+  const displayDate = formatDisplayDate(date);
+
+  if (editId) {
+    // Update existing event
+    const updated = DataStore.updateEvent({
+      id: editId,
+      title,
+      category,
+      date,
+      displayDate,
+      time,
+      location,
+      fee,
+      image,
+      featured,
+      description,
+      status: 'upcoming'
+    });
+
+    if (updated) {
+      alert(`✓ Event "${title}" successfully updated!`);
+    }
+  } else {
+    // Add new event
+    const newEvent = {
+      id: 'evt-' + Date.now(),
+      title,
+      category,
+      date,
+      displayDate,
+      time,
+      location,
+      fee,
+      image,
+      featured,
+      description,
+      status: 'upcoming'
+    };
+
+    DataStore.addEvent(newEvent);
+    alert(`✓ Event "${title}" successfully scheduled and published live!`);
+  }
+
+  cancelQuickEventEdit();
+  renderAdminEvents();
+
+  if (typeof renderEvents === 'function') {
+    renderEvents();
+  }
+};
+
+window.editAdminEvent = function(id) {
+  const item = DataStore.findEventById(id);
+  if (!item) {
+    alert('Event not found.');
+    return;
+  }
+
+  const editIdInput = document.getElementById('eventEditId');
+  const titleInput = document.getElementById('quickEventTitle');
+  const catSelect = document.getElementById('quickEventCategory');
+  const dateInput = document.getElementById('quickEventDate');
+  const timeInput = document.getElementById('quickEventTime');
+  const venueInput = document.getElementById('quickEventVenue');
+  const feeInput = document.getElementById('quickEventFee');
+  const urlInput = document.getElementById('quickEventImageUrl');
+  const dataUrlHidden = document.getElementById('quickEventDataUrl');
+  const featuredCheck = document.getElementById('quickEventFeatured');
+  const descInput = document.getElementById('quickEventDesc');
+  const formTitle = document.getElementById('quickEventFormTitle');
+  const btnSubmit = document.getElementById('btnSubmitQuickEvent');
+  const btnCancel = document.getElementById('btnCancelEventEdit');
+
+  if (editIdInput) editIdInput.value = item.id;
+  if (titleInput) titleInput.value = item.title || '';
+  if (catSelect) catSelect.value = item.category || 'Reunions';
+  if (dateInput) dateInput.value = item.date || '';
+  if (timeInput) timeInput.value = item.time || '';
+  if (venueInput) venueInput.value = item.location || '';
+  if (feeInput) feeInput.value = item.fee !== undefined ? item.fee : 0;
+  if (dataUrlHidden) dataUrlHidden.value = item.image || '';
+  if (urlInput) urlInput.value = item.image || '';
+  if (featuredCheck) featuredCheck.checked = !!item.featured;
+  if (descInput) descInput.value = item.description || '';
+
+  // Show preview if image exists
+  const previewBox = document.getElementById('quickEventPreviewBox');
+  const previewImg = document.getElementById('quickEventPreviewImg');
+  const previewName = document.getElementById('quickEventPreviewName');
+  if (item.image && previewBox && previewImg) {
+    previewImg.src = item.image;
+    if (previewName) previewName.textContent = item.title || 'Event Banner';
+    previewBox.style.display = 'flex';
+  }
+
+  if (formTitle) formTitle.textContent = `Edit Scheduled Event: "${item.title}"`;
+  if (btnSubmit) {
+    btnSubmit.innerHTML = `
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+      <span>Save Changes &amp; Update Event</span>
+    `;
+  }
+  if (btnCancel) btnCancel.style.display = 'inline-block';
+
+  if (titleInput) {
+    titleInput.focus();
+    titleInput.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+};
+
+window.cancelQuickEventEdit = function() {
+  const form = document.getElementById('quickEventUploadForm');
+  const editIdInput = document.getElementById('eventEditId');
+  const formTitle = document.getElementById('quickEventFormTitle');
+  const btnSubmit = document.getElementById('btnSubmitQuickEvent');
+  const btnCancel = document.getElementById('btnCancelEventEdit');
+
+  if (form) form.reset();
+  if (editIdInput) editIdInput.value = '';
+  clearQuickEventPreview();
+
+  if (formTitle) formTitle.textContent = 'Upload New Event & Information';
+  if (btnSubmit) {
+    btnSubmit.innerHTML = `
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+      <span>Upload Event &amp; Information</span>
+    `;
+  }
+  if (btnCancel) btnCancel.style.display = 'none';
+};
+
+window.deleteAdminEvent = function(id) {
+  const item = DataStore.findEventById(id);
+  const title = item ? item.title : 'this event';
+
+  if (confirm(`Are you sure you want to permanently delete event "${title}"?\n\nThis will remove it immediately from both the administrative console and the public website.`)) {
+    DataStore.deleteEventById(id);
+
+    const editIdInput = document.getElementById('eventEditId');
+    if (editIdInput && editIdInput.value === id) {
+      cancelQuickEventEdit();
+    }
+
+    renderAdminEvents();
+
+    if (typeof renderEvents === 'function') {
+      renderEvents();
+    }
+
+    alert(`✓ Event "${title}" has been deleted.`);
+  }
+};
+
+window.deleteEvent = function(idx) {
+  const events = DataStore.getEvents();
+  if (events && events[idx]) {
+    deleteAdminEvent(events[idx].id);
+  }
+};
+
 function renderAdminEvents() {
   const container = document.getElementById('adminEventsList');
   if (!container) return;
 
-  const events = DataStore.getEvents();
-  container.innerHTML = events.map((evt, idx) => `
-    <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1rem; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <h4 style="color: var(--navy-900); font-weight: 700;">${evt.title}</h4>
-        <div style="font-size: 0.8rem; color: var(--slate-500);">${evt.displayDate} &bull; Fee: ₦${evt.fee.toLocaleString()} &bull; Status: <strong>${evt.status}</strong></div>
+  const searchVal = (document.getElementById('adminSearchEvents')?.value || '').trim().toLowerCase();
+  let events = DataStore.getEvents();
+
+  if (searchVal) {
+    events = events.filter(e =>
+      (e.title && e.title.toLowerCase().includes(searchVal)) ||
+      (e.location && e.location.toLowerCase().includes(searchVal)) ||
+      (e.category && e.category.toLowerCase().includes(searchVal)) ||
+      (e.description && e.description.toLowerCase().includes(searchVal))
+    );
+  }
+
+  if (events.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: var(--white); border: 1.5px dashed var(--slate-300); border-radius: var(--radius-xl);">
+        <div style="width: 52px; height: 52px; border-radius: 50%; background: var(--slate-100); color: var(--slate-400); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem;">
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        </div>
+        <h4 style="color: var(--navy-900); font-weight: 700; margin-bottom: 0.25rem;">No Events Scheduled</h4>
+        <p style="color: var(--slate-500); font-size: 0.88rem; max-width: 420px; margin: 0 auto 1.25rem;">
+          ${searchVal ? 'No events match your active search keyword.' : 'Use the upload section above to schedule your first alumni event or reunion.'}
+        </p>
       </div>
-      <div style="display: flex; gap: 0.5rem;">
-        <button class="btn btn-sm btn-outline-gold" onclick="deleteEvent(${idx})">Delete</button>
+    `;
+    return;
+  }
+
+  container.innerHTML = events.map(evt => `
+    <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column;" class="admin-event-card-item">
+      <div style="position: relative; height: 160px; background: #0f172a; overflow: hidden;">
+        <img src="${evt.image || 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80'}" alt="${escapeHtml(evt.title)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='images/campus.jpg'">
+        <div style="position: absolute; top: 10px; left: 10px; display: flex; gap: 0.4rem; flex-wrap: wrap;">
+          <span style="background: rgba(15, 23, 42, 0.85); color: #fff; backdrop-filter: blur(4px); font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 9999px; text-transform: uppercase;">
+            ${escapeHtml(evt.category || 'Event')}
+          </span>
+          ${evt.featured ? '<span style="background: rgba(245, 158, 11, 0.9); color: #fff; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 9999px;">★ Featured</span>' : ''}
+        </div>
+        <div style="position: absolute; bottom: 10px; right: 10px;">
+          <span style="background: ${evt.fee > 0 ? 'var(--emerald-600)' : 'var(--cic-blue-600)'}; color: #fff; font-size: 0.78rem; font-weight: 800; padding: 0.25rem 0.65rem; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+            ${evt.fee > 0 ? '₦' + evt.fee.toLocaleString() : 'FREE ADMISSION'}
+          </span>
+        </div>
+      </div>
+      <div style="padding: 1.15rem; display: flex; flex-direction: column; flex: 1;">
+        <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem; line-height: 1.35;">
+          ${escapeHtml(evt.title)}
+        </h4>
+        <div style="font-size: 0.78rem; color: var(--slate-600); margin-bottom: 0.5rem; display: flex; flex-direction: column; gap: 0.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.35rem;">
+            <span>📅</span>
+            <strong>${escapeHtml(evt.displayDate || evt.date)}</strong>
+            <span style="color: var(--slate-400);">&bull;</span>
+            <span>${escapeHtml(evt.time || '10:00 AM')}</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.35rem;">
+            <span>📍</span>
+            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${escapeHtml(evt.location || 'College Campus')}</span>
+          </div>
+        </div>
+        <p style="font-size: 0.83rem; color: var(--slate-600); margin-bottom: 1rem; line-height: 1.45; flex: 1; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+          ${escapeHtml(evt.description || '')}
+        </p>
+        <div style="display: flex; gap: 0.5rem; align-items: center; border-top: 1px solid var(--slate-100); padding-top: 0.75rem;">
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="editAdminEvent('${evt.id}')" style="font-size: 0.76rem; padding: 0.25rem 0.65rem; color: var(--slate-700); border-color: var(--slate-300); font-weight: 600;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 2px;"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Edit Event
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="deleteAdminEvent('${evt.id}')" style="font-size: 0.76rem; padding: 0.25rem 0.65rem; color: var(--danger); border-color: rgba(220, 38, 38, 0.3); font-weight: 600; margin-left: auto;">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 2px;"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   `).join('');
 }
 
-window.deleteEvent = function(idx) {
-  if (confirm('Are you sure you want to delete this event?')) {
-    const events = DataStore.getEvents();
-    events.splice(idx, 1);
-    DataStore.saveEvents(events);
-    renderAdminEvents();
-    renderEvents();
-  }
-};
+window.renderAdminEvents = renderAdminEvents;
 
 /**
  * ============================================================================
@@ -2347,17 +2638,114 @@ function escapeHtml(str) {
 }
 
 /**
+ * Quick News & Announcement Ingestion Handlers
+ */
+window.handleQuickNewsFile = function(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    window._quickNewsUploadedDataUrl = e.target.result;
+    const previewBox = document.getElementById('quickNewsPreviewBox');
+    const previewImg = document.getElementById('quickNewsPreviewImg');
+    const previewName = document.getElementById('quickNewsPreviewName');
+    const urlInput = document.getElementById('quickNewsImageUrl');
+
+    if (previewImg) previewImg.src = e.target.result;
+    if (previewName) previewName.textContent = file.name;
+    if (previewBox) previewBox.style.display = 'flex';
+    if (urlInput) urlInput.value = file.name;
+  };
+  reader.readAsDataURL(file);
+};
+
+window.clearQuickNewsPreview = function() {
+  window._quickNewsUploadedDataUrl = null;
+  const fileInput = document.getElementById('quickNewsImageFile');
+  const previewBox = document.getElementById('quickNewsPreviewBox');
+  const previewImg = document.getElementById('quickNewsPreviewImg');
+  const urlInput = document.getElementById('quickNewsImageUrl');
+
+  if (fileInput) fileInput.value = '';
+  if (previewImg) previewImg.src = '';
+  if (previewBox) previewBox.style.display = 'none';
+  if (urlInput) urlInput.value = 'images/campus.jpg';
+};
+
+window.handleQuickNewsUpload = function(event) {
+  if (event && event.preventDefault) event.preventDefault();
+
+  const title = (document.getElementById('quickNewsTitle')?.value || '').trim();
+  const category = document.getElementById('quickNewsCategory')?.value || 'Alumni News';
+  const date = document.getElementById('quickNewsDate')?.value || new Date().toISOString().split('T')[0];
+  const featured = !!document.getElementById('quickNewsFeatured')?.checked;
+  const summary = (document.getElementById('quickNewsSummary')?.value || '').trim();
+  const content = (document.getElementById('quickNewsContent')?.value || '').trim();
+
+  let image = window._quickNewsUploadedDataUrl;
+  if (!image) {
+    const manualUrl = (document.getElementById('quickNewsImageUrl')?.value || '').trim();
+    image = manualUrl || 'images/campus.jpg';
+  }
+
+  if (!title || !summary || !content) {
+    alert('Please fill in all required fields (Title, Summary Brief, and Announcement Body).');
+    return;
+  }
+
+  const newNews = {
+    id: 'news-' + Date.now(),
+    title,
+    category,
+    date,
+    featured,
+    image,
+    summary,
+    content
+  };
+
+  DataStore.addNews(newNews);
+
+  const form = document.getElementById('quickNewsUploadForm');
+  if (form) form.reset();
+
+  clearQuickNewsPreview();
+
+  const dateInput = document.getElementById('quickNewsDate');
+  if (dateInput) dateInput.value = new Date().toISOString().split('T')[0];
+
+  if (typeof renderAdminNews === 'function') {
+    renderAdminNews();
+  }
+
+  if (typeof updateNewsGalleryBadgeCounts === 'function') {
+    updateNewsGalleryBadgeCounts();
+  }
+
+  if (typeof renderNews === 'function') {
+    renderNews();
+  }
+
+  alert(`✓ Announcement & Information "${title}" uploaded and published successfully!`);
+};
+
+/**
  * Admin News & Announcements Publishing Studio Controller
  */
 function initAdminNewsStudio() {
   const form = document.getElementById('adminNewsForm');
   const dateInput = document.getElementById('newsDateInput');
+  const quickDateInput = document.getElementById('quickNewsDate');
   const searchInput = document.getElementById('adminSearchNews');
   const categoryFilter = document.getElementById('adminNewsCategoryFilter');
 
   // Set default today's date if empty
   if (dateInput && !dateInput.value) {
     dateInput.value = new Date().toISOString().split('T')[0];
+  }
+  if (quickDateInput && !quickDateInput.value) {
+    quickDateInput.value = new Date().toISOString().split('T')[0];
   }
 
   // Bind live search input once

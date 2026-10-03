@@ -204,12 +204,12 @@
 
   <!-- Admin Page Header -->
   <header class="admin-standalone-header">
-    <div style="display: flex; align-items: center; gap: 1rem;">
-      <a href="./" style="display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit;">
-        <img src="images/logo.png" alt="CIC Alumni 1995 Crest" style="height: 42px; width: auto; object-fit: contain;">
+    <div style="display: flex; align-items: center; gap: 0.85rem;">
+      <a href="./" style="display: flex; align-items: center; gap: 0.65rem; text-decoration: none; color: inherit;">
+        <img src="images/logo.png" alt="CIC Alumni 1995 Crest" style="height: 32px; width: auto; object-fit: contain;">
         <div>
-          <div style="font-family: var(--font-heading); font-size: 1.15rem; font-weight: 800; letter-spacing: 0.05em; color: var(--white); line-height: 1.1;">CIC ALUMNI 1995 SET</div>
-          <div style="font-size: 0.75rem; color: var(--cic-blue-300); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Executive Administrator System</div>
+          <div style="font-family: var(--font-heading); font-size: 0.98rem; font-weight: 800; letter-spacing: 0.04em; color: var(--white); line-height: 1.1;">CIC ALUMNI 1995 SET</div>
+          <div style="font-size: 0.68rem; color: var(--cic-blue-300); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Executive Administrator System</div>
         </div>
       </a>
     </div>
@@ -764,13 +764,156 @@
           </div>
         </div>
 
-        <!-- PANE: EVENTS MANAGER -->
+        <!-- PANE: EVENTS MANAGER & SCHEDULING SUITE -->
         <div class="admin-pane" id="adminPane_Events">
-          <div style="margin-bottom: 1.25rem;">
-            <h4 style="font-family: var(--font-heading); color: var(--navy-900);">Events Directory</h4>
-            <p style="font-size: 0.85rem; color: var(--slate-600);">Alumni can register or purchase event tickets without creating an account.</p>
+          <!-- Header Bar with Quick Action -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <span class="section-badge" style="font-size: 0.75rem; padding: 0.2rem 0.6rem; margin-bottom: 0.5rem; background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600); border-color: rgba(43, 87, 151, 0.20);">
+                Alumni Events &amp; Social Calendar
+              </span>
+              <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.4rem; margin-top: 0.25rem;">
+                Events Scheduling &amp; Ticket Management
+              </h3>
+              <p style="font-size: 0.88rem; color: var(--slate-600); margin-top: 0.25rem;">
+                Upload new alumni events, schedule reunions, setup ticket pricing, and manage attendee registrations.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.75rem;">
+              <button type="button" class="btn btn-primary" onclick="focusEventUpload()" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; font-size: 0.85rem;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                + Schedule Event
+              </button>
+            </div>
           </div>
-          <div id="adminEventsList">
+
+          <!-- DEDICATED SECTION: UPLOAD NEW EVENT & INFORMATION -->
+          <div class="admin-quick-upload-card" style="border: 2px solid var(--cic-blue-600); margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+              <div>
+                <span class="section-badge" style="background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-700); font-size: 0.75rem;">Event Ingestion</span>
+                <h4 id="quickEventFormTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.25rem; margin: 0.25rem 0 0.15rem 0;">
+                  Upload New Event &amp; Information
+                </h4>
+                <p style="font-size: 0.85rem; color: var(--slate-600); margin: 0;">
+                  Provide event title, category, date, venue, ticket fee, and banner photo to publish live on the portal.
+                </p>
+              </div>
+            </div>
+
+            <form id="quickEventUploadForm" onsubmit="handleQuickEventUpload(event)">
+              <input type="hidden" id="eventEditId" value="">
+              <input type="hidden" id="quickEventDataUrl" value="">
+
+              <div class="form-grid-3" style="display: grid; grid-template-columns: 2fr 1.2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="quickEventTitle" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Event Title / Theme <span class="req" style="color: var(--danger);">*</span>
+                  </label>
+                  <input type="text" id="quickEventTitle" class="form-control" placeholder="e.g. 1995 Set Silver Jubilee Homecoming Reunion" required style="font-weight: 600; height: 42px;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="quickEventCategory" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Event Category <span class="req" style="color: var(--danger);">*</span>
+                  </label>
+                  <select id="quickEventCategory" class="form-control" required style="font-weight: 600; height: 42px;">
+                    <option value="Reunions" selected>Reunions &amp; Homecomings</option>
+                    <option value="Annual General Meetings">Annual General Meetings (AGM)</option>
+                    <option value="Dinner &amp; Gala">Dinner &amp; Gala Night</option>
+                    <option value="Professional Summit">Professional &amp; Career Summit</option>
+                    <option value="Sports &amp; Games">Sports &amp; Health Festival</option>
+                    <option value="Webinar">Virtual Global Webinar</option>
+                  </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="quickEventDate" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Event Date <span class="req" style="color: var(--danger);">*</span>
+                  </label>
+                  <input type="date" id="quickEventDate" class="form-control" required style="font-weight: 600; height: 42px;">
+                </div>
+              </div>
+
+              <div class="form-grid-3" style="display: grid; grid-template-columns: 1fr 1.5fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="quickEventTime" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Time / Schedule
+                  </label>
+                  <input type="text" id="quickEventTime" class="form-control" placeholder="e.g. 5:00 PM Prompt" value="10:00 AM Prompt" style="height: 42px;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="quickEventVenue" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Location / Venue <span class="req" style="color: var(--danger);">*</span>
+                  </label>
+                  <input type="text" id="quickEventVenue" class="form-control" placeholder="e.g. Enugu Sports Club, Independence Layout / Zoom Link" required style="height: 42px;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="quickEventFee" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Ticket / Registration Fee (₦) <span class="req" style="color: var(--danger);">*</span>
+                  </label>
+                  <input type="number" id="quickEventFee" class="form-control" placeholder="0 for Free" value="0" min="0" required style="height: 42px; font-weight: 700;">
+                </div>
+              </div>
+
+              <!-- Image Upload & Preview -->
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label class="form-label" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                  Event Banner Image
+                </label>
+                <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                  <label class="btn btn-sm btn-outline-blue" style="cursor: pointer; margin: 0; padding: 0.45rem 0.85rem; font-size: 0.82rem;">
+                    <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Upload Event Photo
+                    <input type="file" id="quickEventImageFile" accept="image/*" style="display: none;" onchange="handleQuickEventFile(event)">
+                  </label>
+                  <input type="text" id="quickEventImageUrl" class="form-control" placeholder="Or enter direct image URL" value="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" style="flex: 1; min-width: 220px; height: 38px; font-size: 0.84rem;">
+                  <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--navy-900); margin: 0;">
+                    <input type="checkbox" id="quickEventFeatured" style="width: 16px; height: 16px; accent-color: var(--cic-blue-600);">
+                    Pin as Featured
+                  </label>
+                </div>
+                <!-- Preview Box -->
+                <div id="quickEventPreviewBox" style="display: none; margin-top: 0.5rem; align-items: center; gap: 0.75rem; background: var(--slate-100); padding: 0.5rem 0.75rem; border-radius: var(--radius-md);">
+                  <img id="quickEventPreviewImg" src="" alt="Event Image Preview" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px;">
+                  <span id="quickEventPreviewName" style="font-size: 0.8rem; color: var(--navy-900); font-weight: 600;">Selected Image</span>
+                  <button type="button" class="btn btn-sm btn-outline-light" onclick="clearQuickEventPreview()" style="margin-left: auto; font-size: 0.75rem; padding: 0.15rem 0.5rem; color: var(--danger);">Remove</button>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label class="form-label" for="quickEventDesc" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                  Event Information &amp; Description <span class="req" style="color: var(--danger);">*</span>
+                </label>
+                <textarea id="quickEventDesc" class="form-control" rows="3" placeholder="Provide event schedule, keynote speakers, dress code, banquet details, and registration instructions..." required style="font-size: 0.88rem;"></textarea>
+              </div>
+
+              <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                <button type="button" id="btnCancelEventEdit" class="btn btn-outline-light" onclick="cancelQuickEventEdit()" style="display: none; height: 42px; font-size: 0.85rem;">
+                  Cancel Edit
+                </button>
+                <button type="submit" id="btnSubmitQuickEvent" class="btn btn-primary btn-lg" style="height: 42px; font-weight: 800; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0 1.5rem; font-size: 0.9rem;">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+                  <span>Upload Event &amp; Information</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Controls & Events List -->
+          <div class="admin-table-controls" style="margin-bottom: 1.25rem;">
+            <div class="admin-search-box">
+              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+              <input type="text" id="adminSearchEvents" placeholder="Search events by title, venue, or category..." oninput="renderAdminEvents()">
+            </div>
+            <div style="font-size: 0.84rem; color: var(--slate-500);">
+              Live on website: <a href="./#events" target="_blank" style="color: var(--cic-blue-600); font-weight: 700; text-decoration: underline;">index.html &amp; dues registration</a>
+            </div>
+          </div>
+
+          <div id="adminEventsList" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.25rem;">
             <!-- Rendered dynamically -->
           </div>
         </div>
@@ -1109,6 +1252,102 @@
                SUBSECTION 1: NEWS & ANNOUNCEMENTS
                ========================================== -->
           <div id="adminNewsSection">
+            <!-- DEDICATED SECTION: UPLOAD NEWS, INFORMATION & ANNOUNCEMENTS -->
+            <div class="admin-quick-upload-card" style="border: 2px solid var(--cic-blue-600); margin-bottom: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div>
+                  <span class="section-badge" style="background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-700); font-size: 0.75rem;">Media &amp; Public Relations Ingestion</span>
+                  <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.25rem; margin: 0.25rem 0 0.15rem 0;">
+                    Upload News, Information &amp; Announcements
+                  </h4>
+                  <p style="font-size: 0.85rem; color: var(--slate-600); margin: 0;">
+                    Broadcast official news, announcements, resolutions, and media releases with photos directly to the website.
+                  </p>
+                </div>
+                <button type="button" class="btn btn-sm btn-outline-blue" onclick="toggleAdminNewsForm()">
+                  + Open Advanced Studio
+                </button>
+              </div>
+
+              <form id="quickNewsUploadForm" onsubmit="handleQuickNewsUpload(event)">
+                <div class="form-grid-3" style="display: grid; grid-template-columns: 2fr 1.2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="quickNewsTitle" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                      Announcement / Article Title <span class="req" style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="text" id="quickNewsTitle" class="form-control" placeholder="e.g. Notice of 2026 Grand Alumni Gala &amp; AGM in Enugu" required style="font-weight: 600; height: 42px;">
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="quickNewsCategory" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                      Category <span class="req" style="color: var(--danger);">*</span>
+                    </label>
+                    <select id="quickNewsCategory" class="form-control" required style="font-weight: 600; height: 42px;">
+                      <option value="Alumni News" selected>Alumni News</option>
+                      <option value="Meeting Notices">Meeting Notices</option>
+                      <option value="Event Announcements">Event Announcements</option>
+                      <option value="Project Updates">Project Updates</option>
+                      <option value="Executive Resolutions">Executive Resolutions</option>
+                      <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="quickNewsDate" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                      Publication Date <span class="req" style="color: var(--danger);">*</span>
+                    </label>
+                    <input type="date" id="quickNewsDate" class="form-control" required style="font-weight: 600; height: 42px;">
+                  </div>
+                </div>
+
+                <!-- Image Upload & Preview -->
+                <div class="form-group" style="margin-bottom: 1rem;">
+                  <label class="form-label" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Upload Cover Photo or Banner Image
+                  </label>
+                  <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+                    <label class="btn btn-sm btn-outline-blue" style="cursor: pointer; margin: 0; padding: 0.45rem 0.85rem; font-size: 0.82rem;">
+                      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                      Choose Photo File
+                      <input type="file" id="quickNewsImageFile" accept="image/*" style="display: none;" onchange="handleQuickNewsFile(event)">
+                    </label>
+                    <input type="text" id="quickNewsImageUrl" class="form-control" placeholder="Or enter direct image URL (e.g. images/campus.jpg)" value="images/campus.jpg" style="flex: 1; min-width: 220px; height: 38px; font-size: 0.84rem;">
+                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--navy-900); margin: 0;">
+                      <input type="checkbox" id="quickNewsFeatured" style="width: 16px; height: 16px; accent-color: var(--cic-blue-600);">
+                      Pin as Featured
+                    </label>
+                  </div>
+                  <!-- Preview Box -->
+                  <div id="quickNewsPreviewBox" style="display: none; margin-top: 0.5rem; align-items: center; gap: 0.75rem; background: var(--slate-100); padding: 0.5rem 0.75rem; border-radius: var(--radius-md);">
+                    <img id="quickNewsPreviewImg" src="" alt="News Image Preview" style="width: 60px; height: 42px; object-fit: cover; border-radius: 4px;">
+                    <span id="quickNewsPreviewName" style="font-size: 0.8rem; color: var(--navy-900); font-weight: 600;">Selected Image</span>
+                    <button type="button" class="btn btn-sm btn-outline-light" onclick="clearQuickNewsPreview()" style="margin-left: auto; font-size: 0.75rem; padding: 0.15rem 0.5rem; color: var(--danger);">Remove</button>
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1rem;">
+                  <label class="form-label" for="quickNewsSummary" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Summary / Lead Brief (Card Preview) <span class="req" style="color: var(--danger);">*</span>
+                  </label>
+                  <input type="text" id="quickNewsSummary" class="form-control" placeholder="Brief 1-2 sentence lead brief shown on the card..." required style="height: 40px; font-size: 0.88rem;">
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <label class="form-label" for="quickNewsContent" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
+                    Announcement Information &amp; Full Details <span class="req" style="color: var(--danger);">*</span>
+                  </label>
+                  <textarea id="quickNewsContent" class="form-control" rows="4" placeholder="Provide complete notice details, agenda, resolutions, dates, and instructions for alumni..." required style="font-size: 0.88rem;"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end;">
+                  <button type="submit" class="btn btn-primary btn-lg" style="height: 42px; font-weight: 800; display: inline-flex; align-items: center; gap: 0.5rem; padding: 0 1.6rem; font-size: 0.9rem;">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    Upload Announcement &amp; Information
+                  </button>
+                </div>
+              </form>
+            </div>
+
             <!-- Publish / Edit News Studio Box -->
             <div id="adminNewsFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">

@@ -587,6 +587,48 @@ const DataStore = {
     this.set(STORAGE_KEYS.EVENTS, evts);
   },
 
+  addEvent(event) {
+    const list = this.getEvents();
+    if (!event.id) {
+      event.id = 'evt-' + Date.now();
+    }
+    if (!event.displayDate && event.date) {
+      try {
+        const parts = event.date.split('-');
+        if (parts.length === 3) {
+          const d = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+          event.displayDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+      } catch (_) {}
+    }
+    list.unshift(event);
+    this.saveEvents(list);
+    return event;
+  },
+
+  updateEvent(event) {
+    let list = this.getEvents();
+    const idx = list.findIndex(e => e.id === event.id);
+    if (idx !== -1) {
+      list[idx] = { ...list[idx], ...event };
+      this.saveEvents(list);
+      return list[idx];
+    }
+    return null;
+  },
+
+  deleteEventById(id) {
+    let list = this.getEvents();
+    list = list.filter(e => e.id !== id);
+    this.saveEvents(list);
+    return true;
+  },
+
+  findEventById(id) {
+    const list = this.getEvents();
+    return list.find(e => e.id === id) || null;
+  },
+
   getProjects() {
     const raw = this.get(STORAGE_KEYS.PROJECTS);
     if (!raw) return DEFAULT_PROJECTS;

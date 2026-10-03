@@ -389,9 +389,30 @@ python -m http.server 8080
 3. To delete: Click **Delete** to retire any category no longer in use.
 4. To inspect payers: Click **View Payers** to view a dedicated modal list of every alumnus who paid for that specific due.
 
+### 12.6 For Administrators: How to Upload News, Information & Announcements
+1. In the Admin Suite, navigate to **News & Announcements** (`#adminPane_NewsGallery`).
+2. At the top of the pane, use the dedicated **Upload News, Information & Announcements** card.
+3. Enter the Announcement Title, select the Category (e.g. *Alumni News*, *Meeting Notices*, *Event Announcements*, *Executive Resolutions*), and set Publication Date.
+4. Upload a Cover Photo using the file picker (or specify an image path) with instant live preview.
+5. Provide the Summary/Lead Brief and full Announcement details.
+6. Click **Upload Announcement & Information**. It broadcasts immediately to the public portal and updates badge counts.
+
+### 12.7 For Administrators: How to Upload & Schedule Events
+1. In the Admin Suite, navigate to **Events Manager** (`#adminPane_Events`).
+2. Use the dedicated **Upload New Event & Information** ingestion section.
+3. Enter Event Theme, Category (e.g. *Reunions & Homecomings*, *Annual General Meetings*, *Dinner & Gala Night*, *Professional Summit*), Date, Time, Venue/Location, and Ticket Fee (₦0 for free admission).
+4. Upload an Event Photo or Banner Image with instant live preview.
+5. Enter the event description and schedule, then click **Upload Event & Information**.
+6. The event is instantly published to `DEFAULT_EVENTS` / `DataStore.events`, synced with public dues registration, and listed in the interactive event manager cards where administrators can edit or delete events at any time.
+
 ---
 
 ## 13. Recent Changelog & Milestones
+
+* **Version 3.1.0 (October 2026)**:
+  * **Dedicated News & Announcements Upload Section:** Built direct media and announcement upload form with image picker, live preview, category tagging, priority pinning, and instant cross-portal publishing.
+  * **Dedicated Events Upload & Management Suite:** Added full-featured event creation with banner photo upload, date/time scheduling, venue mapping, ticket pricing, and interactive card-based edit/delete controllers.
+  * **Front Admin Management Compaction:** Streamlined the admin header, reduced sidebar width (250px), compacted navigation buttons and typography, scaled down overview KPI cards (1.35rem stats), and optimized spacing for a sleek, clutter-free executive experience.
 
 * **Version 3.0.0 (October 2026)**:
   * **Folder Restructuring:** Organized all 11 HTML pages into dedicated `html/` directory and brand assets into `images/` directory, backed by a root redirector.
@@ -404,3 +425,4 @@ python -m http.server 8080
 
 *Authored by Antigravity AI Engineering for College of the Immaculate Conception (CIC) Alumni Class of 1995 Set.*  
 *Semper Fidelis.*
+

@@ -2588,29 +2588,29 @@ button, input, select, textarea {
 
 /* Executive Sidebar Navigation */
 .admin-nav-bar {
-  width: 275px;
-  min-width: 275px;
+  width: 250px;
+  min-width: 250px;
   background: var(--cic-blue-950);
   display: flex;
   flex-direction: column;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   border-bottom: none;
-  padding: 1.5rem 1rem;
-  gap: 0.4rem;
+  padding: 1.15rem 0.75rem;
+  gap: 0.3rem;
   overflow-y: auto;
   box-shadow: 4px 0 16px rgba(0, 0, 0, 0.12);
 }
 
 .admin-sidebar-header {
-  padding: 0 0.5rem 0.75rem 0.5rem;
+  padding: 0 0.4rem 0.55rem 0.4rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.45rem;
 }
 
 .admin-sidebar-title {
-  font-size: 0.72rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--cic-blue-300);
 }
@@ -2618,11 +2618,11 @@ button, input, select, textarea {
 .admin-tab-btn {
   width: 100%;
   text-align: left;
-  padding: 0.85rem 1rem;
-  border-radius: 8px;
+  padding: 0.58rem 0.75rem;
+  border-radius: 6px;
   color: var(--cic-blue-200);
   font-weight: 600;
-  font-size: 0.88rem;
+  font-size: 0.81rem;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -2630,7 +2630,7 @@ button, input, select, textarea {
   white-space: normal;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.55rem;
   border-left: 3px solid transparent;
 }
 
@@ -2638,6 +2638,8 @@ button, input, select, textarea {
   flex-shrink: 0;
   color: var(--cic-blue-300);
   transition: var(--transition);
+  width: 16px;
+  height: 16px;
 }
 
 .admin-tab-btn:hover {
@@ -2665,18 +2667,21 @@ button, input, select, textarea {
   background: var(--cic-blue-700);
   color: var(--white);
   font-weight: 600;
+  font-size: 0.81rem;
   border-radius: var(--radius-sm);
-  margin: 0.5rem 0;
-  padding: 0.75rem 0.95rem;
+  margin: 0.25rem 0;
+  padding: 0.55rem 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.55rem;
 }
 
 .admin-tab-btn-action svg {
   color: var(--white);
+  width: 16px;
+  height: 16px;
 }
 
 .admin-tab-btn-action:hover {
@@ -2695,18 +2700,21 @@ button, input, select, textarea {
   background: var(--emerald-600);
   color: var(--white);
   font-weight: 600;
+  font-size: 0.81rem;
   border-radius: var(--radius-sm);
-  margin: 0.25rem 0 0.5rem 0;
-  padding: 0.75rem 0.95rem;
+  margin: 0.15rem 0 0.3rem 0;
+  padding: 0.55rem 0.75rem;
   border: 1px solid rgba(255, 255, 255, 0.15);
   box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.55rem;
 }
 
 .admin-tab-btn-emerald svg {
   color: var(--white);
+  width: 16px;
+  height: 16px;
 }
 
 .admin-tab-btn-emerald:hover {
@@ -2723,21 +2731,21 @@ button, input, select, textarea {
 /* Sidebar Footer Info */
 .admin-sidebar-footer {
   margin-top: auto;
-  padding-top: 1.5rem;
+  padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .admin-sidebar-status {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.75rem;
+  gap: 0.45rem;
+  font-size: 0.72rem;
   color: var(--cic-blue-300);
 }
 
 .status-dot-pulse {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   background: var(--emerald-600);
   border-radius: 50%;
 }
@@ -2745,7 +2753,7 @@ button, input, select, textarea {
 /* Main Admin Workspace Area */
 .admin-body {
   flex: 1;
-  padding: 2.25rem 2.5rem;
+  padding: 1.5rem 1.75rem;
   overflow-y: auto;
   background: var(--slate-50);
   min-width: 0;
@@ -2771,7 +2779,7 @@ button, input, select, textarea {
 .admin-standalone .admin-standalone-header {
   background: var(--cic-blue-950);
   color: var(--white);
-  padding: 1rem 2rem;
+  padding: 0.65rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2789,8 +2797,8 @@ button, input, select, textarea {
 
 .admin-standalone .admin-body {
   max-height: none;
-  min-height: calc(100vh - 75px);
-  padding: 2.25rem 2.5rem;
+  min-height: calc(100vh - 65px);
+  padding: 1.5rem 1.75rem;
 }
 
 /* Responsive sidebar */
@@ -2805,8 +2813,8 @@ button, input, select, textarea {
     overflow-x: auto;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.65rem 0.75rem;
-    gap: 0.5rem;
+    padding: 0.55rem 0.65rem;
+    gap: 0.4rem;
   }
   .admin-sidebar-header, .admin-sidebar-footer {
     display: none;
@@ -2814,55 +2822,55 @@ button, input, select, textarea {
   .admin-tab-btn {
     width: auto;
     white-space: nowrap;
-    padding: 0.6rem 0.9rem;
+    padding: 0.5rem 0.75rem;
   }
   .admin-tab-btn-action {
     margin: 0;
   }
   .admin-body {
-    padding: 1.5rem 1rem;
+    padding: 1.25rem 0.85rem;
   }
 }
 
 /* Admin Metric KPI Cards */
 .admin-kpis-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(185px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
 }
 
 .admin-kpi-card {
   background: var(--white);
   border: 1px solid var(--slate-200);
-  border-radius: var(--radius-lg);
-  padding: 1.4rem;
+  border-radius: var(--radius-md);
+  padding: 0.95rem 1.1rem;
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
 }
 
 .admin-kpi-label {
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 700;
   color: var(--slate-500);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
 .admin-kpi-val {
   font-family: var(--font-heading);
-  font-size: 1.8rem;
+  font-size: 1.35rem;
   font-weight: 800;
   color: var(--cic-blue-900);
 }
 
 .admin-kpi-sub {
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   color: var(--cic-blue-600);
   font-weight: 600;
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
 }
 
 /* Admin Table & Filters */
