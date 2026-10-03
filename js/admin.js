@@ -250,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const category = document.getElementById('newProjectCategory').value;
       const target = parseInt(document.getElementById('newProjectTarget').value, 10);
       const initialRaised = parseInt(document.getElementById('newProjectInitialRaised').value, 10) || 0;
-      const image = document.getElementById('newProjectImage').value.trim() || '../images/campus.jpg';
+      const image = document.getElementById('newProjectImage').value.trim() || 'images/campus.jpg';
       const description = document.getElementById('newProjectDescription').value.trim();
 
       if (!title || !target || target <= 0) {
@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const initRaisedInput = document.getElementById('newProjectInitialRaised');
       if (initRaisedInput) initRaisedInput.value = '0';
       const imgInput = document.getElementById('newProjectImage');
-      if (imgInput) imgInput.value = '../images/campus.jpg';
+      if (imgInput) imgInput.value = 'images/campus.jpg';
 
       switchToProjectsTab();
     });
@@ -1535,7 +1535,7 @@ function initAdminProjectsStudio() {
     const target = targetInput ? (Number(targetInput.value) || 0) : 0;
     const raised = raisedInput ? (Number(raisedInput.value) || 0) : 0;
     const donors = donorsInput ? (Number(donorsInput.value) || 0) : 0;
-    const image = imageInput && imageInput.value.trim() ? imageInput.value.trim() : '../images/campus.jpg';
+    const image = imageInput && imageInput.value.trim() ? imageInput.value.trim() : 'images/campus.jpg';
     const desc = descInput ? descInput.value.trim() : '';
 
     const percent = target > 0 ? Math.min(100, Math.round((raised / target) * 100)) : 0;
@@ -1664,13 +1664,13 @@ function initAdminProjectsStudio() {
   // Remove uploaded image & reset to default
   window.removeProjectUploadedImage = function() {
     const imgInput = document.getElementById('newProjectImage');
-    if (imgInput) imgInput.value = '../images/campus.jpg';
+    if (imgInput) imgInput.value = 'images/campus.jpg';
 
     const fileInput = document.getElementById('projectImageFileInput');
     if (fileInput) fileInput.value = '';
 
     const thumb = document.getElementById('projectUploadThumb');
-    if (thumb) thumb.src = '../images/campus.jpg';
+    if (thumb) thumb.src = 'images/campus.jpg';
 
     const nameEl = document.getElementById('projectUploadFileName');
     if (nameEl) nameEl.textContent = 'campus.jpg (Default Banner)';
@@ -1791,7 +1791,7 @@ function initAdminProjectsStudio() {
       const target = Number(targetInput.value);
       const raised = Number(raisedInput.value) || 0;
       const donors = Number(donorsInput.value) || 0;
-      const image = (imageInput.value || '../images/campus.jpg').trim();
+      const image = (imageInput.value || 'images/campus.jpg').trim();
       const description = descInput.value.trim();
 
       if (!title || !target || !description) {
@@ -1880,13 +1880,13 @@ window.resetProjectStudioForm = function() {
   if (submitBtnText) submitBtnText.textContent = 'Create & Publish Project';
 
   const imageInput = document.getElementById('newProjectImage');
-  if (imageInput) imageInput.value = '../images/campus.jpg';
+  if (imageInput) imageInput.value = 'images/campus.jpg';
 
   const fileInput = document.getElementById('projectImageFileInput');
   if (fileInput) fileInput.value = '';
 
   const uploadThumb = document.getElementById('projectUploadThumb');
-  if (uploadThumb) uploadThumb.src = '../images/campus.jpg';
+  if (uploadThumb) uploadThumb.src = 'images/campus.jpg';
 
   const uploadFileName = document.getElementById('projectUploadFileName');
   if (uploadFileName) uploadFileName.textContent = 'campus.jpg (Default Banner)';
@@ -2027,7 +2027,7 @@ function renderAdminProjects() {
       <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-xl); padding: 1.5rem; margin-bottom: 1.25rem; display: flex; gap: 1.5rem; align-items: stretch; flex-wrap: wrap; box-shadow: var(--shadow-sm); transition: transform 0.2s, box-shadow 0.2s;">
         <!-- Thumbnail -->
         <div style="position: relative; width: 150px; min-width: 150px; height: 115px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--slate-200); flex-shrink: 0;">
-          <img src="${prj.image}" alt="${escapeHtml(prj.title)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='../images/campus.jpg'">
+          <img src="${prj.image}" alt="${escapeHtml(prj.title)}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='images/campus.jpg'">
           <span style="position: absolute; bottom: 6px; left: 6px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; background: rgba(11, 19, 32, 0.85); color: #fff; padding: 0.15rem 0.45rem; border-radius: 4px; backdrop-filter: blur(4px);">
             ${escapeHtml(prj.category)}
           </span>
@@ -2134,12 +2134,12 @@ window.editProjectInAdmin = function(projectId) {
   if (targetInput) targetInput.value = prj.targetAmount || 0;
   if (raisedInput) raisedInput.value = prj.raisedAmount || 0;
   if (donorsInput) donorsInput.value = prj.donorCount || 0;
-  if (imageInput) imageInput.value = prj.image || '../images/campus.jpg';
+  if (imageInput) imageInput.value = prj.image || 'images/campus.jpg';
   if (descInput) descInput.value = prj.description || '';
 
   // Update image upload preview card
   const uploadThumb = document.getElementById('projectUploadThumb');
-  if (uploadThumb) uploadThumb.src = prj.image || '../images/campus.jpg';
+  if (uploadThumb) uploadThumb.src = prj.image || 'images/campus.jpg';
 
   const uploadFileName = document.getElementById('projectUploadFileName');
   if (uploadFileName) {
@@ -2357,7 +2357,7 @@ function initAdminNewsStudio() {
       const category = document.getElementById('newsCategorySelect').value;
       const date = document.getElementById('newsDateInput').value;
       const featured = document.getElementById('newsFeaturedCheckbox').checked;
-      const image = document.getElementById('newsImageInput').value.trim() || '../images/campus.jpg';
+      const image = document.getElementById('newsImageInput').value.trim() || 'images/campus.jpg';
       const summary = document.getElementById('newsSummaryInput').value.trim();
       const content = document.getElementById('newsContentInput').value.trim();
 
@@ -2480,7 +2480,7 @@ window.editNewsInAdmin = function(newsId) {
   if (categorySelect) categorySelect.value = item.category || 'Alumni News';
   if (dateInput) dateInput.value = item.date || '';
   if (featuredCheckbox) featuredCheckbox.checked = !!item.featured;
-  if (imageInput) imageInput.value = item.image || '../images/campus.jpg';
+  if (imageInput) imageInput.value = item.image || 'images/campus.jpg';
   if (summaryInput) summaryInput.value = item.summary || '';
   if (contentInput) contentInput.value = item.content || '';
 
@@ -2534,7 +2534,7 @@ window.previewNewsArticleInAdmin = function(newsId) {
   if (typeof openGenericModal === 'function') {
     openGenericModal(`
       <div>
-        <img src="${item.image || '../images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 100%; height: 260px; object-fit: cover; border-radius: var(--radius-lg) var(--radius-lg) 0 0;" onerror="this.src='../images/campus.jpg'">
+        <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 100%; height: 260px; object-fit: cover; border-radius: var(--radius-lg) var(--radius-lg) 0 0;" onerror="this.src='images/campus.jpg'">
         <div style="padding: 2rem;">
           <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
             <span class="news-cat-tag">${item.category}</span>
@@ -2596,7 +2596,7 @@ function renderAdminNews() {
 
   container.innerHTML = newsList.map(item => `
     <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm); display: flex; gap: 1.25rem; align-items: flex-start; transition: var(--transition);" class="admin-news-card-item">
-      <img src="${item.image || '../images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 110px; height: 85px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--slate-200); flex-shrink: 0;" onerror="this.src='../images/campus.jpg'">
+      <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 110px; height: 85px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--slate-200); flex-shrink: 0;" onerror="this.src='images/campus.jpg'">
       <div style="flex: 1; min-width: 0;">
         <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap;">
           <span style="background: var(--cic-blue-50); color: var(--cic-blue-700); border: 1px solid var(--cic-blue-200); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 9999px; text-transform: uppercase;">
@@ -3006,7 +3006,7 @@ window.editAdminLeader = function(id) {
   document.getElementById('leaderPhoneInput').value = leader.phone || '';
   document.getElementById('leaderEmailInput').value = leader.email || '';
   document.getElementById('leaderPhotoUrlInput').value = leader.photo || '';
-  document.getElementById('leaderPhotoPreviewImg').src = leader.photo || '../images/campus.jpg';
+  document.getElementById('leaderPhotoPreviewImg').src = leader.photo || 'images/campus.jpg';
   document.getElementById('leaderBioInput').value = leader.bio || '';
 
   const titleEl = document.getElementById('leaderFormHeaderTitle');
@@ -3065,7 +3065,7 @@ function renderAdminLeadership() {
     return `
       <div class="admin-leader-card">
         <div class="admin-leader-card-header">
-          <img src="${escapeHtml(l.photo || '../images/campus.jpg')}" alt="${escapeHtml(l.name)}" class="admin-leader-avatar" onerror="this.src='../images/campus.jpg'">
+          <img src="${escapeHtml(l.photo || 'images/campus.jpg')}" alt="${escapeHtml(l.name)}" class="admin-leader-avatar" onerror="this.src='images/campus.jpg'">
           <div style="flex: 1; min-width: 0;">
             <h5 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.05rem; margin: 0 0 0.25rem 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               ${escapeHtml(l.name)}

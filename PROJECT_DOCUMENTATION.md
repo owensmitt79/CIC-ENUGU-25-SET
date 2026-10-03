@@ -62,25 +62,22 @@ The project follows a clean, organized, zero-dependency layout:
 
 ```text
 Eng ilo/
-├── index.html                      # Root entrance redirector (auto-routes to html/index.html)
 ├── README.md                       # High-level overview and quick-start guide
 ├── PROJECT_DOCUMENTATION.md        # Comprehensive technical documentation (this file)
 ├── DATABASE_SETUP_PROMPT.md        # Cloud SQL / PostgreSQL prompt specifications
 ├── SUPABASE_DATABASE_PROMPT.md     # Supabase backend migration instructions
 ├── supabase_schema.sql             # Complete PostgreSQL/Supabase schema & RLS policies
-│
-├── html/                           # Dedicated directory for all portal HTML pages
-│   ├── index.html                  # Homepage (Hero, statistics, project highlights, news, gallery)
-│   ├── about.html                  # History of CIC Enugu, brotherhood narrative, 7 commitments
-│   ├── leadership.html             # Executive Council directory with executive bio readers
-│   ├── members.html                # Class of 1995 Members Directory with live search & filters
-│   ├── projects.html               # Developmental capital projects, progress bars, and donors
-│   ├── gallery.html                # Alumni photo and media gallery with interactive lightbox
-│   ├── verify.html                 # Public transaction reference and receipt verification portal
-│   ├── payment.html                # Zero-login dues & donation checkout platform
-│   ├── contact.html                # National Secretariat desk, inquiry form, and physical address
-│   ├── login.html                  # Executive Administrator PIN-protected login portal
-│   └── admin.html                  # Comprehensive Executive Administration Suite
+├── index.html                      # Homepage (Hero, statistics, project highlights, news, gallery)
+├── about.html                      # History of CIC Enugu, brotherhood narrative, 7 commitments
+├── leadership.html                 # Executive Council directory with executive bio readers
+├── members.html                    # Class of 1995 Members Directory with live search & filters
+├── projects.html                   # Developmental capital projects, progress bars, and donors
+├── gallery.html                    # Alumni photo and media gallery with interactive lightbox
+├── verify.html                     # Public transaction reference and receipt verification portal
+├── payment.html                    # Zero-login dues & donation checkout platform
+├── contact.html                    # National Secretariat desk, inquiry form, and physical address
+├── login.html                      # Executive Administrator PIN-protected login portal
+├── admin.html                      # Comprehensive Executive Administration Suite
 │
 ├── images/                         # Dedicated directory for brand, campus, and monument assets
 │   ├── logo.png                    # Official College of the Immaculate Conception (CIC) crest
@@ -95,7 +92,6 @@ Eng ilo/
     ├── data.js                     # LocalStorage DataStore, initial models, and sanitization
     ├── app.js                      # Payment stepper, dynamic rendering, search, QR generator
     ├── admin.js                    # Admin dashboard controllers, image upload, ledger, CSV export
-    └── receipt.js                  # Printable, downloadable, verified official receipt engine
 ```
 
 ---

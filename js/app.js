@@ -242,7 +242,7 @@ function renderLeadership() {
   container.innerHTML = leaders.map((leader, idx) => `
     <div class="exec-card">
       <div class="exec-photo-wrapper">
-        <img src="${leader.photo || '../images/campus.jpg'}" alt="${leader.name}" class="exec-photo" loading="lazy" onerror="this.src='../images/campus.jpg'" />
+        <img src="${leader.photo || 'images/campus.jpg'}" alt="${leader.name}" class="exec-photo" loading="lazy" onerror="this.src='images/campus.jpg'" />
         <span class="exec-badge-role">${leader.position}</span>
       </div>
       <div class="exec-body">
@@ -264,7 +264,7 @@ window.viewExecBio = function(idx) {
 
   openGenericModal(`
     <div style="text-align: center; padding: 1.5rem 1rem;">
-      <img src="${leader.photo || '../images/campus.jpg'}" alt="${leader.name}" onerror="this.src='../images/campus.jpg'" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; margin: 0 auto 1rem auto; border: 3px solid var(--cic-blue-500); box-shadow: var(--shadow-md);">
+      <img src="${leader.photo || 'images/campus.jpg'}" alt="${leader.name}" onerror="this.src='images/campus.jpg'" style="width: 130px; height: 130px; border-radius: 50%; object-fit: cover; margin: 0 auto 1rem auto; border: 3px solid var(--cic-blue-500); box-shadow: var(--shadow-md);">
       <h3 style="font-family: var(--font-heading); color: var(--cic-blue-900); font-size: 1.5rem; margin-bottom: 0.25rem;">${leader.name}</h3>
       <div style="font-weight: 700; color: var(--cic-blue-600); margin-bottom: 0.25rem;">${leader.position}</div>
       <div style="font-size: 0.85rem; color: var(--slate-500); margin-bottom: 1.25rem;">${leader.classYear || 'Class of 1995'}</div>
@@ -1275,7 +1275,7 @@ function renderOfficialReceiptHTML(record) {
     <div class="digital-receipt-box" id="officialReceiptPrintBox">
       <div class="receipt-header">
         <div class="receipt-brand">
-          <img src="../images/logo.png" alt="CIC Alumni Official Crest" style="width: 52px; height: 56px; object-fit: contain;">
+          <img src="images/logo.png" alt="CIC Alumni Official Crest" style="width: 52px; height: 56px; object-fit: contain;">
           <div class="receipt-brand-text">
             <h3>CIC ALUMNI 1995 SET</h3>
             <p>College of the Immaculate Conception, Enugu</p>

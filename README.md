@@ -77,19 +77,18 @@ Accessible via the discreet **"Executive Admin Login"** link in the footer:
 Eng ilo/
 ├── .gitignore              # Git ignore rules for OS, editor, and build artifacts
 ├── README.md               # Project documentation and developer guide
-├── index.html              # Root entrance redirecting to html/index.html
-├── html/                   # All Application & Portal HTML Pages
-│   ├── index.html          # Homepage portal (Hero, projects preview, dispatches)
-│   ├── about.html          # Dedicated About the Association & Alma Mater history
-│   ├── leadership.html     # Dedicated Executive Council directory
-│   ├── members.html        # Dedicated Class of 1995 Members Directory with search & filters
-│   ├── projects.html       # Dedicated Development Projects, funding progress & filters
-│   ├── gallery.html        # Dedicated Alumni Photo & Media Gallery with interactive lightbox
-│   ├── verify.html         # Dedicated official transaction & receipt verification portal
-│   ├── payment.html        # Dedicated zero-login dues & donation checkout platform
-│   ├── contact.html        # Dedicated National Secretariat desk & inquiry forms
-│   ├── login.html          # Dedicated Executive Administrator Login portal
-│   └── admin.html          # Dedicated Executive Administrator Dashboard & project publishing
+├── PROJECT_DOCUMENTATION.md# Comprehensive technical & operational specifications
+├── index.html              # Homepage portal (Hero, projects preview, dispatches)
+├── about.html              # Dedicated About the Association & Alma Mater history
+├── leadership.html         # Dedicated Executive Council directory
+├── members.html            # Dedicated Class of 1995 Members Directory with search & filters
+├── projects.html           # Dedicated Development Projects, funding progress & filters
+├── gallery.html            # Dedicated Alumni Photo & Media Gallery with interactive lightbox
+├── verify.html             # Dedicated official transaction & receipt verification portal
+├── payment.html            # Dedicated zero-login dues & donation checkout platform
+├── contact.html            # Dedicated National Secretariat desk & inquiry forms
+├── login.html              # Dedicated Executive Administrator Login portal
+├── admin.html              # Dedicated Executive Administrator Dashboard & project publishing
 ├── images/                 # All Brand & Media Assets
 │   ├── logo.png            # Official CIC Crest high-resolution logo
 │   ├── hero-bg.jpg         # Official CIC campus collage widescreen hero background
