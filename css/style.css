@@ -697,32 +697,7 @@ button, input, select, textarea {
   border: 1px solid var(--slate-200);
 }
 
-.about-badge-card {
-  position: absolute;
-  bottom: -20px;
-  right: -20px;
-  background: var(--white);
-  color: var(--slate-800);
-  padding: 1.5rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--slate-200);
-  box-shadow: var(--shadow-xl);
-  max-width: 240px;
-}
 
-.about-badge-card .number {
-  font-family: var(--font-heading);
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--cic-blue-600);
-  line-height: 1;
-}
-
-.about-badge-card .text {
-  font-size: 0.85rem;
-  color: var(--slate-600);
-  margin-top: 0.4rem;
-}
 
 .about-content h3 {
   font-family: var(--font-heading);
