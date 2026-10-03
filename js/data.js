@@ -584,7 +584,12 @@ const DataStore = {
   },
 
   getCategories() {
-    return this.get(STORAGE_KEYS.CATEGORIES) || DEFAULT_CATEGORIES;
+    let cats = this.get(STORAGE_KEYS.CATEGORIES);
+    if (!cats || !Array.isArray(cats) || cats.length === 0) {
+      cats = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+      this.saveCategories(cats);
+    }
+    return cats;
   },
 
   getDefaultCategories() {

@@ -1056,7 +1056,6 @@ function renderAdminCategories() {
     const rateText = `₦${Number(cat.baseAmount || 0).toLocaleString()}${isMonthly ? ' / mo' : ''}`;
     const collected = collectionsMap[cat.id] || 0;
     const payersCount = payersMap[cat.id] ? payersMap[cat.id].size : 0;
-    const isCore = ['monthly_dues', 'annual_dues'].includes(cat.id);
 
     return `
       <div class="cat-controller-card ${cat.active ? '' : 'disabled'}" id="catCard_${cat.id}">
@@ -1067,7 +1066,7 @@ function renderAdminCategories() {
           </div>
           <div class="cat-info-block">
             <div class="cat-title-row">
-              <h4 class="cat-title-text">${escapeHtml(cat.name)}</h4>
+              <h4 class="cat-title-text" id="catTitle_${cat.id}">${escapeHtml(cat.name)}</h4>
               <span class="cat-code-tag">#${escapeHtml(cat.id)}</span>
               <span class="cat-type-pill ${typeClass}">
                 ${typeLabel}
@@ -1102,9 +1101,13 @@ function renderAdminCategories() {
             <span class="cat-toggle-label ${cat.active ? 'active' : 'inactive'}">${cat.active ? 'Active' : 'Disabled'}</span>
           </div>
 
-          <!-- Actions Group -->
+          <!-- Actions Group (Rename, Settings/Edit, Payers, Delete) -->
           <div class="cat-actions-group">
-            <button type="button" class="cat-btn-action cat-btn-edit" title="Edit Category Details & Rates" onclick="openCategoryModal('${escapeHtml(cat.id)}')">
+            <button type="button" class="cat-btn-action cat-btn-rename" title="Rename this dues stream" onclick="renameCategoryQuick('${escapeHtml(cat.id)}')">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+              <span>Rename</span>
+            </button>
+            <button type="button" class="cat-btn-action cat-btn-edit" title="Edit full details & rates" onclick="openCategoryModal('${escapeHtml(cat.id)}')">
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               <span>Edit</span>
             </button>
@@ -1112,8 +1115,9 @@ function renderAdminCategories() {
               <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               <span>Payers</span>
             </button>
-            <button type="button" class="cat-btn-action cat-btn-delete" title="${isCore ? 'Core category cannot be deleted' : 'Delete Category'}" onclick="deleteCategory('${escapeHtml(cat.id)}')" ${isCore ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
-              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <button type="button" class="cat-btn-action cat-btn-delete" title="Delete this dues stream" onclick="deleteCategory('${escapeHtml(cat.id)}')">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span>Delete</span>
             </button>
           </div>
         </div>
@@ -1283,6 +1287,7 @@ window.saveCategoryForm = function(event) {
     // Updating existing
     const existingIdx = cats.findIndex(c => c.id === origId);
     if (existingIdx !== -1) {
+      const oldName = cats[existingIdx].name;
       cats[existingIdx] = {
         ...cats[existingIdx],
         name,
@@ -1291,6 +1296,21 @@ window.saveCategoryForm = function(event) {
         description,
         active
       };
+
+      // Keep historical payment types linked if name changed
+      if (oldName && oldName !== name) {
+        const payments = DataStore.getPayments();
+        let changed = false;
+        payments.forEach(p => {
+          if (p.paymentType === oldName) {
+            p.paymentType = name;
+            changed = true;
+          }
+        });
+        if (changed) {
+          DataStore.set(STORAGE_KEYS.PAYMENTS, payments);
+        }
+      }
     }
   } else {
     // Check if ID collision
@@ -1317,6 +1337,7 @@ window.saveCategoryForm = function(event) {
   closeCategoryModal();
   renderAdminCategories();
   renderDuesCategoryChips();
+  if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
 
   // If this was Monthly Dues, update config rate as well
   if (origId === 'monthly_dues' || id === 'monthly_dues') {
@@ -1326,21 +1347,61 @@ window.saveCategoryForm = function(event) {
   }
 
   if (typeof showReceiptToast === 'function') {
-    showReceiptToast(`✓ Category "${name}" saved successfully!`, 'success');
+    showReceiptToast(`✓ Dues item "${name}" updated successfully!`, 'success');
   }
 };
 
-window.deleteCategory = function(catId) {
-  if (['monthly_dues', 'annual_dues'].includes(catId)) {
-    alert('Core statutory categories (Monthly Dues, Annual Dues) cannot be deleted. You can deactivate them instead to hide them from the public payment portal.');
-    return;
-  }
-
+/**
+ * 1-Click Fast Rename for any Dues Stream
+ */
+window.renameCategoryQuick = function(catId) {
   const cats = DataStore.getCategories();
   const cat = cats.find(c => c.id === catId);
   if (!cat) return;
 
-  if (confirm(`Are you sure you want to delete "${cat.name}"?\n\nThis will remove it from the payment portal. Historical payment audit records will remain preserved.`)) {
+  const newName = prompt(`Enter new title for "${cat.name}":`, cat.name);
+  if (!newName || !newName.trim() || newName.trim() === cat.name) return;
+
+  const cleanName = newName.trim();
+  const oldName = cat.name;
+  cat.name = cleanName;
+
+  // Seamlessly update historical payment records so stats and ledger filters stay linked
+  const payments = DataStore.getPayments();
+  let changed = false;
+  payments.forEach(p => {
+    if (p.paymentType === oldName) {
+      p.paymentType = cleanName;
+      changed = true;
+    }
+  });
+  if (changed) {
+    DataStore.set(STORAGE_KEYS.PAYMENTS, payments);
+  }
+
+  DataStore.saveCategories(cats);
+  localStorage.setItem('haa_payment_pulse', Date.now().toString());
+  localStorage.setItem('haa_categories_pulse', Date.now().toString());
+
+  renderAdminCategories();
+  renderDuesCategoryChips();
+  if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
+
+  if (typeof showReceiptToast === 'function') {
+    showReceiptToast(`✓ Successfully renamed "${oldName}" to "${cleanName}"!`, 'success');
+  }
+};
+
+/**
+ * Unrestricted Delete for ANY Dues item
+ */
+window.deleteCategory = function(catId) {
+  const cats = DataStore.getCategories();
+  const cat = cats.find(c => c.id === catId);
+  if (!cat) return;
+
+  const confirmMsg = `Are you sure you want to delete "${cat.name}"?\n\nThis will remove it completely from the payment portal and admin manager.\n(You can restore the 10 standard association dues anytime using "Restore Standard Dues").`;
+  if (confirm(confirmMsg)) {
     const updated = cats.filter(c => c.id !== catId);
     DataStore.saveCategories(updated);
     localStorage.setItem('haa_payment_pulse', Date.now().toString());
@@ -1348,7 +1409,7 @@ window.deleteCategory = function(catId) {
     renderAdminCategories();
     renderDuesCategoryChips();
     if (typeof showReceiptToast === 'function') {
-      showReceiptToast(`✓ Category "${cat.name}" deleted successfully.`, 'success');
+      showReceiptToast(`✓ Dues stream "${cat.name}" deleted successfully.`, 'success');
     }
   }
 };

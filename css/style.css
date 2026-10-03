@@ -4101,6 +4101,12 @@ button, input, select, textarea {
   color: var(--navy-900);
 }
 
+.cat-btn-rename:hover {
+  background: rgba(217, 119, 6, 0.08);
+  border-color: #f59e0b;
+  color: #b45309;
+}
+
 .cat-btn-edit:hover {
   background: rgba(43, 87, 151, 0.08);
   border-color: var(--cic-blue-400);
