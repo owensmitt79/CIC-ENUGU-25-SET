@@ -2861,19 +2861,13 @@ window.toggleAdminNewsForm = function(forceOpen) {
     switchNewsGallerySubtab('news');
   }
 
-  const card = document.getElementById('adminNewsFormCard');
-  if (!card) return;
-
-  const isHidden = card.style.display === 'none' || !card.style.display;
-  const shouldOpen = forceOpen !== undefined ? forceOpen : isHidden;
-
-  if (shouldOpen) {
-    card.style.display = 'block';
-    const titleInput = document.getElementById('newsTitleInput');
-    if (titleInput) titleInput.focus();
-    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  } else {
-    cancelNewsEdit();
+  const quickForm = document.getElementById('quickNewsUploadForm');
+  const quickTitle = document.getElementById('quickNewsTitle');
+  if (quickForm) {
+    quickForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (quickTitle) {
+      setTimeout(() => quickTitle.focus(), 250);
+    }
   }
 };
 
@@ -3005,48 +2999,159 @@ window.previewNewsArticleInAdmin = function(newsId) {
   }
 };
 
+window.toggleSelectAllAdminNews = function(masterCheckbox) {
+  const checkboxes = document.querySelectorAll('.admin-news-item-checkbox');
+  checkboxes.forEach(cb => {
+    cb.checked = masterCheckbox.checked;
+  });
+  handleAdminNewsCheckboxChange();
+};
+
+window.handleAdminNewsCheckboxChange = function() {
+  const checkboxes = Array.from(document.querySelectorAll('.admin-news-item-checkbox'));
+  const checked = checkboxes.filter(cb => cb.checked);
+  const master = document.getElementById('selectAllAdminNewsCheckbox');
+  const btnDeleteSelected = document.getElementById('btnDeleteSelectedNews');
+  const statusSpan = document.getElementById('adminNewsSelectionStatus');
+
+  if (master) {
+    master.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    master.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
+
+  if (statusSpan) {
+    if (checked.length > 0) {
+      statusSpan.style.display = 'inline';
+      statusSpan.textContent = `(${checked.length} selected)`;
+    } else {
+      statusSpan.style.display = 'none';
+    }
+  }
+
+  if (btnDeleteSelected) {
+    if (checked.length > 0) {
+      btnDeleteSelected.disabled = false;
+      btnDeleteSelected.style.opacity = '1';
+      btnDeleteSelected.style.cursor = 'pointer';
+      btnDeleteSelected.innerHTML = `
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span>Delete (${checked.length}) Selected</span>
+      `;
+    } else {
+      btnDeleteSelected.disabled = true;
+      btnDeleteSelected.style.opacity = '0.45';
+      btnDeleteSelected.style.cursor = 'not-allowed';
+      btnDeleteSelected.innerHTML = `
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        <span>Delete Selected</span>
+      `;
+    }
+  }
+};
+
+window.deleteSelectedAdminNews = function() {
+  const checkboxes = Array.from(document.querySelectorAll('.admin-news-item-checkbox:checked'));
+  if (checkboxes.length === 0) return;
+
+  const count = checkboxes.length;
+  if (!confirm(`Are you sure you want to permanently delete the ${count} selected announcement(s) / information from the alumni database?\n\nThis will remove them immediately from the website.`)) {
+    return;
+  }
+
+  checkboxes.forEach(cb => {
+    const id = cb.dataset.newsId;
+    if (id) {
+      DataStore.deleteNews(id);
+    }
+  });
+
+  renderAdminNews();
+  if (typeof renderAdminMediaLibrary === 'function') renderAdminMediaLibrary();
+  if (typeof renderNews === 'function') renderNews();
+  alert(`✓ Successfully deleted ${count} announcement(s).`);
+};
+
+window.deleteAllAdminNews = function() {
+  const newsList = DataStore.getNews();
+  if (newsList.length === 0) {
+    alert('There is no uploaded information to delete.');
+    return;
+  }
+
+  if (!confirm(`CAUTION: Are you sure you want to permanently delete ALL (${newsList.length}) uploaded announcements and information?\n\nThis action cannot be undone.`)) {
+    return;
+  }
+
+  newsList.forEach(item => {
+    DataStore.deleteNews(item.id);
+  });
+
+  renderAdminNews();
+  if (typeof renderAdminMediaLibrary === 'function') renderAdminMediaLibrary();
+  if (typeof renderNews === 'function') renderNews();
+  alert('✓ All uploaded announcements and information have been cleared.');
+};
+
 function renderAdminNews() {
   const container = document.getElementById('adminNewsList');
   if (!container) return;
 
-  const searchVal = (document.getElementById('adminSearchNews')?.value || '').trim().toLowerCase();
-  const categoryVal = document.getElementById('adminNewsCategoryFilter')?.value || 'ALL';
+  const newsList = DataStore.getNews();
+  const totalCountEl = document.getElementById('adminNewsTotalCount');
+  const badgeCountEl = document.getElementById('badgeCountNews');
+  const masterCb = document.getElementById('selectAllAdminNewsCheckbox');
+  const btnDeleteSelected = document.getElementById('btnDeleteSelectedNews');
+  const btnClearAll = document.getElementById('btnClearAllNews');
+  const statusSpan = document.getElementById('adminNewsSelectionStatus');
 
-  let newsList = DataStore.getNews();
+  if (totalCountEl) totalCountEl.textContent = newsList.length;
+  if (badgeCountEl) badgeCountEl.textContent = newsList.length;
 
-  if (categoryVal !== 'ALL') {
-    newsList = newsList.filter(n => (n.category || '').toLowerCase() === categoryVal.toLowerCase());
+  if (masterCb) {
+    masterCb.checked = false;
+    masterCb.indeterminate = false;
+    masterCb.disabled = newsList.length === 0;
   }
 
-  if (searchVal) {
-    newsList = newsList.filter(n =>
-      (n.title && n.title.toLowerCase().includes(searchVal)) ||
-      (n.summary && n.summary.toLowerCase().includes(searchVal)) ||
-      (n.content && n.content.toLowerCase().includes(searchVal)) ||
-      (n.category && n.category.toLowerCase().includes(searchVal)) ||
-      (n.date && n.date.includes(searchVal))
-    );
+  if (btnDeleteSelected) {
+    btnDeleteSelected.disabled = true;
+    btnDeleteSelected.style.opacity = '0.45';
+    btnDeleteSelected.style.cursor = 'not-allowed';
+    btnDeleteSelected.innerHTML = `
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      <span>Delete Selected</span>
+    `;
+  }
+
+  if (btnClearAll) {
+    btnClearAll.disabled = newsList.length === 0;
+    btnClearAll.style.opacity = newsList.length === 0 ? '0.45' : '1';
+    btnClearAll.style.cursor = newsList.length === 0 ? 'not-allowed' : 'pointer';
+  }
+
+  if (statusSpan) {
+    statusSpan.style.display = 'none';
   }
 
   if (newsList.length === 0) {
     container.innerHTML = `
       <div style="text-align: center; padding: 3rem 1.5rem; background: var(--white); border: 1px dashed var(--slate-300); border-radius: var(--radius-lg);">
         <svg width="40" height="40" fill="none" stroke="var(--slate-400)" stroke-width="1.5" viewBox="0 0 24 24" style="margin: 0 auto 0.75rem;"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-        <h4 style="color: var(--navy-900); font-weight: 700; margin-bottom: 0.25rem;">No Bulletins or Announcements Found</h4>
+        <h4 style="color: var(--navy-900); font-weight: 700; margin-bottom: 0.25rem;">No Bulletins or Announcements Uploaded</h4>
         <p style="color: var(--slate-500); font-size: 0.88rem; max-width: 420px; margin: 0 auto 1.25rem;">
-          ${searchVal || categoryVal !== 'ALL' ? 'No records match your active search and category filters.' : 'There are currently no published articles in the alumni archive.'}
+          There is currently no news or information uploaded. Use the form above to publish your first announcement.
         </p>
-        <button type="button" class="btn btn-primary btn-sm" onclick="toggleAdminNewsForm(true)">
-          + Publish First Announcement
-        </button>
       </div>
     `;
     return;
   }
 
   container.innerHTML = newsList.map(item => `
-    <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm); display: flex; gap: 1.25rem; align-items: flex-start; transition: var(--transition);" class="admin-news-card-item">
-      <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 110px; height: 85px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--slate-200); flex-shrink: 0;" onerror="this.src='images/campus.jpg'">
+    <div style="background: var(--white); border: 1.5px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow-sm); display: flex; gap: 1.15rem; align-items: flex-start; transition: var(--transition);" class="admin-news-card-item">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 0.75rem; flex-shrink: 0;">
+        <input type="checkbox" class="admin-news-item-checkbox" data-news-id="${item.id}" onchange="handleAdminNewsCheckboxChange()" style="width: 19px; height: 19px; accent-color: #e11d48; cursor: pointer;" title="Select item for deletion">
+        <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 105px; height: 80px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--slate-200);" onerror="this.src='images/campus.jpg'">
+      </div>
       <div style="flex: 1; min-width: 0;">
         <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap;">
           <span style="background: var(--cic-blue-50); color: var(--cic-blue-700); border: 1px solid var(--cic-blue-200); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.55rem; border-radius: 9999px; text-transform: uppercase;">
@@ -3067,18 +3172,18 @@ function renderAdminNews() {
         <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 0.75rem; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
           ${escapeHtml(item.summary || '')}
         </p>
-        <div style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-          <button type="button" class="btn btn-sm btn-outline-light" onclick="previewNewsArticleInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.25rem 0.65rem; color: var(--cic-blue-700); border-color: var(--cic-blue-200);">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 2px;"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-            Preview Article
+        <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; border-top: 1px solid var(--slate-100); padding-top: 0.75rem;">
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="previewNewsArticleInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.28rem 0.7rem; color: var(--cic-blue-700); border-color: var(--cic-blue-200); font-weight: 600;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 3px;"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+            Preview
           </button>
-          <button type="button" class="btn btn-sm btn-outline-light" onclick="editNewsInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.25rem 0.65rem; color: var(--slate-700); border-color: var(--slate-300);">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 2px;"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-            Edit Notice
+          <button type="button" class="btn btn-sm btn-outline-light" onclick="editNewsInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.28rem 0.7rem; color: var(--slate-700); border-color: var(--slate-300); font-weight: 600;">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 3px;"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            Edit
           </button>
-          <button type="button" class="btn btn-sm btn-outline-light" onclick="deleteNewsInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.25rem 0.65rem; color: var(--danger); border-color: rgba(220, 38, 38, 0.3);">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 2px;"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            Delete
+          <button type="button" class="btn btn-sm" onclick="deleteNewsInAdmin('${item.id}')" style="font-size: 0.78rem; padding: 0.32rem 0.95rem; color: #ffffff; background: #dc2626; border: 1px solid #b91c1c; font-weight: 700; border-radius: 6px; margin-left: auto; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 2px rgba(220, 38, 38, 0.2);" onmouseover="this.style.background='#b91c1c'" onmouseout="this.style.background='#dc2626'">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            Delete Information
           </button>
         </div>
       </div>
@@ -3615,7 +3720,7 @@ window.saveAdminGalleryPhoto = function(event) {
   const editId = (document.getElementById('galleryPhotoEditId')?.value || '').trim();
   const title = (document.getElementById('galleryPhotoTitleInput')?.value || '').trim();
   const category = document.getElementById('galleryPhotoCategorySelect')?.value || 'Reunions';
-  const caption = (document.getElementById('galleryPhotoCaptionInput')?.value || '').trim();
+  const caption = (document.getElementById('galleryPhotoCaptionInput')?.value || '').trim() || title;
   const dataUrl = (document.getElementById('galleryPhotoDataUrl')?.value || '').trim();
   const directUrl = (document.getElementById('galleryPhotoUrlInput')?.value || '').trim();
   const image = dataUrl || directUrl;
@@ -3627,11 +3732,6 @@ window.saveAdminGalleryPhoto = function(event) {
 
   if (!image) {
     alert('Please upload an image file or provide a valid photo URL.');
-    return;
-  }
-
-  if (!caption) {
-    alert('Please provide a short caption or context for this photo.');
     return;
   }
 

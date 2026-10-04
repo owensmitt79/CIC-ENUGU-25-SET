@@ -1468,6 +1468,32 @@
               </form>
             </div>
 
+            <!-- Delete & Action Bar on Uploaded Information List -->
+            <div id="adminNewsDeleteBar" class="admin-news-delete-bar" style="background: #ffffff; border: 1.5px solid #fecdd3; border-radius: var(--radius-lg); padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; box-shadow: 0 1px 3px rgba(225, 29, 72, 0.06);">
+              <div style="display: flex; align-items: center; gap: 0.85rem; flex-wrap: wrap;">
+                <label style="display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; font-size: 0.88rem; color: #9f1239; cursor: pointer; margin: 0; user-select: none;">
+                  <input type="checkbox" id="selectAllAdminNewsCheckbox" onchange="toggleSelectAllAdminNews(this)" style="width: 17px; height: 17px; accent-color: #e11d48; cursor: pointer;">
+                  <span>Select All</span>
+                </label>
+                <span style="color: #fecdd3;">|</span>
+                <span style="font-size: 0.88rem; color: var(--navy-900); font-weight: 600;">
+                  Uploaded Information &amp; Dispatches: <strong id="adminNewsTotalCount" style="color: var(--cic-blue-700);">0</strong>
+                  <span id="adminNewsSelectionStatus" style="font-size: 0.82rem; color: #e11d48; font-weight: 700; margin-left: 0.35rem; display: none;">(0 selected)</span>
+                </span>
+              </div>
+
+              <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="btn btn-sm" id="btnDeleteSelectedNews" onclick="deleteSelectedAdminNews()" disabled style="background: #e11d48; color: #ffffff; border: none; font-weight: 700; font-size: 0.82rem; padding: 0.42rem 0.95rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.45rem; opacity: 0.45; cursor: not-allowed; transition: all 0.2s ease;">
+                  <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  <span>Delete Selected</span>
+                </button>
+                <button type="button" class="btn btn-sm" id="btnClearAllNews" onclick="deleteAllAdminNews()" style="background: #ffffff; color: #dc2626; border: 1px solid #fca5a5; font-weight: 600; font-size: 0.82rem; padding: 0.42rem 0.85rem; border-radius: 6px; display: inline-flex; align-items: center; gap: 0.35rem; cursor: pointer;">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                  <span>Delete All</span>
+                </button>
+              </div>
+            </div>
+
             <!-- Dynamic News List -->
             <div id="adminNewsList">
               <!-- Rendered dynamically -->
@@ -1567,11 +1593,6 @@
                       <option value="Executive Sessions">Executive Sessions</option>
                     </select>
                   </div>
-                </div>
-
-                <div class="form-group">
-                  <label class="form-label" for="galleryPhotoCaptionInput">Photo Caption &amp; Historical Context <span class="req" style="color: var(--danger);">*</span></label>
-                  <textarea id="galleryPhotoCaptionInput" class="form-control" rows="3" placeholder="Describe the photo, participants, location, or milestone celebration..." required></textarea>
                 </div>
 
                 <div style="display: flex; gap: 1rem; justify-content: flex-end; align-items: center; border-top: 1px solid var(--slate-200); padding-top: 1.25rem; margin-top: 1.5rem;">
