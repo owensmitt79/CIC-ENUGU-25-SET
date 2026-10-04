@@ -113,6 +113,8 @@
 
       const subtabNewsBtn = document.getElementById('subtabNewsBtn');
       const subtabGalleryBtn = document.getElementById('subtabGalleryBtn');
+      const sideNewsBtn = document.getElementById('adminTabBtn_News');
+      const sideGalBtn = document.getElementById('adminTabBtn_Gallery');
 
       [subtabNewsBtn, subtabGalleryBtn].forEach(b => {
         if (b) b.classList.remove('active');
@@ -124,10 +126,16 @@
       if (tab === 'gallery') {
         if (gallerySec) gallerySec.style.display = 'block';
         if (subtabGalleryBtn) subtabGalleryBtn.classList.add('active');
+        if (sideGalBtn) sideGalBtn.classList.add('active');
+        if (sideNewsBtn) sideNewsBtn.classList.remove('active');
+        if (typeof initAdminGalleryStudio === 'function') initAdminGalleryStudio();
         if (typeof renderAdminGallery === 'function') renderAdminGallery();
       } else {
         if (newsSec) newsSec.style.display = 'block';
         if (subtabNewsBtn) subtabNewsBtn.classList.add('active');
+        if (sideNewsBtn) sideNewsBtn.classList.add('active');
+        if (sideGalBtn) sideGalBtn.classList.remove('active');
+        if (typeof initAdminNewsStudio === 'function') initAdminNewsStudio();
         if (typeof renderAdminNews === 'function') renderAdminNews();
       }
       if (typeof updateNewsGalleryBadgeCounts === 'function') {
@@ -141,8 +149,12 @@
         const galleryCount = (DataStore.getGallery() || []).length;
         const bNews = document.getElementById('badgeCountNews');
         const bGal = document.getElementById('badgeCountGallery');
+        const sNews = document.getElementById('sidebarNewsCount');
+        const sGal = document.getElementById('sidebarGalleryCount');
         if (bNews) bNews.textContent = newsCount;
         if (bGal) bGal.textContent = galleryCount;
+        if (sNews) sNews.textContent = newsCount;
+        if (sGal) sGal.textContent = galleryCount;
       }
     }
 
@@ -286,7 +298,19 @@
         <button type="button" class="admin-tab-btn" data-pane="adminPane_NewsGallery" id="adminTabBtn_NewsGallery" onclick="switchAdminPane('adminPane_NewsGallery')">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/><circle cx="17" cy="15" r="2"/></svg>
           <span>News &amp; Gallery</span>
+          <span class="admin-badge-count" id="sidebarNewsGalleryCount" style="margin-left: auto; font-size: 0.72rem; padding: 2px 7px; background: rgba(43, 87, 151, 0.12); color: var(--cic-blue-700); border-radius: 999px; font-weight: 700;">0</span>
         </button>
+
+        <div style="display: flex; gap: 0.35rem; padding: 0 0.5rem; margin-top: -0.25rem; margin-bottom: 0.35rem;">
+          <button type="button" class="admin-tab-sub-btn" id="adminTabBtn_News" onclick="switchToNewsTab()" style="flex: 1; font-size: 0.72rem; padding: 0.28rem 0.45rem; background: var(--slate-100); border: 1px solid var(--slate-200); border-radius: 4px; color: var(--navy-900); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+            <span>📰 News</span>
+            <span id="sidebarNewsCount" style="font-size: 0.68rem; font-weight: 700; color: var(--cic-blue-700);">0</span>
+          </button>
+          <button type="button" class="admin-tab-sub-btn" id="adminTabBtn_Gallery" onclick="switchToGalleryTab()" style="flex: 1; font-size: 0.72rem; padding: 0.28rem 0.45rem; background: var(--slate-100); border: 1px solid var(--slate-200); border-radius: 4px; color: var(--navy-900); font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+            <span>📸 Gallery</span>
+            <span id="sidebarGalleryCount" style="font-size: 0.68rem; font-weight: 700; color: #059669;">0</span>
+          </button>
+        </div>
 
         <button type="button" class="admin-tab-btn" data-pane="adminPane_Gateway" onclick="switchAdminPane('adminPane_Gateway')">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -1439,7 +1463,7 @@
                 <input type="text" id="adminSearchNews" placeholder="Search bulletins by title, topic, or date...">
               </div>
 
-              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
                 <select id="adminNewsCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
                   <option value="ALL">All Categories</option>
                   <option value="Alumni News">Alumni News</option>
@@ -1449,6 +1473,10 @@
                   <option value="Executive Resolutions">Executive Resolutions</option>
                   <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
                 </select>
+                <a href="./#news" target="_blank" class="btn btn-sm btn-outline-light" style="font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; color: var(--cic-blue-700); border-color: var(--cic-blue-200);">
+                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                  View Public News
+                </a>
               </div>
             </div>
 
@@ -1463,14 +1491,14 @@
                ========================================== -->
           <div id="adminGallerySection" style="display: none;">
             <!-- Upload / Add Gallery Photo Studio Card -->
-            <div id="adminGalleryFormCard" style="display: none; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
+            <div id="adminGalleryFormCard" style="display: block; background: var(--white); border: 2px solid var(--cic-blue-600); border-radius: var(--radius-xl); padding: 2rem; margin-bottom: 2.5rem; box-shadow: var(--shadow-lg);">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--slate-200); padding-bottom: 1rem;">
                 <h4 id="galleryFormHeaderTitle" style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.3rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;">
                   <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                   <span>Upload Photo to Alumni Gallery</span>
                 </h4>
                 <button type="button" class="btn btn-sm btn-outline-light" onclick="cancelGalleryEdit()" style="color: var(--slate-600); border-color: var(--slate-300);">
-                  &times; Close Studio
+                  Reset Form
                 </button>
               </div>
 

@@ -6,7 +6,7 @@
 
 let isAdminAuthenticated = true;
 
-// Cross-tab real-time pulse synchronization for payments, dues, and categories
+// Cross-tab real-time pulse synchronization for payments, dues, categories, news, and gallery
 window.addEventListener('storage', function(e) {
   if (e.key === 'haa_payment_pulse' || e.key === 'haa_payments_v1' || e.key === 'haa_categories_pulse' || e.key === 'haa_categories_v1') {
     if (typeof loadAdminDashboardData === 'function') loadAdminDashboardData();
@@ -14,6 +14,14 @@ window.addEventListener('storage', function(e) {
     if (typeof renderAdminMonthlyDuesTable === 'function') renderAdminMonthlyDuesTable();
     if (typeof renderAdminCategories === 'function') renderAdminCategories();
     if (typeof renderDuesCategoryChips === 'function') renderDuesCategoryChips();
+  }
+  if (e.key === 'haa_news_v1' || e.key === 'haa_news_pulse') {
+    if (typeof renderAdminNews === 'function') renderAdminNews();
+    if (typeof updateNewsGalleryBadgeCounts === 'function') updateNewsGalleryBadgeCounts();
+  }
+  if (e.key === 'haa_gallery_v1' || e.key === 'haa_gallery_pulse') {
+    if (typeof renderAdminGallery === 'function') renderAdminGallery();
+    if (typeof updateNewsGalleryBadgeCounts === 'function') updateNewsGalleryBadgeCounts();
   }
 });
 
@@ -40,7 +48,11 @@ window.switchAdminPane = function(paneId) {
   const allBtns = document.querySelectorAll('.admin-tab-btn');
   allBtns.forEach(btn => {
     const p = btn.dataset.pane || btn.getAttribute('data-pane');
-    if (p === targetPaneId || p === paneId) {
+    if (paneId === 'adminPane_News' && p === 'adminPane_News') {
+      btn.classList.add('active');
+    } else if (paneId === 'adminPane_Gallery' && p === 'adminPane_Gallery') {
+      btn.classList.add('active');
+    } else if (p === targetPaneId || p === paneId) {
       btn.classList.add('active');
     } else {
       btn.classList.remove('active');
@@ -2825,6 +2837,10 @@ function initAdminNewsStudio() {
 }
 
 window.toggleAdminNewsForm = function(forceOpen) {
+  if (typeof switchNewsGallerySubtab === 'function') {
+    switchNewsGallerySubtab('news');
+  }
+
   const card = document.getElementById('adminNewsFormCard');
   if (!card) return;
 
@@ -3058,6 +3074,8 @@ window.switchNewsGallerySubtab = function(tab) {
 
   const subtabNewsBtn = document.getElementById('subtabNewsBtn');
   const subtabGalleryBtn = document.getElementById('subtabGalleryBtn');
+  const sideNewsBtn = document.getElementById('adminTabBtn_News');
+  const sideGalBtn = document.getElementById('adminTabBtn_Gallery');
 
   [subtabNewsBtn, subtabGalleryBtn].forEach(b => {
     if (b) b.classList.remove('active');
@@ -3069,11 +3087,15 @@ window.switchNewsGallerySubtab = function(tab) {
   if (tab === 'gallery') {
     if (gallerySec) gallerySec.style.display = 'block';
     if (subtabGalleryBtn) subtabGalleryBtn.classList.add('active');
+    if (sideGalBtn) sideGalBtn.classList.add('active');
+    if (sideNewsBtn) sideNewsBtn.classList.remove('active');
     initAdminGalleryStudio();
     renderAdminGallery();
   } else {
     if (newsSec) newsSec.style.display = 'block';
     if (subtabNewsBtn) subtabNewsBtn.classList.add('active');
+    if (sideNewsBtn) sideNewsBtn.classList.add('active');
+    if (sideGalBtn) sideGalBtn.classList.remove('active');
     initAdminNewsStudio();
     renderAdminNews();
   }
@@ -3086,8 +3108,14 @@ window.updateNewsGalleryBadgeCounts = function() {
     const galleryList = DataStore.getGallery() || [];
     const bNews = document.getElementById('badgeCountNews');
     const bGal = document.getElementById('badgeCountGallery');
+    const sNews = document.getElementById('sidebarNewsCount');
+    const sGal = document.getElementById('sidebarGalleryCount');
+    const sBoth = document.getElementById('sidebarNewsGalleryCount');
     if (bNews) bNews.textContent = newsList.length;
     if (bGal) bGal.textContent = galleryList.length;
+    if (sNews) sNews.textContent = newsList.length;
+    if (sGal) sGal.textContent = galleryList.length;
+    if (sBoth) sBoth.textContent = newsList.length + galleryList.length;
   }
 };
 
@@ -3246,6 +3274,10 @@ window.clearGalleryPhotoPreview = function() {
 };
 
 window.toggleAdminGalleryForm = function(forceOpen) {
+  if (typeof switchNewsGallerySubtab === 'function') {
+    switchNewsGallerySubtab('gallery');
+  }
+
   const card = document.getElementById('adminGalleryFormCard');
   if (!card) return;
 
@@ -3287,7 +3319,8 @@ window.cancelGalleryEdit = function() {
     `;
   }
 
-  if (card) card.style.display = 'none';
+  // Keep visible as dedicated upload card
+  if (card) card.style.display = 'block';
 };
 
 window.saveAdminGalleryPhoto = function(event) {

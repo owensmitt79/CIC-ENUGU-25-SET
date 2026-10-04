@@ -523,37 +523,51 @@ function renderNews() {
   const container = document.getElementById('newsGrid');
   if (!container) return;
 
-  const newsList = DataStore.getNews();
+  const newsList = (typeof DataStore !== 'undefined' && DataStore.getNews) ? DataStore.getNews() : [];
   const filtered = activeNewsCategory === 'All' 
     ? newsList 
-    : newsList.filter(n => n.category === activeNewsCategory);
+    : newsList.filter(n => (n.category || '').toLowerCase() === activeNewsCategory.toLowerCase());
 
-  container.innerHTML = filtered.map((item, idx) => `
-    <div class="news-card">
-      <div class="news-img-wrap">
-        <img src="${item.image}" alt="${item.title}" class="news-img" loading="lazy">
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: var(--white); border: 1.5px dashed var(--slate-300); border-radius: var(--radius-xl);">
+        <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">No announcements currently in this category.</p>
       </div>
-      <div class="news-body">
-        <div class="news-meta">
-          <span class="news-cat-tag">${item.category}</span>
-          <span class="news-date">${item.date}</span>
+    `;
+  } else {
+    container.innerHTML = filtered.map(item => `
+      <div class="news-card">
+        <div class="news-img-wrap" style="position: relative;">
+          <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" class="news-img" loading="lazy" onerror="this.src='images/campus.jpg'">
+          ${item.featured ? '<span style="position: absolute; top: 10px; right: 10px; background: rgba(245, 158, 11, 0.95); color: #fff; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.55rem; border-radius: 9999px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">★ Featured</span>' : ''}
         </div>
-        <h4 class="news-title">${item.title}</h4>
-        <p class="news-summary">${item.summary}</p>
-        <button class="btn btn-sm btn-outline-gold" onclick="viewNewsArticle('${item.id}')" style="align-self: flex-start; margin-top: auto;">
-          Read Full Notice &rarr;
-        </button>
+        <div class="news-body">
+          <div class="news-meta">
+            <span class="news-cat-tag">${escapeHtml(item.category || 'Alumni News')}</span>
+            <span class="news-date">📅 ${escapeHtml(item.date || 'Recent')}</span>
+          </div>
+          <h4 class="news-title">${escapeHtml(item.title)}</h4>
+          <p class="news-summary">${escapeHtml(item.summary || '')}</p>
+          <button type="button" class="btn btn-sm btn-outline-gold" onclick="viewNewsArticle('${item.id}')" style="align-self: flex-start; margin-top: auto; font-weight: 700;">
+            Read Full Notice &rarr;
+          </button>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `).join('');
+  }
 
-  // Setup category filter buttons
+  // Setup category filter buttons dynamically from DataStore
   const filtersContainer = document.getElementById('newsFilters');
   if (filtersContainer) {
-    const categories = ['All', 'Alumni News', 'Meeting Notices', 'Event Announcements', 'Project Updates'];
-    filtersContainer.innerHTML = categories.map(cat => `
-      <button class="filter-btn ${activeNewsCategory === cat ? 'active' : ''}" onclick="setNewsCategory('${cat}')">
-        ${cat}
+    const allCats = ['All'];
+    newsList.forEach(n => {
+      if (n.category && !allCats.includes(n.category)) {
+        allCats.push(n.category);
+      }
+    });
+    filtersContainer.innerHTML = allCats.map(cat => `
+      <button class="filter-btn ${activeNewsCategory === cat ? 'active' : ''}" onclick="setNewsCategory('${escapeHtml(cat)}')">
+        ${escapeHtml(cat)}
       </button>
     `).join('');
   }
@@ -565,22 +579,25 @@ window.setNewsCategory = function(cat) {
 };
 
 window.viewNewsArticle = function(id) {
-  const item = DataStore.getNews().find(n => n.id === id);
+  const item = (typeof DataStore !== 'undefined')
+    ? (DataStore.findNewsById ? DataStore.findNewsById(id) : (DataStore.getNews() || []).find(n => n.id === id))
+    : null;
   if (!item) return;
 
   openGenericModal(`
     <div>
-      <img src="${item.image}" alt="${item.title}" style="width: 100%; height: 260px; object-fit: cover; border-radius: var(--radius-lg) var(--radius-lg) 0 0;">
+      <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" style="width: 100%; height: 260px; object-fit: cover; border-radius: var(--radius-lg) var(--radius-lg) 0 0;" onerror="this.src='images/campus.jpg'">
       <div style="padding: 2rem;">
-        <div style="display: flex; gap: 1rem; align-items: center; margin-bottom: 0.75rem;">
-          <span class="news-cat-tag">${item.category}</span>
-          <span style="font-size: 0.85rem; color: var(--slate-400);">${item.date}</span>
+        <div style="display: flex; gap: 0.75rem; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap;">
+          <span class="news-cat-tag">${escapeHtml(item.category || 'Alumni News')}</span>
+          <span style="font-size: 0.85rem; color: var(--slate-500); font-weight: 500;">📅 ${escapeHtml(item.date || '')}</span>
+          ${item.featured ? '<span style="background: rgba(245, 158, 11, 0.15); color: #b45309; border: 1px solid rgba(245, 158, 11, 0.3); font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 9999px;">Featured Headline</span>' : ''}
         </div>
-        <h2 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.6rem; line-height: 1.3; margin-bottom: 1.25rem;">
-          ${item.title}
+        <h2 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.55rem; line-height: 1.35; margin-bottom: 1.25rem;">
+          ${escapeHtml(item.title)}
         </h2>
-        <div style="font-size: 1rem; color: var(--slate-700); line-height: 1.75;">
-          ${item.content}
+        <div style="font-size: 0.98rem; color: var(--slate-700); line-height: 1.8; white-space: pre-line;">
+          ${escapeHtml(item.content || item.summary || '')}
         </div>
       </div>
     </div>
@@ -596,27 +613,40 @@ function renderGallery() {
   const container = document.getElementById('galleryGrid');
   if (!container) return;
 
-  const galleryItems = DataStore.getGallery();
+  const galleryItems = (typeof DataStore !== 'undefined' && DataStore.getGallery) ? DataStore.getGallery() : [];
   const filtered = activeGalleryFilter === 'All' 
     ? galleryItems 
-    : galleryItems.filter(g => g.category === activeGalleryFilter);
+    : galleryItems.filter(g => (g.category || '').toLowerCase() === activeGalleryFilter.toLowerCase());
 
-  container.innerHTML = filtered.map((item, idx) => `
-    <div class="gallery-card" onclick="openLightbox('${item.image}', '${escapeHtml(item.title)}', '${escapeHtml(item.caption)}')">
-      <img src="${item.image}" alt="${item.title}" class="gallery-img" loading="lazy">
-      <div class="gallery-overlay">
-        <h4>${item.title}</h4>
-        <p>${item.caption}</p>
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: var(--white); border: 1.5px dashed var(--slate-300); border-radius: var(--radius-xl);">
+        <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">No photos currently in this archive category.</p>
       </div>
-    </div>
-  `).join('');
+    `;
+  } else {
+    container.innerHTML = filtered.map(item => `
+      <div class="gallery-card" onclick="openLightboxById('${item.id}')" style="cursor: pointer;">
+        <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" class="gallery-img" loading="lazy" onerror="this.src='images/campus.jpg'">
+        <div class="gallery-overlay">
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>${escapeHtml(item.caption || '')}</p>
+        </div>
+      </div>
+    `).join('');
+  }
 
   const filterWrap = document.getElementById('galleryFilters');
   if (filterWrap) {
-    const cats = ['All', 'Reunions', 'Community Projects', 'Annual General Meetings', 'Award Ceremonies', 'Networking Events'];
-    filterWrap.innerHTML = cats.map(cat => `
-      <button class="filter-btn ${activeGalleryFilter === cat ? 'active' : ''}" onclick="setGalleryFilter('${cat}')">
-        ${cat}
+    const allCats = ['All'];
+    galleryItems.forEach(g => {
+      if (g.category && !allCats.includes(g.category)) {
+        allCats.push(g.category);
+      }
+    });
+    filterWrap.innerHTML = allCats.map(cat => `
+      <button class="filter-btn ${activeGalleryFilter === cat ? 'active' : ''}" onclick="setGalleryFilter('${escapeHtml(cat)}')">
+        ${escapeHtml(cat)}
       </button>
     `).join('');
   }
@@ -627,13 +657,22 @@ window.setGalleryFilter = function(cat) {
   renderGallery();
 };
 
+window.openLightboxById = function(id) {
+  const item = (typeof DataStore !== 'undefined' && DataStore.findGalleryItemById)
+    ? DataStore.findGalleryItemById(id)
+    : (typeof DataStore !== 'undefined' ? (DataStore.getGallery() || []).find(g => g.id === id) : null);
+  if (!item) return;
+  openLightbox(item.image, item.title, item.caption);
+};
+
 window.openLightbox = function(src, title, caption) {
   const modal = document.getElementById('lightboxModal');
   const imgEl = document.getElementById('lightboxImg');
   const captionEl = document.getElementById('lightboxCaption');
   if (modal && imgEl && captionEl) {
-    imgEl.src = src;
-    captionEl.innerHTML = `<strong>${title}</strong> &mdash; ${caption}`;
+    imgEl.src = src || 'images/campus.jpg';
+    imgEl.onerror = () => { imgEl.src = 'images/campus.jpg'; };
+    captionEl.innerHTML = `<strong>${escapeHtml(title || '')}</strong> &mdash; ${escapeHtml(caption || '')}`;
     modal.classList.add('active');
   }
 };
@@ -1632,9 +1671,15 @@ window.copyAnthemLyrics = function() {
   }
 };
 
-// Cross-tab real-time sync for categories and payments
+// Cross-tab real-time sync for categories, payments, news, and gallery
 window.addEventListener('storage', function(e) {
   if (e.key === 'haa_categories_v1' || e.key === 'haa_categories_pulse') {
     if (typeof renderCategoryCards === 'function') renderCategoryCards();
+  }
+  if (e.key === 'haa_news_v1' || e.key === 'haa_news_pulse') {
+    if (typeof renderNews === 'function') renderNews();
+  }
+  if (e.key === 'haa_gallery_v1' || e.key === 'haa_gallery_pulse') {
+    if (typeof renderGallery === 'function') renderGallery();
   }
 });

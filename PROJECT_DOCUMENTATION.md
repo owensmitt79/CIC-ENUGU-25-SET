@@ -405,9 +405,23 @@ python -m http.server 8080
 5. Enter the event description and schedule, then click **Upload Event & Information**.
 6. The event is instantly published to `DEFAULT_EVENTS` / `DataStore.events`, synced with public dues registration, and listed in the interactive event manager cards where administrators can edit or delete events at any time.
 
+### 12.8 For Administrators: How to Curate & Upload Alumni Photo Gallery Images
+1. In the Admin Suite, navigate to **Alumni Photo Gallery** (`#adminTabBtn_Gallery` in sidebar or via the `News & Gallery` controller).
+2. The **Upload Photo to Alumni Gallery** card is readily accessible with drag-and-drop file upload, file picker, or direct URL presets.
+3. Select an image file (PNG, JPG, WebP) with instant high-resolution preview.
+4. Enter the Photo Title / Event Name, select the Category (*Reunions*, *Community Projects*, *Annual General Meetings*, *Award Ceremonies*, *Networking Events*, *Campus Landmarks*, *Executive Sessions*), and provide context / caption.
+5. Click **Save Photo to Gallery**.
+6. The photo is immediately saved to `DataStore` and broadcast via real-time pulse (`haa_gallery_pulse`) to `gallery.html` and `index.html`. Existing photos can be edited, deleted, or previewed directly from the management grid.
+
 ---
 
 ## 13. Recent Changelog & Milestones
+
+* **Version 3.2.0 (October 2026)**:
+  * **News & Gallery Admin Architecture Unification:** Connected News & Announcements and Alumni Photo Gallery seamlessly with dual sidebar navigation switchers (`adminTabBtn_News`, `adminTabBtn_Gallery`), real-time counter badges, and responsive subtab routing.
+  * **Real-time Cross-Tab Pulse Synchronization:** Implemented `haa_news_pulse` and `haa_gallery_pulse` event hooks so changes in the administrative console immediately reflect on all open public tabs without refreshing.
+  * **Public Navigation & Media Connectivity:** Added global navbar links to News across all public pages, linked public preview buttons (`View Public News`, `View Public Gallery`) from admin studio cards, and integrated a dedicated Secretariat Bulletins banner on `gallery.html`.
+  * **Lightbox Bug Fix:** Eliminated single-quote syntax errors on photo titles and captions by introducing ID-based lightbox invocation (`openLightboxById`), HTML escaping, and reliable image error fallbacks.
 
 * **Version 3.1.0 (October 2026)**:
   * **Dedicated News & Announcements Upload Section:** Built direct media and announcement upload form with image picker, live preview, category tagging, priority pinning, and instant cross-portal publishing.

@@ -696,6 +696,9 @@ const DataStore = {
 
   saveNews(newsList) {
     this.set(STORAGE_KEYS.NEWS, newsList);
+    try {
+      localStorage.setItem('haa_news_pulse', Date.now().toString());
+    } catch (_) {}
   },
 
   addNews(item) {
@@ -734,6 +737,9 @@ const DataStore = {
 
   saveGallery(gal) {
     this.set(STORAGE_KEYS.GALLERY, gal);
+    try {
+      localStorage.setItem('haa_gallery_pulse', Date.now().toString());
+    } catch (_) {}
   },
 
   addGalleryItem(item) {
