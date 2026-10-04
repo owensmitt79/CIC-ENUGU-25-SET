@@ -1336,10 +1336,6 @@
                       <input type="file" id="quickNewsImageFile" accept="image/*" style="display: none;" onchange="handleQuickNewsFile(event)">
                     </label>
                     <input type="text" id="quickNewsImageUrl" class="form-control" placeholder="Or enter direct image URL (e.g. images/campus.jpg)" value="images/campus.jpg" style="flex: 1; min-width: 220px; height: 38px; font-size: 0.84rem;">
-                    <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--navy-900); margin: 0;">
-                      <input type="checkbox" id="quickNewsFeatured" style="width: 16px; height: 16px; accent-color: var(--cic-blue-600);">
-                      Pin as Featured
-                    </label>
                   </div>
                   <!-- Preview Box -->
                   <div id="quickNewsPreviewBox" style="display: none; margin-top: 0.5rem; align-items: center; gap: 0.75rem; background: var(--slate-100); padding: 0.5rem 0.75rem; border-radius: var(--radius-md);">
@@ -1349,18 +1345,11 @@
                   </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 1rem;">
+                <div class="form-group" style="margin-bottom: 1.25rem;">
                   <label class="form-label" for="quickNewsSummary" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
                     Summary / Lead Brief (Card Preview) <span class="req" style="color: var(--danger);">*</span>
                   </label>
                   <input type="text" id="quickNewsSummary" class="form-control" placeholder="Brief 1-2 sentence lead brief shown on the card..." required style="height: 40px; font-size: 0.88rem;">
-                </div>
-
-                <div class="form-group" style="margin-bottom: 1.25rem;">
-                  <label class="form-label" for="quickNewsContent" style="font-weight: 700; color: var(--navy-900); font-size: 0.88rem;">
-                    Announcement Information &amp; Full Details <span class="req" style="color: var(--danger);">*</span>
-                  </label>
-                  <textarea id="quickNewsContent" class="form-control" rows="4" placeholder="Provide complete notice details, agenda, resolutions, dates, and instructions for alumni..." required style="font-size: 0.88rem;"></textarea>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end;">

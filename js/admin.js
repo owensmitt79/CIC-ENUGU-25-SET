@@ -2693,7 +2693,7 @@ window.handleQuickNewsUpload = function(event) {
   const date = document.getElementById('quickNewsDate')?.value || new Date().toISOString().split('T')[0];
   const featured = !!document.getElementById('quickNewsFeatured')?.checked;
   const summary = (document.getElementById('quickNewsSummary')?.value || '').trim();
-  const content = (document.getElementById('quickNewsContent')?.value || '').trim();
+  const content = (document.getElementById('quickNewsContent')?.value || summary || '').trim();
 
   let image = window._quickNewsUploadedDataUrl;
   if (!image) {
@@ -2701,8 +2701,8 @@ window.handleQuickNewsUpload = function(event) {
     image = manualUrl || 'images/campus.jpg';
   }
 
-  if (!title || !summary || !content) {
-    alert('Please fill in all required fields (Title, Summary Brief, and Announcement Body).');
+  if (!title || !summary) {
+    alert('Please fill in all required fields (Title and Summary / Lead Brief).');
     return;
   }
 
