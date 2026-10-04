@@ -1,9 +1,25 @@
-# CIC Alumni 1995 Set — Web Portal & Online Payment Platform
+# CIC Alumni 1995 Set — Next.js Digital Portal & Payment Platform
 
-Official digital portal and zero-login dues payment platform for **CIC Alumni 1995 Set** (*College of the Immaculate Conception, Enugu*).
+Official Next.js (App Router, React 19) digital portal and zero-login dues payment platform for **CIC Alumni 1995 Set** (*College of the Immaculate Conception, Enugu*).
 
 > **Motto:** *"Semper Fidelis"* (Always Faithful)  
-> **Slogan:** *"Connecting the Past. Building the Future."*
+> **Slogan:** *"Connecting the Past. Building the Future."*  
+> **Framework:** Next.js (App Router) + React + Vanilla CSS Design System
+
+---
+
+## ⚡ Quick Start (Next.js)
+
+```bash
+# Run local development server
+npm run dev
+
+# Create optimized production build
+npm run build
+
+# Start production server
+npm start
+```
 
 ---
 
