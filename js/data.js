@@ -284,48 +284,7 @@ const DEFAULT_EVENTS = [
 
 const DEFAULT_PROJECTS = [];
 
-const DEFAULT_NEWS = [
-  {
-    id: 'news-01',
-    title: 'Executive Council Rolls Out Digital Zero-Login Dues Platform',
-    category: 'Alumni News',
-    date: '2026-09-10',
-    summary: 'Members can now pay monthly dues, contributions, and event fees in under 60 seconds with instant digital receipts and no passwords needed.',
-    content: 'The National Executive Council of CIC Alumni 1995 Set is delighted to unveil our new seamless payment portal. Designed to completely eliminate registration friction, alumni worldwide can now verify dues, select one or multiple months, and receive instant downloadable verifiable receipts with embedded QR codes. Payment channels include Paystack, Flutterwave, Monnify, and Remita.',
-    image: 'https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=800&q=80',
-    featured: true
-  },
-  {
-    id: 'news-02',
-    title: 'STEM Laboratory Project Reaches 75% Funding Milestone',
-    category: 'Project Updates',
-    date: '2026-09-02',
-    summary: 'Thanks to generous contributions from the 1995 set and partner cohorts, Phase 1 instrumentation has arrived on campus.',
-    content: 'The Project Committee reports significant progress on the Modern Science Laboratory rehabilitation at CIC Enugu. Structural fittings, fume hoods, and backup solar inverters are being installed this month. We encourage all members to step forward and complete the remaining funding target.',
-    image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=800&q=80',
-    featured: false
-  },
-  {
-    id: 'news-03',
-    title: 'Important Notice: Third Quarter General Meeting & Dues Reconciliation',
-    category: 'Meeting Notices',
-    date: '2026-08-25',
-    summary: 'All chapter executives and class members are invited to the Q3 hybrid virtual assembly on October 1st.',
-    content: 'Notice is hereby given that the Q3 General Meeting will review regional chapter reports, welfare audits, and the upcoming Grand Alumni Reunion itinerary. Members are reminded to clear their Q1-Q3 monthly dues using our online portal prior to the meeting.',
-    image: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80',
-    featured: false
-  },
-  {
-    id: 'news-04',
-    title: 'Call for Nominations: CIC Distinguished Merit Awards 2026',
-    category: 'Alumni News',
-    date: '2026-08-14',
-    summary: 'Submit nominations for exemplary alumni who have distinguished themselves in public service, industry, and academia.',
-    content: 'The Honors and Awards Committee invites submissions from the global CIC alumni community. Categories include Lifetime Leadership, Entrepreneurial Innovation, Humanitarian Service, and Semper Fidelis Excellence. Awardees will be celebrated at the Annual Gala.',
-    image: 'https://images.unsplash.com/photo-1569420077902-6019a5840620?auto=format&fit=crop&w=800&q=80',
-    featured: false
-  }
-];
+const DEFAULT_NEWS = [];
 
 const DEFAULT_GALLERY = [
   {
@@ -495,8 +454,15 @@ const DataStore = {
     if (!localStorage.getItem(STORAGE_KEYS.PROJECTS)) {
       localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(DEFAULT_PROJECTS));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.NEWS)) {
+    const storedNews = this.get(STORAGE_KEYS.NEWS);
+    if (!storedNews) {
       localStorage.setItem(STORAGE_KEYS.NEWS, JSON.stringify(DEFAULT_NEWS));
+    } else {
+      const legacyNewsIds = ['news-01', 'news-02', 'news-03', 'news-04'];
+      const cleanedNews = storedNews.filter(n => !legacyNewsIds.includes(n.id));
+      if (cleanedNews.length !== storedNews.length) {
+        this.saveNews(cleanedNews);
+      }
     }
     if (!localStorage.getItem(STORAGE_KEYS.GALLERY)) {
       localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(DEFAULT_GALLERY));
@@ -691,7 +657,9 @@ const DataStore = {
   },
 
   getNews() {
-    return this.get(STORAGE_KEYS.NEWS) || DEFAULT_NEWS;
+    const list = this.get(STORAGE_KEYS.NEWS) || DEFAULT_NEWS;
+    const legacyNewsIds = ['news-01', 'news-02', 'news-03', 'news-04'];
+    return (list || []).filter(n => !legacyNewsIds.includes(n.id));
   },
 
   saveNews(newsList) {
