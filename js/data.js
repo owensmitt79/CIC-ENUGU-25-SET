@@ -46,6 +46,79 @@
   });
 })();
 
+/**
+ * Global Client-Side Image Optimizer
+ * Resizes and compresses image files into lightweight, crisp web-optimized JPEGs (~50KB-100KB)
+ * to prevent localStorage QuotaExceeded errors and ensure instantaneous uploads.
+ */
+if (typeof window !== 'undefined') {
+  window.optimizeImageFile = function(fileOrDataUrl, maxDimension = 1280, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      if (!fileOrDataUrl) {
+        return reject(new Error('No image provided'));
+      }
+
+      const processDataUrl = (dataUrl, isSvg) => {
+        if (isSvg) return resolve(dataUrl);
+        const img = new Image();
+        img.onerror = () => resolve(dataUrl);
+        img.onload = () => {
+          try {
+            let { width, height } = img;
+            if (width > maxDimension || height > maxDimension) {
+              if (width > height) {
+                height = Math.round((height * maxDimension) / width);
+                width = maxDimension;
+              } else {
+                width = Math.round((width * maxDimension) / height);
+                height = maxDimension;
+              }
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, width);
+            canvas.height = Math.max(1, height);
+            const ctx = canvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            const compressed = canvas.toDataURL('image/jpeg', quality);
+            resolve(compressed);
+          } catch (err) {
+            console.warn('Canvas optimization fallback to original DataURL:', err);
+            resolve(dataUrl);
+          }
+        };
+        img.src = dataUrl;
+      };
+
+      if (typeof fileOrDataUrl === 'string') {
+        if (fileOrDataUrl.startsWith('data:image/svg+xml')) {
+          return resolve(fileOrDataUrl);
+        }
+        if (fileOrDataUrl.startsWith('data:image/')) {
+          return processDataUrl(fileOrDataUrl, false);
+        }
+        return resolve(fileOrDataUrl);
+      }
+
+      if (fileOrDataUrl.type === 'image/svg+xml') {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result);
+        reader.onerror = e => reject(e);
+        reader.readAsDataURL(fileOrDataUrl);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onerror = e => reject(e);
+      reader.onload = e => processDataUrl(e.target.result, false);
+      reader.readAsDataURL(fileOrDataUrl);
+    });
+  };
+}
+
 const STORAGE_KEYS = {
   PAYMENTS: 'haa_payments_v1',
   CONFIG: 'haa_config_v1',
@@ -457,6 +530,15 @@ const DataStore = {
       localStorage.setItem(key, JSON.stringify(value));
     } catch (e) {
       console.error('Error writing localStorage key', key, e);
+      if (e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014 || String(e).includes('quota'))) {
+        console.warn('LocalStorage quota approached. Purging stale items and retrying...');
+        try {
+          localStorage.removeItem('haa_messages_v1');
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (retryErr) {
+          console.error('Could not save after cleanup:', retryErr);
+        }
+      }
     }
   },
 

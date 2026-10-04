@@ -1502,25 +1502,30 @@ window.handleQuickEventFile = function(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
-  if (!file.type.startsWith('image/')) {
+  if (!file.type || !file.type.startsWith('image/')) {
     alert('Please select a valid image file (PNG, JPG, JPEG, WebP).');
     return;
   }
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-    const dataUrlHidden = document.getElementById('quickEventDataUrl');
-    const previewBox = document.getElementById('quickEventPreviewBox');
-    const previewImg = document.getElementById('quickEventPreviewImg');
-    const previewName = document.getElementById('quickEventPreviewName');
+  const dataUrlHidden = document.getElementById('quickEventDataUrl');
+  const previewBox = document.getElementById('quickEventPreviewBox');
+  const previewImg = document.getElementById('quickEventPreviewImg');
+  const previewName = document.getElementById('quickEventPreviewName');
+  const urlInput = document.getElementById('quickEventImageUrl');
 
+  if (previewName) previewName.textContent = 'Optimizing image...';
+  if (previewBox) previewBox.style.display = 'flex';
+
+  window.optimizeImageFile(file).then(dataUrl => {
     if (dataUrlHidden) dataUrlHidden.value = dataUrl;
     if (previewImg) previewImg.src = dataUrl;
-    if (previewName) previewName.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-    if (previewBox) previewBox.style.display = 'flex';
-  };
-  reader.readAsDataURL(file);
+    const estKb = Math.round(dataUrl.length * 0.75 / 1024);
+    if (previewName) previewName.textContent = `${file.name} (Ready: ~${estKb} KB)`;
+    if (urlInput) urlInput.value = 'Custom Uploaded Photo (' + file.name + ')';
+  }).catch(err => {
+    console.error('Error optimizing event photo:', err);
+    alert('Could not process photo file.');
+  });
 };
 
 window.clearQuickEventPreview = function() {
@@ -1948,32 +1953,30 @@ function initAdminProjectsStudio() {
       alert('Please select a valid image file (PNG, JPG, JPEG, WEBP, or GIF).');
       return;
     }
-    // Check 5MB limit
-    if (file.size > 5 * 1024 * 1024) {
-      alert('The selected image is larger than 5MB. Please choose a smaller image for fast loading.');
-      return;
-    }
 
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const dataUrl = e.target.result;
+    const nameEl = document.getElementById('projectUploadFileName');
+    const statusEl = document.getElementById('projectUploadStatusText');
+    if (statusEl) statusEl.textContent = 'Optimizing image...';
+
+    window.optimizeImageFile(file).then(dataUrl => {
       const imgInput = document.getElementById('newProjectImage');
       if (imgInput) imgInput.value = dataUrl;
 
       const thumb = document.getElementById('projectUploadThumb');
       if (thumb) thumb.src = dataUrl;
 
-      const nameEl = document.getElementById('projectUploadFileName');
-      if (nameEl) nameEl.textContent = file.name;
+      const estKb = Math.round(dataUrl.length * 0.75 / 1024);
+      if (nameEl) nameEl.textContent = `${file.name} (~${estKb} KB)`;
 
-      const statusEl = document.getElementById('projectUploadStatusText');
       if (statusEl) {
-        statusEl.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Uploaded (${formatUploadFileSize(file.size)})`;
+        statusEl.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg> Ready to Save (~${estKb} KB)`;
       }
 
       updateLivePreview();
-    };
-    reader.readAsDataURL(file);
+    }).catch(err => {
+      console.error('Error optimizing project image:', err);
+      alert('Could not process project image.');
+    });
   };
 
   // Browse files trigger
@@ -2656,20 +2659,29 @@ window.handleQuickNewsFile = function(event) {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
 
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    window._quickNewsUploadedDataUrl = e.target.result;
-    const previewBox = document.getElementById('quickNewsPreviewBox');
-    const previewImg = document.getElementById('quickNewsPreviewImg');
-    const previewName = document.getElementById('quickNewsPreviewName');
-    const urlInput = document.getElementById('quickNewsImageUrl');
+  if (!file.type || !file.type.startsWith('image/')) {
+    alert('Please select a valid image file (PNG, JPG, JPEG, WebP).');
+    return;
+  }
 
-    if (previewImg) previewImg.src = e.target.result;
-    if (previewName) previewName.textContent = file.name;
-    if (previewBox) previewBox.style.display = 'flex';
-    if (urlInput) urlInput.value = file.name;
-  };
-  reader.readAsDataURL(file);
+  const previewBox = document.getElementById('quickNewsPreviewBox');
+  const previewImg = document.getElementById('quickNewsPreviewImg');
+  const previewName = document.getElementById('quickNewsPreviewName');
+  const urlInput = document.getElementById('quickNewsImageUrl');
+
+  if (previewName) previewName.textContent = 'Optimizing photo...';
+  if (previewBox) previewBox.style.display = 'flex';
+
+  window.optimizeImageFile(file).then(dataUrl => {
+    window._quickNewsUploadedDataUrl = dataUrl;
+    if (previewImg) previewImg.src = dataUrl;
+    const estKb = Math.round(dataUrl.length * 0.75 / 1024);
+    if (previewName) previewName.textContent = `${file.name} (~${estKb} KB)`;
+    if (urlInput) urlInput.value = 'Custom Uploaded Photo (' + file.name + ')';
+  }).catch(err => {
+    console.error('Error optimizing news photo:', err);
+    alert('Could not process photo file.');
+  });
 };
 
 window.clearQuickNewsPreview = function() {
@@ -2698,7 +2710,11 @@ window.handleQuickNewsUpload = function(event) {
   let image = window._quickNewsUploadedDataUrl;
   if (!image) {
     const manualUrl = (document.getElementById('quickNewsImageUrl')?.value || '').trim();
-    image = manualUrl || 'images/campus.jpg';
+    if (manualUrl && !manualUrl.startsWith('Custom Uploaded Photo')) {
+      image = manualUrl;
+    } else {
+      image = 'images/campus.jpg';
+    }
   }
 
   if (!title || !summary) {
@@ -3190,32 +3206,40 @@ window.handleGalleryFileSelect = function(event) {
 };
 
 function handleGalleryPhotoUpload(file) {
-  if (!file.type.startsWith('image/')) {
+  if (!file || !file.type || !file.type.startsWith('image/')) {
     alert('Please select a valid image file (PNG, JPG, JPEG, WebP).');
     return;
   }
 
-  // Read file as Data URL
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const dataUrl = e.target.result;
-    const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
-    const previewBox = document.getElementById('galleryPhotoPreviewBox');
-    const previewImg = document.getElementById('galleryPreviewImg');
-    const fileNameEl = document.getElementById('galleryPreviewFileName');
-    const statusBadge = document.getElementById('galleryPreviewStatusBadge');
+  const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
+  const previewBox = document.getElementById('galleryPhotoPreviewBox');
+  const previewImg = document.getElementById('galleryPreviewImg');
+  const fileNameEl = document.getElementById('galleryPreviewFileName');
+  const statusBadge = document.getElementById('galleryPreviewStatusBadge');
+  const urlInput = document.getElementById('galleryPhotoUrlInput');
 
+  if (statusBadge) {
+    statusBadge.textContent = 'Optimizing photo...';
+    statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+    statusBadge.style.color = '#b45309';
+  }
+  if (previewBox) previewBox.style.display = 'block';
+
+  window.optimizeImageFile(file).then(dataUrl => {
     if (dataUrlHidden) dataUrlHidden.value = dataUrl;
     if (previewImg) previewImg.src = dataUrl;
-    if (fileNameEl) fileNameEl.textContent = `${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
-    if (statusBadge) statusBadge.textContent = 'File Uploaded & Ready';
-    if (previewBox) previewBox.style.display = 'block';
-
-    // Clear text URL to avoid confusion
-    const urlInput = document.getElementById('galleryPhotoUrlInput');
+    const estKb = Math.round(dataUrl.length * 0.75 / 1024);
+    if (fileNameEl) fileNameEl.textContent = `${file.name} (~${estKb} KB)`;
+    if (statusBadge) {
+      statusBadge.textContent = '✓ Ready to Save';
+      statusBadge.style.background = 'rgba(5, 150, 105, 0.12)';
+      statusBadge.style.color = '#059669';
+    }
     if (urlInput) urlInput.value = '';
-  };
-  reader.readAsDataURL(file);
+  }).catch(err => {
+    console.error('Error optimizing gallery photo:', err);
+    alert('Could not process photo file.');
+  });
 }
 
 window.handleGalleryUrlInput = function(val) {

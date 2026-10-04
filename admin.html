@@ -888,11 +888,11 @@
                   Event Banner Image
                 </label>
                 <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                  <label class="btn btn-sm btn-outline-blue" style="cursor: pointer; margin: 0; padding: 0.45rem 0.85rem; font-size: 0.82rem;">
+                  <button type="button" class="btn btn-sm btn-outline-blue" onclick="document.getElementById('quickEventImageFile').click()" style="cursor: pointer; margin: 0; padding: 0.45rem 0.85rem; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.4rem;">
                     <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                     Upload Event Photo
-                    <input type="file" id="quickEventImageFile" accept="image/*" style="display: none;" onchange="handleQuickEventFile(event)">
-                  </label>
+                  </button>
+                  <input type="file" id="quickEventImageFile" accept="image/*" style="display: none;" onchange="handleQuickEventFile(event)" onclick="this.value=null;">
                   <input type="text" id="quickEventImageUrl" class="form-control" placeholder="Or enter direct image URL" value="https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80" style="flex: 1; min-width: 220px; height: 38px; font-size: 0.84rem;">
                   <label style="display: inline-flex; align-items: center; gap: 0.4rem; cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--navy-900); margin: 0;">
                     <input type="checkbox" id="quickEventFeatured" style="width: 16px; height: 16px; accent-color: var(--cic-blue-600);">
@@ -1330,11 +1330,11 @@
                     Upload Cover Photo or Banner Image
                   </label>
                   <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
-                    <label class="btn btn-sm btn-outline-blue" style="cursor: pointer; margin: 0; padding: 0.45rem 0.85rem; font-size: 0.82rem;">
+                    <button type="button" class="btn btn-sm btn-outline-blue" onclick="document.getElementById('quickNewsImageFile').click()" style="cursor: pointer; margin: 0; padding: 0.45rem 0.85rem; font-size: 0.82rem; display: inline-flex; align-items: center; gap: 0.4rem;">
                       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                       Choose Photo File
-                      <input type="file" id="quickNewsImageFile" accept="image/*" style="display: none;" onchange="handleQuickNewsFile(event)">
-                    </label>
+                    </button>
+                    <input type="file" id="quickNewsImageFile" accept="image/*" style="display: none;" onchange="handleQuickNewsFile(event)" onclick="this.value=null;">
                     <input type="text" id="quickNewsImageUrl" class="form-control" placeholder="Or enter direct image URL (e.g. images/campus.jpg)" value="images/campus.jpg" style="flex: 1; min-width: 220px; height: 38px; font-size: 0.84rem;">
                   </div>
                   <!-- Preview Box -->
@@ -1512,8 +1512,8 @@
                     <p style="font-size: 0.84rem; color: var(--slate-500); margin: 0;">
                       Supports high-resolution PNG, JPG, JPEG, and WebP (reunion photos, landmarks, milestones)
                     </p>
-                    <input type="file" id="galleryPhotoFileInput" accept="image/*" style="display: none;" onchange="handleGalleryFileSelect(event)">
                   </div>
+                  <input type="file" id="galleryPhotoFileInput" accept="image/*" style="display: none;" onchange="handleGalleryFileSelect(event)" onclick="this.value=null;">
 
                   <!-- Live Image Preview Card -->
                   <div id="galleryPhotoPreviewBox" style="display: none; background: var(--slate-50); border: 1.5px solid var(--cic-blue-200); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 1rem;">
