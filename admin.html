@@ -1314,9 +1314,6 @@
                     Broadcast official news, announcements, resolutions, and media releases with photos directly to the website.
                   </p>
                 </div>
-                <button type="button" class="btn btn-sm btn-outline-blue" onclick="toggleAdminNewsForm()">
-                  + Open Advanced Studio
-                </button>
               </div>
 
               <form id="quickNewsUploadForm" onsubmit="handleQuickNewsUpload(event)">
@@ -1469,30 +1466,6 @@
                   </button>
                 </div>
               </form>
-            </div>
-
-            <!-- Filter & Search Controls -->
-            <div class="admin-table-controls" style="margin-bottom: 1.5rem;">
-              <div class="admin-search-box">
-                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-                <input type="text" id="adminSearchNews" placeholder="Search bulletins by title, topic, or date...">
-              </div>
-
-              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-                <select id="adminNewsCategoryFilter" class="form-control" style="width: auto; padding: 0.45rem 0.85rem; font-size: 0.88rem;">
-                  <option value="ALL">All Categories</option>
-                  <option value="Alumni News">Alumni News</option>
-                  <option value="Meeting Notices">Meeting Notices</option>
-                  <option value="Event Announcements">Event Announcements</option>
-                  <option value="Project Updates">Project Updates</option>
-                  <option value="Executive Resolutions">Executive Resolutions</option>
-                  <option value="Welfare &amp; Achievements">Welfare &amp; Achievements</option>
-                </select>
-                <a href="./#news" target="_blank" class="btn btn-sm btn-outline-light" style="font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; color: var(--cic-blue-700); border-color: var(--cic-blue-200);">
-                  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                  View Public News
-                </a>
-              </div>
             </div>
 
             <!-- Dynamic News List -->
