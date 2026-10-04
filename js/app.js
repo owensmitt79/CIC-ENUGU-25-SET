@@ -384,13 +384,9 @@ function renderProjects() {
           <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
         </div>
         <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.35rem; margin-bottom: 0.5rem;">No Developmental Projects Listed Yet</h3>
-        <p style="color: var(--slate-600); font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+        <p style="color: var(--slate-600); font-size: 0.95rem; line-height: 1.5; margin-bottom: 0;">
           The alumni executive administration controls all published initiatives. New developmental campaigns will appear here once published by the secretariat.
         </p>
-        <a href="admin.html" class="btn btn-primary" style="font-weight: 700; display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none;">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
-          Manage Projects in Admin Studio
-        </a>
       </div>
     `;
     return;
