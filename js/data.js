@@ -286,50 +286,7 @@ const DEFAULT_PROJECTS = [];
 
 const DEFAULT_NEWS = [];
 
-const DEFAULT_GALLERY = [
-  {
-    id: 'gal-01',
-    title: 'Grand Silver Jubilee Reunion Gala',
-    category: 'Reunions',
-    image: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=900&q=80',
-    caption: 'Alumni from five decades reuniting during the ceremonial banquet.'
-  },
-  {
-    id: 'gal-02',
-    title: 'Commencement of ICT Center Solar Array',
-    category: 'Community Projects',
-    image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=80',
-    caption: 'Executive team inspecting the new solar power backup project on campus.'
-  },
-  {
-    id: 'gal-03',
-    title: 'Annual General Meeting Delegates',
-    category: 'Annual General Meetings',
-    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=900&q=80',
-    caption: 'Chapter chairs in parliamentary session during the 2025 National Congress.'
-  },
-  {
-    id: 'gal-04',
-    title: 'Distinguished Fellowships & Awards Night',
-    category: 'Award Ceremonies',
-    image: 'https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=900&q=80',
-    caption: 'Conferment of Alumni Merit Medals to notable trailblazers.'
-  },
-  {
-    id: 'gal-05',
-    title: 'Class of 2004 20-Year Anniversary Banquet',
-    category: 'Reunions',
-    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=900&q=80',
-    caption: 'Nostalgic toasts and celebration of memories among classmates.'
-  },
-  {
-    id: 'gal-06',
-    title: 'Alumni Tech & Career Networking Mixer',
-    category: 'Networking Events',
-    image: 'https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=900&q=80',
-    caption: 'Cross-generational mentorship and business collaboration session.'
-  }
-];
+const DEFAULT_GALLERY = [];
 
 
 const DEFAULT_PAYMENTS = [
@@ -464,8 +421,15 @@ const DataStore = {
         this.saveNews(cleanedNews);
       }
     }
-    if (!localStorage.getItem(STORAGE_KEYS.GALLERY)) {
+    const storedGallery = this.get(STORAGE_KEYS.GALLERY);
+    if (!storedGallery) {
       localStorage.setItem(STORAGE_KEYS.GALLERY, JSON.stringify(DEFAULT_GALLERY));
+    } else {
+      const legacyGalIds = ['gal-01', 'gal-02', 'gal-03', 'gal-04', 'gal-05', 'gal-06'];
+      const cleanedGal = storedGallery.filter(g => !legacyGalIds.includes(g.id));
+      if (cleanedGal.length !== storedGallery.length) {
+        this.saveGallery(cleanedGal);
+      }
     }
     if (!localStorage.getItem(STORAGE_KEYS.PAYMENTS)) {
       localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(DEFAULT_PAYMENTS));
@@ -700,7 +664,9 @@ const DataStore = {
   },
 
   getGallery() {
-    return this.get(STORAGE_KEYS.GALLERY) || DEFAULT_GALLERY;
+    const list = this.get(STORAGE_KEYS.GALLERY) || DEFAULT_GALLERY;
+    const legacyGalIds = ['gal-01', 'gal-02', 'gal-03', 'gal-04', 'gal-05', 'gal-06'];
+    return (list || []).filter(g => !legacyGalIds.includes(g.id));
   },
 
   saveGallery(gal) {

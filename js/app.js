@@ -584,28 +584,20 @@ window.viewNewsArticle = function(id) {
   `);
 };
 
-/**
- * Render Gallery & Lightbox
- */
-let activeGalleryFilter = 'All';
-
 function renderGallery() {
   const container = document.getElementById('galleryGrid');
   if (!container) return;
 
   const galleryItems = (typeof DataStore !== 'undefined' && DataStore.getGallery) ? DataStore.getGallery() : [];
-  const filtered = activeGalleryFilter === 'All' 
-    ? galleryItems 
-    : galleryItems.filter(g => (g.category || '').toLowerCase() === activeGalleryFilter.toLowerCase());
 
-  if (filtered.length === 0) {
+  if (galleryItems.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: var(--white); border: 1.5px dashed var(--slate-300); border-radius: var(--radius-xl);">
-        <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">No photos currently in this archive category.</p>
+        <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">No photographs currently published in the archive.</p>
       </div>
     `;
   } else {
-    container.innerHTML = filtered.map(item => `
+    container.innerHTML = galleryItems.map(item => `
       <div class="gallery-card" onclick="openLightboxById('${item.id}')" style="cursor: pointer;">
         <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" class="gallery-img" loading="lazy" onerror="this.src='images/campus.jpg'">
         <div class="gallery-overlay">
@@ -618,22 +610,11 @@ function renderGallery() {
 
   const filterWrap = document.getElementById('galleryFilters');
   if (filterWrap) {
-    const allCats = ['All'];
-    galleryItems.forEach(g => {
-      if (g.category && !allCats.includes(g.category)) {
-        allCats.push(g.category);
-      }
-    });
-    filterWrap.innerHTML = allCats.map(cat => `
-      <button class="filter-btn ${activeGalleryFilter === cat ? 'active' : ''}" onclick="setGalleryFilter('${escapeHtml(cat)}')">
-        ${escapeHtml(cat)}
-      </button>
-    `).join('');
+    filterWrap.innerHTML = '';
   }
 }
 
-window.setGalleryFilter = function(cat) {
-  activeGalleryFilter = cat;
+window.setGalleryFilter = function() {
   renderGallery();
 };
 
