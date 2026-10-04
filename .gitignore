@@ -21,7 +21,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # Build & Temporary Output
-.next/
 dist/
 build/
 out/

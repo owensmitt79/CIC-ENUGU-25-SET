@@ -517,20 +517,25 @@ window.quickSupportProject = function(projectId) {
 /**
  * Render News & Announcements with Category Filtering
  */
+let activeNewsCategory = 'All';
+
 function renderNews() {
   const container = document.getElementById('newsGrid');
   if (!container) return;
 
   const newsList = (typeof DataStore !== 'undefined' && DataStore.getNews) ? DataStore.getNews() : [];
+  const filtered = activeNewsCategory === 'All' 
+    ? newsList 
+    : newsList.filter(n => (n.category || '').toLowerCase() === activeNewsCategory.toLowerCase());
 
-  if (newsList.length === 0) {
+  if (filtered.length === 0) {
     container.innerHTML = `
       <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1.5rem; background: var(--white); border: 1.5px dashed var(--slate-300); border-radius: var(--radius-xl);">
-        <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">No announcements currently published.</p>
+        <p style="color: var(--slate-500); font-size: 0.95rem; margin: 0;">No announcements currently in this category.</p>
       </div>
     `;
   } else {
-    container.innerHTML = newsList.map(item => `
+    container.innerHTML = filtered.map(item => `
       <div class="news-card">
         <div class="news-img-wrap" style="position: relative;">
           <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" class="news-img" loading="lazy" onerror="this.src='images/campus.jpg'">
@@ -551,9 +556,20 @@ function renderNews() {
     `).join('');
   }
 
+  // Setup category filter buttons dynamically from DataStore
   const filtersContainer = document.getElementById('newsFilters');
   if (filtersContainer) {
-    filtersContainer.innerHTML = '';
+    const allCats = ['All'];
+    newsList.forEach(n => {
+      if (n.category && !allCats.includes(n.category)) {
+        allCats.push(n.category);
+      }
+    });
+    filtersContainer.innerHTML = allCats.map(cat => `
+      <button class="filter-btn ${activeNewsCategory === cat ? 'active' : ''}" onclick="setNewsCategory('${escapeHtml(cat)}')">
+        ${escapeHtml(cat)}
+      </button>
+    `).join('');
   }
 }
 
