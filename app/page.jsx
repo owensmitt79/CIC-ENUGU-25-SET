@@ -9,7 +9,6 @@ export default function HomePage() {
   const [projects, setProjects] = useState([]);
   const [news, setNews] = useState([]);
   const [gallery, setGallery] = useState([]);
-  const [newsCategory, setNewsCategory] = useState('All');
   const [galleryCategory, setGalleryCategory] = useState('All');
   const [selectedPhoto, setSelectedPhoto] = useState(null);
 
@@ -19,12 +18,7 @@ export default function HomePage() {
     setGallery(DataStore.getGallery());
   }, []);
 
-  const newsCategories = ['All', ...new Set(news.map((n) => n.category).filter(Boolean))];
   const galleryCategories = ['All', ...new Set(gallery.map((g) => g.category).filter(Boolean))];
-
-  const filteredNews = newsCategory === 'All'
-    ? news
-    : news.filter((n) => n.category === newsCategory);
 
   const filteredGallery = galleryCategory === 'All'
     ? gallery
@@ -219,32 +213,8 @@ export default function HomePage() {
             <p class="section-desc">Stay informed about executive resolutions, chapter meeting notices, project milestones, and alumni honors.</p>
           </div>
 
-          {newsCategories.length > 1 && (
-            <div className="news-filters" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-              {newsCategories.map((cat) => (
-                <button
-                  key={cat}
-                  className={`btn-filter ${newsCategory === cat ? 'active' : ''}`}
-                  onClick={() => setNewsCategory(cat)}
-                  style={{
-                    padding: '0.4rem 1rem',
-                    borderRadius: 'var(--radius-full)',
-                    border: '1px solid var(--slate-300)',
-                    background: newsCategory === cat ? 'var(--cic-blue-900)' : 'var(--white)',
-                    color: newsCategory === cat ? '#fff' : 'var(--slate-700)',
-                    cursor: 'pointer',
-                    fontSize: '0.85rem',
-                    fontWeight: 600
-                  }}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
-          )}
-
           <div className="news-grid">
-            {filteredNews.map((item) => (
+            {news.map((item) => (
               <article key={item.id} className="news-card" style={{ background: '#fff', border: '1px solid var(--slate-200)', borderRadius: 'var(--radius-md)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                 <div style={{ height: '180px', position: 'relative', overflow: 'hidden' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
