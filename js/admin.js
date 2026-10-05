@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         const errEl = document.getElementById('adminAuthError');
         if (errEl) {
-          errEl.textContent = 'Invalid email or password. Please check the Login Information box below.';
+          errEl.textContent = 'Invalid email or password. Please verify your credentials and try again.';
           errEl.style.display = 'block';
         }
       }

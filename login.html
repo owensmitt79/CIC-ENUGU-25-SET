@@ -305,37 +305,6 @@
           <span id="btnLoginText">Login to Admin Dashboard</span>
         </button>
       </form>
-
-      <!-- LOGIN INFORMATION CARD -->
-      <div class="exec-creds-card">
-        <div class="exec-creds-header">
-          <span class="exec-creds-title">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            Login Information
-          </span>
-          <span style="font-size: 0.68rem; background: rgba(59, 130, 246, 0.2); color: #60a5fa; font-weight: 800; padding: 0.15rem 0.5rem; border-radius: 9999px;">
-            ADMIN
-          </span>
-        </div>
-
-        <div class="exec-creds-row">
-          <span class="exec-creds-label">Email:</span>
-          <span class="exec-creds-val" id="displayAdminEmail">admin@cic1995.org</span>
-        </div>
-        <div class="exec-creds-row">
-          <span class="exec-creds-label">Password:</span>
-          <span class="exec-creds-val" id="displayAdminPin" style="color: #fbbf24;">admin123</span>
-        </div>
-
-        <button type="button" class="btn-quick-autofill" id="btnQuickAutoFill" onclick="autofillAndSignIn()">
-          <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          ⚡ 1-Click Auto Fill &amp; Login to Dashboard
-        </button>
-
-        <div style="margin-top: 0.75rem; font-size: 0.7rem; color: #64748b; text-align: center;">
-          🔒 Secure Session &bull; Connects directly to Admin Dashboard
-        </div>
-      </div>
     </div>
   </main>
 
@@ -443,7 +412,7 @@
             }, 300);
           } else {
             // Authentication Failure
-            errorMsg.textContent = 'Invalid email or password. Please use the credentials provided in the Login Information box below.';
+            errorMsg.textContent = 'Invalid email or password. Please verify your credentials and try again.';
             errorBox.style.display = 'block';
             if (loginCard) {
               loginCard.classList.remove('shake');
