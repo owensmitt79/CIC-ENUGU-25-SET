@@ -372,11 +372,6 @@
           PRINT RECEIPT
         </button>
 
-        <button type="button" class="btn btn-emerald" onclick="downloadStandaloneReceipt('${escapeHtml(record.reference)}')">
-          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-          SAVE OFFLINE (.HTML)
-        </button>
-
         <button type="button" class="btn btn-whatsapp" onclick="shareReceiptWhatsApp('${escapeHtml(record.reference)}')">
           <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
           SHARE VIA WHATSAPP
@@ -442,10 +437,6 @@
               <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
               PRINT
             </button>
-            <button type="button" class="btn btn-emerald" id="modalBtnOffline">
-              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
-              SAVE OFFLINE (.HTML)
-            </button>
             <button type="button" class="btn btn-whatsapp" id="modalBtnWhatsApp">
               <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
               WHATSAPP
@@ -470,9 +461,6 @@
     // Attach dynamic handlers
     const btnPdf = document.getElementById('modalBtnPdf');
     if (btnPdf) btnPdf.onclick = () => downloadReceiptPdf(record.reference);
-
-    const btnOffline = document.getElementById('modalBtnOffline');
-    if (btnOffline) btnOffline.onclick = () => downloadStandaloneReceipt(record.reference);
 
     const btnWa = document.getElementById('modalBtnWhatsApp');
     if (btnWa) btnWa.onclick = () => shareReceiptWhatsApp(record.reference);
@@ -509,128 +497,7 @@
    * Creates an un-deletable, self-styled file that opens in any browser offline.
    */
   function downloadStandaloneReceipt(refOrRecord) {
-    let record = typeof refOrRecord === 'object' ? refOrRecord : null;
-    if (!record && typeof DataStore !== 'undefined') {
-      record = DataStore.findPaymentByRef(refOrRecord);
-    }
-    if (!record) {
-      alert('Unable to find receipt details.');
-      return;
-    }
-
-    const receiptHtml = renderOfficialReceiptHTML(record);
-    const recNum = record.receiptNumber || record.reference || 'REC-2026';
-
-    const standaloneDocument = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Receipt ${escapeHtml(recNum)} - CIC Alumni 1995 Set</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --cic-blue-950: #060e1a;
-      --cic-blue-900: #0B192C;
-      --cic-blue-700: #1E3E62;
-      --cic-blue-600: #2B5797;
-      --cic-blue-500: #3a72c4;
-      --cic-blue-100: #e0e9f6;
-      --cic-blue-50: #f0f4fa;
-      --gold-500: #C5A880;
-      --navy-900: #0B192C;
-      --slate-900: #0f172a;
-      --slate-800: #1e293b;
-      --slate-600: #475569;
-      --slate-500: #64748b;
-      --slate-300: #cbd5e1;
-      --slate-200: #e2e8f0;
-      --slate-100: #f1f5f9;
-      --slate-50: #f8fafc;
-      --white: #ffffff;
-      --emerald-600: #059669;
-      --emerald-700: #047857;
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 16px;
-      --radius-xl: 24px;
-      --font-heading: 'Cinzel', serif;
-      --font-body: 'Outfit', sans-serif;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: #f1f5f9;
-      font-family: var(--font-body);
-      color: var(--slate-800);
-      padding: 2.5rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-    }
-    .offline-toolbar {
-      max-width: 760px;
-      width: 100%;
-      margin-bottom: 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--white);
-      padding: 0.85rem 1.5rem;
-      border-radius: var(--radius-md);
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.07);
-      border: 1px solid var(--slate-200);
-    }
-    .offline-btn {
-      background: var(--cic-blue-600);
-      color: #fff;
-      border: none;
-      padding: 0.6rem 1.4rem;
-      border-radius: var(--radius-sm);
-      font-weight: 700;
-      font-size: 0.88rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    .offline-btn:hover { background: var(--cic-blue-700); }
-    ${getReceiptCSSRuleText()}
-    @media print {
-      body { background: #fff; padding: 0; }
-      .offline-toolbar { display: none !important; }
-      .digital-receipt-box { box-shadow: none; border: 1px solid #1e293b; max-width: 100%; width: 100%; }
-    }
-  </style>
-</head>
-<body>
-  <div class="offline-toolbar">
-    <div>
-      <strong style="color: var(--cic-blue-900);">Official Verified Receipt</strong>
-      <div style="font-size: 0.8rem; color: var(--slate-500);">CIC Alumni 1995 Graduating Set Association</div>
-    </div>
-    <button class="offline-btn" onclick="window.print()">
-      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-      Print / Save as PDF
-    </button>
-  </div>
-  ${receiptHtml}
-</body>
-</html>`;
-
-    const blob = new Blob([standaloneDocument], { type: 'text/html;charset=utf-8' });
-    const blobUrl = URL.createObjectURL(blob);
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.href = blobUrl;
-    downloadAnchor.download = `CIC_Receipt_${recNum.replace(/[^a-zA-Z0-9_-]/g, '_')}.html`;
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    document.body.removeChild(downloadAnchor);
-    URL.revokeObjectURL(blobUrl);
-
-    showReceiptToast(`✓ Official Receipt #${recNum} downloaded successfully!`, 'success');
+    downloadReceiptPdf(refOrRecord);
   }
 
   /**

@@ -113,6 +113,23 @@ img {
   display: block;
 }
 
+img[loading="lazy"] {
+  content-visibility: auto;
+}
+
+.brand-logo-img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  aspect-ratio: 1 / 1;
+}
+
+.hero-campus-img {
+  aspect-ratio: 540 / 380;
+  object-fit: cover;
+  width: 100%;
+}
+
 a {
   color: inherit;
   text-decoration: none;

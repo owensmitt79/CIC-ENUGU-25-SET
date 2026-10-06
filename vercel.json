@@ -5,7 +5,7 @@
   ],
   "headers": [
     {
-      "source": "**",
+      "source": "/(.*)",
       "headers": [
         {
           "key": "Content-Security-Policy",
@@ -46,7 +46,7 @@
       ]
     },
     {
-      "source": "**/*.@(jpg|jpeg|png|gif|svg|webp|ico|woff|woff2|ttf)",
+      "source": "/images/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
@@ -55,20 +55,11 @@
       ]
     },
     {
-      "source": "**/*.@(css|js)",
+      "source": "/(css|js)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=86400, stale-while-revalidate=604800"
-        }
-      ]
-    },
-    {
-      "source": "**/*.html",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
         }
       ]
     }
