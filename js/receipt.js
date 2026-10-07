@@ -165,18 +165,8 @@
     const pathname = (typeof window !== 'undefined' && window.location) ? window.location.pathname.replace(/[^/]*$/, '') : '';
     const verifyUrl = `${origin}${pathname}verify.html?ref=${encodeURIComponent(ref)}`;
 
-    // Security verification token snippet
-    const authHash = 'AUTH-' + Array.from(ref).reduce((acc, c) => ((acc << 5) - acc) + c.charCodeAt(0) | 0, 0).toString(16).toUpperCase().replace('-', 'X').padStart(8, '0');
-
     return `
       <div class="digital-receipt-box" id="officialReceiptPrintBox">
-        <!-- Top Security Header Bar -->
-        <div class="receipt-security-strip">
-          <span>NATIONAL TREASURY &amp; FINANCIAL SECRETARIAT</span>
-          <span>DOCUMENT SECURITY CLASS: A-1 VERIFIED</span>
-          <span>TOKEN: ${authHash}</span>
-        </div>
-
         <!-- Receipt Header with Crest -->
         <div class="receipt-header">
           <div class="receipt-brand">
