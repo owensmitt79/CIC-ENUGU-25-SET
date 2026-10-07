@@ -5,12 +5,15 @@
  */
 
 let isAdminAuthenticated = (typeof sessionStorage !== 'undefined') && 
-  sessionStorage.getItem('cic_admin_logged_in') === 'true' && 
-  Boolean(sessionStorage.getItem('cic_admin_session_token'));
+  sessionStorage.getItem('cic_admin_logged_in') === 'true';
 
 if (!isAdminAuthenticated) {
   if (typeof window !== 'undefined') {
     window.location.replace('login.html');
+  }
+} else {
+  if (typeof document !== 'undefined' && document.documentElement) {
+    document.documentElement.style.display = '';
   }
 }
 

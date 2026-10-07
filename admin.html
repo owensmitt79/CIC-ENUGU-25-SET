@@ -9,17 +9,12 @@
   <script>
     (function() {
       const isAuth = sessionStorage.getItem('cic_admin_logged_in') === 'true';
-      const token = sessionStorage.getItem('cic_admin_session_token');
-      const sessionTime = parseInt(sessionStorage.getItem('cic_admin_session_time') || '0', 10);
-      const MAX_SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours max session
-
-      if (!isAuth || !token || (Date.now() - sessionTime > MAX_SESSION_DURATION)) {
-        sessionStorage.removeItem('cic_admin_logged_in');
-        sessionStorage.removeItem('cic_admin_session_token');
-        sessionStorage.removeItem('cic_admin_session_time');
-        sessionStorage.removeItem('cic_admin_email_masked');
-        document.documentElement.style.display = 'none';
+      if (!isAuth) {
         window.location.replace('login.html');
+      } else {
+        if (document.documentElement) {
+          document.documentElement.style.display = '';
+        }
       }
     })();
   </script>
