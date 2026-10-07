@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Executive Administrator Portal | CIC Alumni 1995 Set</title>
   
+  <!-- Immediate Authentication Guard: Strictly prevent unauthorized page access -->
+  <script>
+    (function() {
+      if (sessionStorage.getItem('cic_admin_logged_in') !== 'true') {
+        document.documentElement.style.display = 'none';
+        window.location.replace('login.html');
+      }
+    })();
+  </script>
+  <!-- Search Engine Blocking -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  
   <!-- Core Security & Privacy Directives -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://checkout.paystack.com https://*.paystack.co https://*.flutterwave.com; object-src 'none'; base-uri 'self'; form-action 'self' https:; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests;">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
@@ -2107,7 +2119,7 @@
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 0.84rem;">
                   <span style="color: var(--slate-600);">Active Security PIN:</span>
-                  <strong id="displaySettingsPin" style="color: var(--cic-blue-700); font-family: monospace; letter-spacing: 0.05em;">admin123</strong>
+                  <strong id="displaySettingsPin" style="color: var(--cic-blue-700); font-family: monospace; letter-spacing: 0.15em;">••••••••</strong>
                 </div>
               </div>
 

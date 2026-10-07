@@ -31,7 +31,7 @@ CREATE TABLE system_config (
   account_number VARCHAR(50) DEFAULT '1029384756',
   account_name VARCHAR(150) DEFAULT 'CIC Alumni 1995 Set National',
   ussd_prefix VARCHAR(50) DEFAULT '*737*50*5000#',
-  admin_pin_hash TEXT DEFAULT 'admin123',
+  admin_pin_hash TEXT DEFAULT NULL,
   updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc', NOW())
 );
 

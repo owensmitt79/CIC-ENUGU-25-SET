@@ -1613,16 +1613,4 @@ window.addEventListener('datastore:updated', function(e) {
   syncFrontendData(e.detail ? e.detail.key : null);
 });
 
-// Automatically update admin navigation status on page load
-document.addEventListener('DOMContentLoaded', function() {
-  const isAdmin = sessionStorage.getItem('cic_admin_logged_in') === 'true';
-  document.querySelectorAll('.btn-admin-nav, .nav-admin-link').forEach(link => {
-    if (isAdmin) {
-      link.href = 'admin.html';
-      link.title = 'Executive Dashboard (Active Session)';
-      if (link.classList.contains('btn-admin-nav')) {
-        link.innerHTML = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; display: inline-block;"></span> Admin`;
-      }
-    }
-  });
-});
+

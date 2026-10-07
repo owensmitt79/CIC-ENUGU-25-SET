@@ -222,7 +222,7 @@ Every generated receipt contains:
 
 ## 8. Executive Admin Control Suite
 
-The **Executive Admin Dashboard** (`.html` and `js/admin.js`) is protected by PIN authorization (Default PIN: `admin123`).
+The **Executive Admin Dashboard** (`admin.html` and `js/admin.js`) is protected by administrator session authorization.
 
 ### 8.1 Key Admin Panels
 | Pane ID | Title | Key Capabilities |
@@ -369,7 +369,7 @@ python -m http.server 8080
 4. The system validates the record and displays the full official receipt.
 
 ### 12.3 For Administrators: How to Issue an Offline Receipt
-1. Log in to `login.html` using the Admin PIN (`admin123`).
+1. Log in to `login.html` using authorized Administrator credentials.
 2. Go to **Issue Dues Receipt** (`adminPane_IssueReceipt`).
 3. Enter the alumnus name, email, phone, and select payment channel (Bank Transfer / Cash).
 4. Select the dues category or check off cleared months.

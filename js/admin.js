@@ -4,7 +4,12 @@
  * category manager, CSV export, and content management.
  */
 
-let isAdminAuthenticated = true;
+let isAdminAuthenticated = (typeof sessionStorage !== 'undefined') && sessionStorage.getItem('cic_admin_logged_in') === 'true';
+if (!isAdminAuthenticated) {
+  if (typeof window !== 'undefined') {
+    window.location.replace('login.html');
+  }
+}
 
 // Cross-tab real-time pulse synchronization for payments, dues, categories, news, and gallery
 window.addEventListener('storage', function(e) {
@@ -436,36 +441,16 @@ document.addEventListener('DOMContentLoaded', () => {
  * Admin Credentials & Gate Display Helpers
  */
 window.updateAdminGateCredentialsDisplay = function() {
-  const pin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) ? DataStore.getAdminPin() : 'admin123';
   const email = (typeof DataStore !== 'undefined' && DataStore.getAdminEmail) ? DataStore.getAdminEmail() : 'admin@cic1995.org';
 
-  const gatePinEl = document.getElementById('gateAdminPinDisplay');
-  if (gatePinEl) gatePinEl.textContent = pin;
-
-  const gateEmailEl = document.getElementById('gateAdminEmailDisplay');
-  if (gateEmailEl) gateEmailEl.textContent = email;
-
   const settingsPinEl = document.getElementById('displaySettingsPin');
-  if (settingsPinEl) settingsPinEl.textContent = pin;
+  if (settingsPinEl) settingsPinEl.textContent = '••••••••';
 
   const settingsEmailEl = document.getElementById('displaySettingsEmail');
   if (settingsEmailEl) settingsEmailEl.textContent = email;
 
   const settingEmailInput = document.getElementById('settingAdminEmail');
   if (settingEmailInput) settingEmailInput.value = email;
-};
-
-window.autofillGatePin = function() {
-  const pin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) ? DataStore.getAdminPin() : 'admin123';
-  const email = (typeof DataStore !== 'undefined' && DataStore.getAdminEmail) ? DataStore.getAdminEmail() : 'admin@cic1995.org';
-  const emailInput = document.getElementById('adminGateEmail');
-  const pinInput = document.getElementById('adminPinInput');
-  if (emailInput) emailInput.value = email;
-  if (pinInput) pinInput.value = pin;
-  const form = document.getElementById('adminLoginForm');
-  if (form) {
-    form.dispatchEvent(new Event('submit', { cancelable: true }));
-  }
 };
 
 window.updateAdminSecurityCredentials = function(e) {

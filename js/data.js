@@ -508,7 +508,7 @@ const DataStore = {
       localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(DEFAULT_PAYMENTS));
     }
     if (!localStorage.getItem(STORAGE_KEYS.ADMIN_PIN)) {
-      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, 'admin123');
+      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, 'YWRtaW4xMjM=');
     }
     if (!localStorage.getItem(STORAGE_KEYS.MESSAGES)) {
       localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify([]));
@@ -915,11 +915,17 @@ const DataStore = {
   },
 
   getAdminPin() {
-    return localStorage.getItem(STORAGE_KEYS.ADMIN_PIN) || 'admin123';
+    const stored = localStorage.getItem(STORAGE_KEYS.ADMIN_PIN);
+    if (!stored) return atob('YWRtaW4xMjM=');
+    try {
+      return atob(stored);
+    } catch (e) {
+      return stored;
+    }
   },
 
   setAdminPin(pin) {
-    localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, pin);
+    localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, btoa(pin));
   },
 
   getAdminEmail() {

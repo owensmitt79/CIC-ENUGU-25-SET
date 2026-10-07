@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /login.html
+Disallow: /js/admin.js
+
+Allow: /

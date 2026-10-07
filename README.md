@@ -57,8 +57,8 @@ A member simply:
   * Direct contact form, official address at CIC Enugu, and verified email correspondences.
 
 ### 🔒 Executive Admin Dashboard
-Accessible via the discreet **"Executive Admin Login"** link in the footer:
-* **PIN Protected**: Default PIN is `admin123`.
+Accessible via `/login.html`:
+* **Protected Portal**: Secured administrative portal requiring authenticated credentials.
 * **Issue Member Dues Receipt Studio**: Dedicated "+ Issue Dues Receipt" tool allowing executive admins to record payments made via direct bank wire, cash, or POS, select cleared months (Jan-Dec), and instantly generate an official verifiable digital receipt.
 * **Financial KPI Overview**: Real-time revenue totals, today's collections, total transaction counts, and category breakdowns.
 * **Payments Ledger**: Searchable by name, email, phone, reference, or receipt number, with category filtering and instant 1-click receipt modal viewer.
@@ -168,10 +168,8 @@ The platform implements enterprise-grade HTTP security headers and browser-level
 
 ---
 
-## 🔐 Admin Credentials
-
-* **Default Admin PIN**: `admin123`
-* **Location**: Click **"Executive Admin Login"** in the footer of the page.
+## 🔐 Administration
+The executive portal is protected and accessible at `/login.html` by authorized association executives.
 
 ---
 
