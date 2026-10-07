@@ -4,7 +4,7 @@
 
 <IfModule mod_headers.c>
   # 1. Content Security Policy (CSP - Hardened)
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://checkout.paystack.com https://*.paystack.co https://*.flutterwave.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https:; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests;"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://checkout.paystack.com https://*.paystack.co https://*.flutterwave.com; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https:; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests;"
 
   # 2. Prevent Clickjacking
   Header always set X-Frame-Options "SAMEORIGIN"
