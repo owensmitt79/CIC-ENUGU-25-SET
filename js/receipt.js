@@ -266,47 +266,6 @@
           <span class="label">Amount in Words:</span>
           <span class="words">${escapeHtml(amountWords)}</span>
         </div>
-
-        <!-- Signatures & Authority Section -->
-        <div class="receipt-signatures-grid">
-          <div class="receipt-sig-item">
-            <div class="receipt-sig-line">
-              <span class="receipt-sig-script">Dr. Jude Okafor</span>
-            </div>
-            <div class="receipt-sig-name">Dr. Jude O. Okafor</div>
-            <div class="receipt-sig-title">National Treasurer &bull; CIC 1995 Set</div>
-          </div>
-          <div class="receipt-sig-center">
-            <div class="receipt-official-seal">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><path d="M7 12a5 5 0 0 1 5-5"/></svg>
-              <span>SEAL OF AUDIT</span>
-            </div>
-          </div>
-          <div class="receipt-sig-item" style="text-align: right;">
-            <div class="receipt-sig-line" style="margin-left: auto;">
-              <span class="receipt-sig-script">Engr. Ilo</span>
-            </div>
-            <div class="receipt-sig-name">Engr. Ilo</div>
-            <div class="receipt-sig-title">Financial Secretary &bull; CIC 1995 Set</div>
-          </div>
-        </div>
-
-        <!-- Footer Verification & QR Row -->
-        <div class="receipt-footer-row">
-          <div class="receipt-qr-wrap">
-            ${qrSvg}
-            <div class="receipt-verification-text">
-              <strong>Scan to Verify Online</strong><br>
-              Direct Link: <a href="${escapeHtml(verifyUrl)}" target="_blank" style="color: var(--cic-blue-600); text-decoration: underline; word-break: break-all;">verify.html?ref=${escapeHtml(ref)}</a><br>
-              Cryptographically logged into the CIC 1995 Set Immutable Treasury Register.
-            </div>
-          </div>
-          <div class="receipt-footer-crest-info">
-            <div class="motto-tag">SEMPER FIDELIS</div>
-            <div class="legal-note">College of the Immaculate Conception, Uwani, Enugu</div>
-            <div class="legal-note">Financial Secretariat &bull; All Rights Reserved</div>
-          </div>
-        </div>
       </div>
     `;
   }

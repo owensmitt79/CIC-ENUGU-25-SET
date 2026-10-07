@@ -1350,28 +1350,6 @@ function renderOfficialReceiptHTML(record) {
           </tr>
         </tbody>
       </table>
-
-      <div class="receipt-footer-row">
-        <div class="receipt-qr-wrap">
-          ${qrSvg}
-          <div class="receipt-verification-text">
-            <strong>Scan to Verify Online</strong><br>
-            Reference: <code style="color: var(--cic-blue-900); font-weight: 700;">${escapeHtml(record.reference)}</code><br>
-            Officially verified by National Treasury &amp; Financial Secretariat &bull; CIC Alumni 1995 Set.
-          </div>
-        </div>
-        <div style="text-align: right;">
-          <div style="font-family: var(--font-heading); font-size: 0.9rem; font-weight: 800; color: var(--cic-blue-900);">
-            National Treasury Office
-          </div>
-          <div style="font-size: 0.72rem; color: var(--slate-500); margin-top: 2px;">
-            College of the Immaculate Conception
-          </div>
-          <div style="margin-top: 0.4rem; display: inline-block; padding: 2px 8px; background: rgba(43, 87, 151, 0.08); border-radius: 4px; font-size: 0.7rem; color: var(--cic-blue-700); font-weight: 700;">
-            SEMPER FIDELIS
-          </div>
-        </div>
-      </div>
     </div>
   `;
 }
