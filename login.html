@@ -250,7 +250,7 @@
             <input type="checkbox" id="loginRemember" checked style="accent-color: var(--cic-blue-700); width: 16px; height: 16px;">
             <span>Remember on this device</span>
           </label>
-          <a href="contact.html" style="color: var(--cic-blue-700); text-decoration: none; font-weight: 600;">Lost Password?</a>
+          <a href="#" onclick="handleResetCredentials(event)" style="color: var(--cic-blue-700); text-decoration: none; font-weight: 600;">Reset / Lost Password?</a>
         </div>
 
         <!-- Submit Button -->
@@ -272,11 +272,41 @@
   <script src="js/data.js?v=3.5"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // 0. Clear any stale lockouts or cooldowns on load
+      sessionStorage.removeItem('cic_auth_fails');
+      sessionStorage.removeItem('cic_auth_lockout');
+
       // 1. Check if already authenticated in this session - show banner but do NOT force redirect
       if (sessionStorage.getItem('cic_admin_logged_in') === 'true' && sessionStorage.getItem('cic_admin_session_token')) {
         const sessionBanner = document.getElementById('activeSessionBanner');
         if (sessionBanner) sessionBanner.style.display = 'block';
       }
+
+      // Reset Credentials to Default Handler
+      window.handleResetCredentials = function(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (confirm("Reset administrator credentials back to system default (admin@cic1995.org / admin123)?")) {
+          if (typeof DataStore !== 'undefined' && DataStore.resetAdminCredentials) {
+            DataStore.resetAdminCredentials();
+          }
+          const emailIn = document.getElementById('loginEmail');
+          const passIn = document.getElementById('loginPassword');
+          if (emailIn) emailIn.value = 'admin@cic1995.org';
+          if (passIn) {
+            passIn.value = 'admin123';
+            passIn.type = 'text';
+          }
+          const errBox = document.getElementById('loginErrorBox');
+          const errMsg = document.getElementById('loginErrorMessage');
+          if (errBox && errMsg) {
+            errMsg.textContent = '✓ Login details reset to default (admin@cic1995.org / admin123). Click "Login to Admin Dashboard" below.';
+            errBox.style.display = 'block';
+            errBox.style.background = '#ecfdf5';
+            errBox.style.color = '#065f46';
+            errBox.style.border = '1px solid #a7f3d0';
+          }
+        }
+      };
 
       // 2. Eye toggle for Password
       const toggleBtn = document.getElementById('btnTogglePassword');

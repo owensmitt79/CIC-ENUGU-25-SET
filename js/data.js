@@ -981,6 +981,21 @@ const DataStore = {
   getMaskedAdminEmail() {
     const sessionMasked = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('cic_admin_email_masked') : null;
     return sessionMasked || 'ad***@***.org';
+  },
+
+  // Reset Admin Credentials to Default (admin@cic1995.org / admin123) and clear lockouts
+  resetAdminCredentials() {
+    localStorage.setItem(STORAGE_KEYS.ADMIN_PIN_HASH, '4ba040cac3a5efc4765e886a736b40fde0369c74ff9957af668028509e1906e2');
+    localStorage.setItem(STORAGE_KEYS.ADMIN_EMAIL_HASH, '8e8eee8da5377c187cb832575e06f62ba3f324ce99ae9a15a99a31a24167af73');
+    try {
+      localStorage.removeItem('haa_admin_pin_v1');
+      localStorage.removeItem('haa_admin_email_v1');
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.removeItem('cic_auth_fails');
+        sessionStorage.removeItem('cic_auth_lockout');
+      }
+    } catch (e) {}
+    return true;
   }
 };
 
