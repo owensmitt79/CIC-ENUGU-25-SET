@@ -4,7 +4,10 @@
  * category manager, CSV export, and content management.
  */
 
-let isAdminAuthenticated = (typeof sessionStorage !== 'undefined') && sessionStorage.getItem('cic_admin_logged_in') === 'true';
+let isAdminAuthenticated = (typeof sessionStorage !== 'undefined') && 
+  sessionStorage.getItem('cic_admin_logged_in') === 'true' && 
+  Boolean(sessionStorage.getItem('cic_admin_session_token'));
+
 if (!isAdminAuthenticated) {
   if (typeof window !== 'undefined') {
     window.location.replace('login.html');
@@ -183,39 +186,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Admin Login form
-  const adminLoginForm = document.getElementById('adminLoginForm');
-  if (adminLoginForm) {
-    adminLoginForm.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const enteredEmail = (document.getElementById('adminGateEmail')?.value || '').trim();
-      const pin = (document.getElementById('adminPinInput')?.value || '').trim();
-      const validPin = DataStore.getAdminPin();
-
-      if (pin === validPin) {
-        isAdminAuthenticated = true;
-        sessionStorage.setItem('cic_admin_logged_in', 'true');
-        const authGate = document.getElementById('adminAuthGate');
-        const mainDashboard = document.getElementById('adminMainDashboard');
-        if (authGate) authGate.style.display = 'none';
-        if (mainDashboard) mainDashboard.style.display = 'flex';
-        loadAdminDashboardData();
-      } else {
-        const errEl = document.getElementById('adminAuthError');
-        if (errEl) {
-          errEl.textContent = 'Invalid email or password. Please verify your credentials and try again.';
-          errEl.style.display = 'block';
-        }
-      }
-    });
-  }
-
   // Admin Logout
   const logoutBtns = document.querySelectorAll('.btn-admin-logout');
   logoutBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.preventDefault();
       sessionStorage.removeItem('cic_admin_logged_in');
+      sessionStorage.removeItem('cic_admin_session_token');
+      sessionStorage.removeItem('cic_admin_session_time');
+      sessionStorage.removeItem('cic_admin_email_masked');
       isAdminAuthenticated = false;
       window.location.href = 'login.html';
     });
@@ -440,20 +419,25 @@ document.addEventListener('DOMContentLoaded', () => {
 /**
  * Admin Credentials & Gate Display Helpers
  */
+/**
+ * Admin Credentials & Gate Display Helpers
+ */
 window.updateAdminGateCredentialsDisplay = function() {
-  const email = (typeof DataStore !== 'undefined' && DataStore.getAdminEmail) ? DataStore.getAdminEmail() : 'admin@cic1995.org';
+  const maskedEmail = (typeof DataStore !== 'undefined' && DataStore.getMaskedAdminEmail) 
+    ? DataStore.getMaskedAdminEmail() 
+    : 'ad***@***.org';
 
   const settingsPinEl = document.getElementById('displaySettingsPin');
   if (settingsPinEl) settingsPinEl.textContent = '••••••••';
 
   const settingsEmailEl = document.getElementById('displaySettingsEmail');
-  if (settingsEmailEl) settingsEmailEl.textContent = email;
+  if (settingsEmailEl) settingsEmailEl.textContent = maskedEmail;
 
   const settingEmailInput = document.getElementById('settingAdminEmail');
-  if (settingEmailInput) settingEmailInput.value = email;
+  if (settingEmailInput) settingEmailInput.value = '';
 };
 
-window.updateAdminSecurityCredentials = function(e) {
+window.updateAdminSecurityCredentials = async function(e) {
   if (e && e.preventDefault) e.preventDefault();
 
   const currentPin = (document.getElementById('settingCurrentPin')?.value || '').trim();
@@ -462,9 +446,23 @@ window.updateAdminSecurityCredentials = function(e) {
   const newEmail = (document.getElementById('settingAdminEmail')?.value || '').trim();
   const alertBox = document.getElementById('credentialChangeAlert');
 
-  const validCurrentPin = DataStore.getAdminPin();
+  if (!currentPin) {
+    if (alertBox) {
+      alertBox.textContent = 'Please enter your current security PIN to authenticate.';
+      alertBox.style.display = 'block';
+      alertBox.style.background = '#fef2f2';
+      alertBox.style.color = '#b91c1c';
+      alertBox.style.border = '1px solid #fecaca';
+    }
+    return;
+  }
 
-  if (currentPin !== validCurrentPin) {
+  // Cryptographic verification of current PIN
+  const isCurrentPinValid = (typeof DataStore !== 'undefined' && DataStore.verifyAdminPin)
+    ? await DataStore.verifyAdminPin(currentPin)
+    : false;
+
+  if (!isCurrentPinValid) {
     if (alertBox) {
       alertBox.textContent = 'Current security PIN is incorrect. Verification failed.';
       alertBox.style.display = 'block';
@@ -497,10 +495,15 @@ window.updateAdminSecurityCredentials = function(e) {
     return;
   }
 
-  // Update DataStore
-  DataStore.setAdminPin(newPin);
+  // Securely update DataStore using cryptographic one-way hashing
+  if (typeof DataStore !== 'undefined' && DataStore.setAdminCredentials) {
+    await DataStore.setAdminCredentials(newEmail, newPin);
+  }
+
+  // Update session masked email if changed
   if (newEmail) {
-    DataStore.setAdminEmail(newEmail);
+    const masked = newEmail.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '*'.repeat(Math.min(gp3.length, 6)));
+    sessionStorage.setItem('cic_admin_email_masked', masked);
   }
 
   // Update UI Displays
@@ -509,18 +512,16 @@ window.updateAdminSecurityCredentials = function(e) {
   // Reset form inputs
   const form = document.getElementById('adminSecurityCredentialsForm');
   if (form) form.reset();
-  const emailInput = document.getElementById('settingAdminEmail');
-  if (emailInput && newEmail) emailInput.value = newEmail;
 
   if (alertBox) {
-    alertBox.textContent = `Success! Security credentials updated. New PIN: ${newPin}`;
+    alertBox.textContent = 'Success! Administrator security credentials updated securely.';
     alertBox.style.display = 'block';
     alertBox.style.background = '#f0fdf4';
     alertBox.style.color = '#15803d';
     alertBox.style.border = '1px solid #bbf7d0';
   }
 
-  alert(`Administrator Security Credentials Updated Successfully!\nNew Active Passcode: ${newPin}\nAuthorized Email: ${newEmail}`);
+  alert('Administrator Security Credentials Updated Successfully!');
 };
 
 function openAdminPortal() {

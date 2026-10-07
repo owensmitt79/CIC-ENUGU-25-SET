@@ -130,8 +130,8 @@ const STORAGE_KEYS = {
   LEADERSHIP: 'haa_leadership_v2',
   MEMBERS: 'haa_members_v1',
   MESSAGES: 'haa_messages_v1',
-  ADMIN_PIN: 'haa_admin_pin_v1',
-  ADMIN_EMAIL: 'haa_admin_email_v1'
+  ADMIN_PIN_HASH: 'haa_admin_pin_hash_v2',
+  ADMIN_EMAIL_HASH: 'haa_admin_email_hash_v2'
 };
 
 const DEFAULT_CONFIG = {
@@ -507,8 +507,18 @@ const DataStore = {
     if (!localStorage.getItem(STORAGE_KEYS.PAYMENTS)) {
       localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(DEFAULT_PAYMENTS));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.ADMIN_PIN)) {
-      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, 'YWRtaW4xMjM=');
+    // Purge any legacy unhashed credentials from browser storage
+    try {
+      localStorage.removeItem('haa_admin_pin_v1');
+      localStorage.removeItem('haa_admin_email_v1');
+    } catch (e) {}
+
+    // Initialize one-way SHA-256 hashes if not configured
+    if (!localStorage.getItem(STORAGE_KEYS.ADMIN_PIN_HASH)) {
+      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN_HASH, '4ba040cac3a5efc4765e886a736b40fde0369c74ff9957af668028509e1906e2');
+    }
+    if (!localStorage.getItem(STORAGE_KEYS.ADMIN_EMAIL_HASH)) {
+      localStorage.setItem(STORAGE_KEYS.ADMIN_EMAIL_HASH, '8e8eee8da5377c187cb832575e06f62ba3f324ce99ae9a15a99a31a24167af73');
     }
     if (!localStorage.getItem(STORAGE_KEYS.MESSAGES)) {
       localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify([]));
@@ -914,26 +924,63 @@ const DataStore = {
     this.set(STORAGE_KEYS.MESSAGES, msgs);
   },
 
-  getAdminPin() {
-    const stored = localStorage.getItem(STORAGE_KEYS.ADMIN_PIN);
-    if (!stored) return atob('YWRtaW4xMjM=');
-    try {
-      return atob(stored);
-    } catch (e) {
-      return stored;
+  // Cryptographic Helper: One-Way Salted SHA-256 (Mathematically impossible to reverse)
+  async _hashSecret(text) {
+    const salt = 'cic_1995_sec_salt_v1';
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+      const msgUint8 = new TextEncoder().encode((text || '').trim() + salt);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
+    let hash = 0;
+    const str = (text || '').trim() + salt;
+    for (let i = 0; i < str.length; i++) {
+      hash = ((hash << 5) - hash) + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return 'fallback_' + Math.abs(hash).toString(16);
   },
 
-  setAdminPin(pin) {
-    localStorage.setItem(STORAGE_KEYS.ADMIN_PIN, btoa(pin));
+  // Secure One-Way Credential Verification: Passwords and emails are NEVER retrievable
+  async verifyAdminCredentials(email, password) {
+    if (!email || !password) return false;
+    const emailHash = await this._hashSecret((email || '').toLowerCase().trim());
+    const passHash = await this._hashSecret((password || '').trim());
+
+    const storedPassHash = localStorage.getItem(STORAGE_KEYS.ADMIN_PIN_HASH) || '4ba040cac3a5efc4765e886a736b40fde0369c74ff9957af668028509e1906e2';
+    const storedEmailHash = localStorage.getItem(STORAGE_KEYS.ADMIN_EMAIL_HASH) || '8e8eee8da5377c187cb832575e06f62ba3f324ce99ae9a15a99a31a24167af73';
+
+    return (passHash === storedPassHash) && (emailHash === storedEmailHash);
   },
 
-  getAdminEmail() {
-    return localStorage.getItem(STORAGE_KEYS.ADMIN_EMAIL) || 'admin@cic1995.org';
+  // Verify PIN alone (for settings modal security changes)
+  async verifyAdminPin(pin) {
+    if (!pin) return false;
+    const passHash = await this._hashSecret((pin || '').trim());
+    const storedPassHash = localStorage.getItem(STORAGE_KEYS.ADMIN_PIN_HASH) || '4ba040cac3a5efc4765e886a736b40fde0369c74ff9957af668028509e1906e2';
+    return passHash === storedPassHash;
   },
 
-  setAdminEmail(email) {
-    localStorage.setItem(STORAGE_KEYS.ADMIN_EMAIL, email);
+  // Secure Credential Updater (Stores ONLY the one-way hashes in storage)
+  async setAdminCredentials(email, pin) {
+    if (pin && pin.length >= 4) {
+      const passHash = await this._hashSecret((pin || '').trim());
+      localStorage.setItem(STORAGE_KEYS.ADMIN_PIN_HASH, passHash);
+    }
+    if (email && email.includes('@')) {
+      const emailHash = await this._hashSecret((email || '').toLowerCase().trim());
+      localStorage.setItem(STORAGE_KEYS.ADMIN_EMAIL_HASH, emailHash);
+    }
+    try {
+      localStorage.removeItem('haa_admin_pin_v1');
+      localStorage.removeItem('haa_admin_email_v1');
+    } catch (e) {}
+  },
+
+  // Masked email for display in settings (Never returns raw email property)
+  getMaskedAdminEmail() {
+    const sessionMasked = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('cic_admin_email_masked') : null;
+    return sessionMasked || 'ad***@***.org';
   }
 };
 

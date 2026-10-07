@@ -8,7 +8,16 @@
   <!-- Immediate Authentication Guard: Strictly prevent unauthorized page access -->
   <script>
     (function() {
-      if (sessionStorage.getItem('cic_admin_logged_in') !== 'true') {
+      const isAuth = sessionStorage.getItem('cic_admin_logged_in') === 'true';
+      const token = sessionStorage.getItem('cic_admin_session_token');
+      const sessionTime = parseInt(sessionStorage.getItem('cic_admin_session_time') || '0', 10);
+      const MAX_SESSION_DURATION = 8 * 60 * 60 * 1000; // 8 hours max session
+
+      if (!isAuth || !token || (Date.now() - sessionTime > MAX_SESSION_DURATION)) {
+        sessionStorage.removeItem('cic_admin_logged_in');
+        sessionStorage.removeItem('cic_admin_session_token');
+        sessionStorage.removeItem('cic_admin_session_time');
+        sessionStorage.removeItem('cic_admin_email_masked');
         document.documentElement.style.display = 'none';
         window.location.replace('login.html');
       }
@@ -2115,7 +2124,7 @@
               <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1rem; margin-bottom: 1.5rem;">
                 <div style="display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 0.4rem;">
                   <span style="color: var(--slate-600);">Authorized Email:</span>
-                  <strong id="displaySettingsEmail" style="color: var(--navy-900); font-family: monospace;">admin@cic1995.org</strong>
+                  <strong id="displaySettingsEmail" style="color: var(--navy-900); font-family: monospace;">ad***@***.org</strong>
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 0.84rem;">
                   <span style="color: var(--slate-600);">Active Security PIN:</span>
@@ -2126,7 +2135,7 @@
               <form id="adminSecurityCredentialsForm" onsubmit="updateAdminSecurityCredentials(event)">
                 <div class="form-group" style="margin-bottom: 1rem;">
                   <label class="form-label" for="settingAdminEmail">Administrator Email Address <span class="req">*</span></label>
-                  <input type="email" id="settingAdminEmail" class="form-control" required value="admin@cic1995.org">
+                  <input type="email" id="settingAdminEmail" class="form-control" placeholder="Enter new email address">
                 </div>
 
                 <div class="form-group" style="margin-bottom: 1rem;">

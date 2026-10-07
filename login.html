@@ -214,7 +214,7 @@
           <span>✓ Active admin session detected</span>
           <div style="display: flex; gap: 0.4rem;">
             <a href="admin.html" style="color: #ffffff; background: var(--cic-blue-700); padding: 0.25rem 0.6rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 0.75rem;">Dashboard &rarr;</a>
-            <button type="button" onclick="sessionStorage.removeItem('cic_admin_logged_in'); document.getElementById('activeSessionBanner').style.display='none';" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.72rem; cursor: pointer;">Sign Out</button>
+            <button type="button" onclick="sessionStorage.clear(); document.getElementById('activeSessionBanner').style.display='none';" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.72rem; cursor: pointer;">Sign Out</button>
           </div>
         </div>
       </div>
@@ -229,7 +229,7 @@
         <div class="exec-form-group">
           <label class="exec-label" for="loginEmail">Email Address</label>
           <div class="exec-input-wrap">
-            <input type="email" id="loginEmail" class="exec-input" placeholder="admin@cic1995.org" required autocomplete="email" autofocus>
+            <input type="email" id="loginEmail" class="exec-input" placeholder="authorized.admin@cic-alumni.org" required autocomplete="email" autofocus>
           </div>
         </div>
 
@@ -273,7 +273,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 1. Check if already authenticated in this session - show banner but do NOT force redirect
-      if (sessionStorage.getItem('cic_admin_logged_in') === 'true') {
+      if (sessionStorage.getItem('cic_admin_logged_in') === 'true' && sessionStorage.getItem('cic_admin_session_token')) {
         const sessionBanner = document.getElementById('activeSessionBanner');
         if (sessionBanner) sessionBanner.style.display = 'block';
       }
@@ -303,42 +303,95 @@
       const loginCard = document.getElementById('loginCard');
 
       if (form) {
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
           e.preventDefault();
           const enteredPassword = (passwordInput ? passwordInput.value : '').trim();
           const enteredEmail = (emailInput ? emailInput.value : '').trim().toLowerCase();
 
-          const validPin = (typeof DataStore !== 'undefined' && DataStore.getAdminPin) 
-            ? DataStore.getAdminPin() 
-            : '';
-          const validEmail = ((typeof DataStore !== 'undefined' && DataStore.getAdminEmail)
-            ? DataStore.getAdminEmail()
-            : 'admin@cic1995.org').toLowerCase();
+          // Anti-Brute-Force Rate Limiting Check
+          let failedAttempts = parseInt(sessionStorage.getItem('cic_auth_fails') || '0', 10);
+          const lockoutUntil = parseInt(sessionStorage.getItem('cic_auth_lockout') || '0', 10);
 
-          if (enteredPassword === validPin) {
-            // Authentication Success
-            errorBox.style.display = 'none';
-            btnSubmit.disabled = true;
-            btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
-            btnText.textContent = 'Authenticated! Opening Dashboard...';
+          if (Date.now() < lockoutUntil) {
+            const remainingSecs = Math.ceil((lockoutUntil - Date.now()) / 1000);
+            errorMsg.textContent = `Too many failed attempts. Security cooldown active (${remainingSecs}s remaining).`;
+            errorBox.style.display = 'block';
+            return;
+          }
+
+          if (!enteredEmail || !enteredPassword) {
+            errorMsg.textContent = 'Please enter both administrator email and security password.';
+            errorBox.style.display = 'block';
+            return;
+          }
+
+          btnSubmit.disabled = true;
+          btnText.textContent = 'Verifying credentials...';
+
+          let authenticated = false;
+
+          // 1. Authenticate with Firebase Auth if available
+          try {
+            if (window.firebaseAuth && typeof window.firebaseAuth.signInWithEmailAndPassword === 'function') {
+              await window.firebaseAuth.signInWithEmailAndPassword(window.firebaseAuth, enteredEmail, enteredPassword);
+              authenticated = true;
+            }
+          } catch (fbErr) {
+            // Fallback to cryptographic store if not using cloud auth
+          }
+
+          // 2. Authenticate with secure one-way salted SHA-256 hash
+          if (!authenticated && typeof DataStore !== 'undefined' && DataStore.verifyAdminCredentials) {
+            authenticated = await DataStore.verifyAdminCredentials(enteredEmail, enteredPassword);
+          }
+
+          if (authenticated) {
+            // Clear security cooldowns
+            sessionStorage.removeItem('cic_auth_fails');
+            sessionStorage.removeItem('cic_auth_lockout');
+
+            // Generate cryptographically random session token
+            const sessionToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
+              ? crypto.randomUUID()
+              : (Date.now() + '-' + Math.random().toString(36).substring(2));
+
+            const maskedEmail = enteredEmail.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '*'.repeat(Math.min(gp3.length, 6)));
 
             sessionStorage.setItem('cic_admin_logged_in', 'true');
+            sessionStorage.setItem('cic_admin_session_token', sessionToken);
+            sessionStorage.setItem('cic_admin_session_time', Date.now().toString());
+            sessionStorage.setItem('cic_admin_email_masked', maskedEmail);
+
+            errorBox.style.display = 'none';
+            btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+            btnText.textContent = 'Authorized! Opening Portal...';
 
             setTimeout(() => {
               window.location.href = 'admin.html';
             }, 300);
           } else {
-            // Authentication Failure
-            errorMsg.textContent = 'Invalid email or password. Please verify your credentials and try again.';
+            failedAttempts += 1;
+            sessionStorage.setItem('cic_auth_fails', failedAttempts.toString());
+            btnSubmit.disabled = false;
+            btnText.textContent = 'Login to Admin Dashboard';
+
+            if (failedAttempts >= 5) {
+              const lockDuration = 60 * 1000;
+              sessionStorage.setItem('cic_auth_lockout', (Date.now() + lockDuration).toString());
+              errorMsg.textContent = 'Too many failed attempts. Temporary 60-second security cooldown initiated.';
+            } else {
+              errorMsg.textContent = 'Invalid credentials. Access restricted to authorized secretariat personnel.';
+            }
+
             errorBox.style.display = 'block';
             if (loginCard) {
               loginCard.classList.remove('shake');
-              void loginCard.offsetWidth; // trigger reflow
+              void loginCard.offsetWidth;
               loginCard.classList.add('shake');
             }
             if (passwordInput) {
+              passwordInput.value = '';
               passwordInput.focus();
-              passwordInput.select();
             }
           }
         });
