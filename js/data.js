@@ -528,6 +528,10 @@ const DataStore = {
   set(key, value) {
     try {
       localStorage.setItem(key, JSON.stringify(value));
+      try { localStorage.setItem('haa_sync_pulse', Date.now().toString()); } catch (_) {}
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('datastore:updated', { detail: { key, value } }));
+      }
     } catch (e) {
       console.error('Error writing localStorage key', key, e);
       if (e && (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014 || String(e).includes('quota'))) {
@@ -535,6 +539,10 @@ const DataStore = {
         try {
           localStorage.removeItem('haa_messages_v1');
           localStorage.setItem(key, JSON.stringify(value));
+          try { localStorage.setItem('haa_sync_pulse', Date.now().toString()); } catch (_) {}
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('datastore:updated', { detail: { key, value } }));
+          }
         } catch (retryErr) {
           console.error('Could not save after cleanup:', retryErr);
         }

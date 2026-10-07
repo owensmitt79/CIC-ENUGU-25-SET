@@ -7,7 +7,7 @@
   <meta name="description" content="Public lookup portal to verify and validate official dues, donations, and levy receipts issued by the CIC Alumni 1995 Set with zero login.">
   
   <!-- Core Security & Privacy Directives -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://checkout.paystack.com https://*.paystack.co https://*.flutterwave.com; object-src 'none'; base-uri 'self'; form-action 'self' https:; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://checkout.paystack.com https://*.paystack.co https://*.flutterwave.com; object-src 'none'; base-uri 'self'; form-action 'self' https:; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests;">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   
@@ -58,9 +58,11 @@
           <li><a href="gallery.html" class="nav-link">Gallery</a></li>
           <li><a href="contact.html" class="nav-link">Contact</a></li>
           <li><a href="verify.html" class="nav-link active">Verify Payment</a></li>
+          <li><a href="login.html" class="nav-link nav-admin-link">Admin Portal</a></li>
         </ul>
 
         <div class="nav-actions">
+          <a href="login.html" class="btn btn-outline-light btn-sm btn-admin-nav" style="display: inline-flex; align-items: center; gap: 0.35rem; color: var(--navy-900); border-color: var(--slate-300);" title="Executive Administrator Portal">Admin</a>
           <a href="payment.html" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;">
             Pay Dues
           </a>
@@ -247,10 +249,10 @@
 
   <!-- Scripts with defer for unblocked DOM parsing -->
   <!-- Firebase SDK Integration & Analytics -->
-  <script type="module" src="js/firebase-config.js?v=3.8"></script>
-  <script src="js/data.js?v=3.8" defer></script>
-  <script src="js/receipt.js?v=3.8" defer></script>
-  <script src="js/app.js?v=3.8" defer></script>
-  <script src="js/admin.js?v=3.8" defer></script>
+  <script type="module" src="js/firebase-config.js?v=3.9"></script>
+  <script src="js/data.js?v=3.9" defer></script>
+  <script src="js/receipt.js?v=3.9" defer></script>
+  <script src="js/app.js?v=3.9" defer></script>
+  <script src="js/admin.js?v=3.9" defer></script>
 </body>
 </html>

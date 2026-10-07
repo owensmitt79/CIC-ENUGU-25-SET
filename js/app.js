@@ -1577,15 +1577,52 @@ window.copyAnthemLyrics = function() {
   }
 };
 
-// Cross-tab real-time sync for categories, payments, news, and gallery
-window.addEventListener('storage', function(e) {
-  if (e.key === 'haa_categories_v1' || e.key === 'haa_categories_pulse') {
+// Comprehensive Real-time synchronization between Admin and Frontend
+function syncFrontendData(key) {
+  if (!key || key.includes('project') || key.includes('payment') || key.includes('sync')) {
+    if (typeof renderProjects === 'function') renderProjects();
+  }
+  if (!key || key.includes('categories') || key.includes('sync')) {
     if (typeof renderCategoryCards === 'function') renderCategoryCards();
   }
-  if (e.key === 'haa_news_v1' || e.key === 'haa_news_pulse') {
+  if (!key || key.includes('news') || key.includes('sync')) {
     if (typeof renderNews === 'function') renderNews();
   }
-  if (e.key === 'haa_gallery_v1' || e.key === 'haa_gallery_pulse') {
+  if (!key || key.includes('gallery') || key.includes('sync')) {
     if (typeof renderGallery === 'function') renderGallery();
   }
+  if (!key || key.includes('leadership') || key.includes('sync')) {
+    if (typeof renderLeadership === 'function') renderLeadership();
+  }
+  if (!key || key.includes('event') || key.includes('sync')) {
+    if (typeof renderEvents === 'function') renderEvents();
+  }
+  if (!key || key.includes('config') || key.includes('sync')) {
+    if (typeof recalculateTotal === 'function') recalculateTotal();
+    if (typeof renderCategoryCards === 'function') renderCategoryCards();
+  }
+}
+
+// Listen for cross-tab storage changes (Admin updating in another tab)
+window.addEventListener('storage', function(e) {
+  syncFrontendData(e.key);
+});
+
+// Listen for same-window / in-app DataStore updates
+window.addEventListener('datastore:updated', function(e) {
+  syncFrontendData(e.detail ? e.detail.key : null);
+});
+
+// Automatically update admin navigation status on page load
+document.addEventListener('DOMContentLoaded', function() {
+  const isAdmin = sessionStorage.getItem('cic_admin_logged_in') === 'true';
+  document.querySelectorAll('.btn-admin-nav, .nav-admin-link').forEach(link => {
+    if (isAdmin) {
+      link.href = 'admin.html';
+      link.title = 'Executive Dashboard (Active Session)';
+      if (link.classList.contains('btn-admin-nav')) {
+        link.innerHTML = `<span style="width: 7px; height: 7px; border-radius: 50%; background: #10b981; display: inline-block;"></span> Admin`;
+      }
+    }
+  });
 });
