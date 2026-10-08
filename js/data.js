@@ -469,8 +469,11 @@ const DataStore = {
     if (!localStorage.getItem(STORAGE_KEYS.CONFIG)) {
       localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(DEFAULT_CONFIG));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.CATEGORIES)) {
-      localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
+    if (!localStorage.getItem('haa_categories_initialized_v1')) {
+      if (localStorage.getItem(STORAGE_KEYS.CATEGORIES) === null) {
+        localStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(DEFAULT_CATEGORIES));
+      }
+      localStorage.setItem('haa_categories_initialized_v1', 'true');
     }
     if (!localStorage.getItem(STORAGE_KEYS.LEADERSHIP)) {
       localStorage.setItem(STORAGE_KEYS.LEADERSHIP, JSON.stringify(DEFAULT_LEADERSHIP));
@@ -570,9 +573,16 @@ const DataStore = {
 
   getCategories() {
     let cats = this.get(STORAGE_KEYS.CATEGORIES);
-    if (!cats || !Array.isArray(cats) || cats.length === 0) {
-      cats = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
-      this.saveCategories(cats);
+    const initialized = (typeof localStorage !== 'undefined') ? localStorage.getItem('haa_categories_initialized_v1') : null;
+    if (!initialized || cats === null || cats === undefined || !Array.isArray(cats)) {
+      if (!initialized) {
+        cats = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+        this.saveCategories(cats);
+        try { localStorage.setItem('haa_categories_initialized_v1', 'true'); } catch (_) {}
+      } else if (!Array.isArray(cats)) {
+        cats = [];
+        this.saveCategories(cats);
+      }
     }
     return cats;
   },
@@ -584,6 +594,7 @@ const DataStore = {
   resetCategories() {
     const cats = this.getDefaultCategories();
     this.saveCategories(cats);
+    try { localStorage.setItem('haa_categories_initialized_v1', 'true'); } catch (_) {}
     return cats;
   },
 

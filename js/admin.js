@@ -1068,12 +1068,16 @@ function renderAdminCategories() {
   });
 
   if (filtered.length === 0) {
+    const isTotallyEmpty = categories.length === 0;
     container.innerHTML = `
       <div style="background: var(--white); border: 2px dashed var(--slate-200); border-radius: var(--radius-xl); padding: 3rem 1.5rem; text-align: center;">
         <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color: var(--slate-400); margin-bottom: 1rem;"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
-        <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem;">No Matching Payment Categories Found</h4>
-        <p style="color: var(--slate-500); font-size: 0.9rem; margin-bottom: 1.25rem;">Try adjusting your filter or search query, or create a new assessment category.</p>
-        <button type="button" class="btn btn-primary" onclick="openCategoryModal()">+ Add Payment Category</button>
+        <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem;">${isTotallyEmpty ? 'All Dues &amp; Payment Categories Deleted' : 'No Matching Payment Categories Found'}</h4>
+        <p style="color: var(--slate-500); font-size: 0.9rem; margin-bottom: 1.25rem;">${isTotallyEmpty ? 'There are currently no active or configured dues streams in the manager. You can add new custom categories or restore the default standard dues anytime.' : 'Try adjusting your filter or search query, or create a new assessment category.'}</p>
+        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+          <button type="button" class="btn btn-primary" onclick="openCategoryModal()">+ Add Payment Category</button>
+          ${isTotallyEmpty ? '<button type="button" class="btn btn-outline-light" onclick="resetDefaultCategories()">Restore Standard Dues (10 Items)</button>' : ''}
+        </div>
       </div>
     `;
     return;
@@ -1474,6 +1478,28 @@ window.resetDefaultCategories = function() {
     renderDuesCategoryChips();
     if (typeof showReceiptToast === 'function') {
       showReceiptToast('✓ Payment categories successfully reset to association standard dues.', 'success');
+    }
+  }
+};
+
+window.clearAllCategories = function() {
+  const cats = DataStore.getCategories();
+  if (!cats || cats.length === 0) {
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast('All dues categories are already deleted.', 'info');
+    }
+    return;
+  }
+  const confirmMsg = `Are you sure you want to delete all ${cats.length} dues and payment categories from the manager?\n\nThis will remove them completely from the payment portal and admin manager.\n(You can restore the 10 standard dues anytime using "Restore Standard Dues").`;
+  if (confirm(confirmMsg)) {
+    DataStore.saveCategories([]);
+    localStorage.setItem('haa_payment_pulse', Date.now().toString());
+    localStorage.setItem('haa_categories_pulse', Date.now().toString());
+    renderAdminCategories();
+    renderDuesCategoryChips();
+    if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast(`✓ All ${cats.length} dues categories deleted successfully.`, 'success');
     }
   }
 };

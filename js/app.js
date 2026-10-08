@@ -830,6 +830,15 @@ function renderCategoryCards() {
   if (!container) return;
 
   const categories = DataStore.getCategories().filter(c => c.active);
+  if (categories.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem 1.5rem; background: var(--white); border: 2px dashed var(--slate-200); border-radius: var(--radius-xl); color: var(--slate-600);">
+        <p style="font-weight: 700; font-size: 1.05rem; color: var(--navy-900); margin-bottom: 0.35rem;">No Payment Dues Streams Currently Configured</p>
+        <p style="font-size: 0.88rem; color: var(--slate-500);">Please check back shortly or contact the secretariat administrators.</p>
+      </div>
+    `;
+    return;
+  }
   container.innerHTML = categories.map(cat => `
     <div class="category-card ${paymentState.categoryId === cat.id ? 'selected' : ''}" data-cat-id="${cat.id}">
       <div class="category-icon">
