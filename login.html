@@ -214,7 +214,7 @@
           <span>✓ Active admin session detected</span>
           <div style="display: flex; gap: 0.4rem;">
             <a href="admin.html" style="color: #ffffff; background: var(--cic-blue-700); padding: 0.25rem 0.6rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 0.75rem;">Dashboard &rarr;</a>
-            <button type="button" onclick="sessionStorage.clear(); if(typeof localStorage !== 'undefined'){localStorage.removeItem('cic_admin_logged_in');localStorage.removeItem('cic_admin_session_token');} document.getElementById('activeSessionBanner').style.display='none';" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.72rem; cursor: pointer;">Sign Out</button>
+            <button type="button" onclick="sessionStorage.clear(); document.getElementById('activeSessionBanner').style.display='none';" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.72rem; cursor: pointer;">Sign Out</button>
           </div>
         </div>
       </div>
@@ -277,9 +277,7 @@
       sessionStorage.removeItem('cic_auth_lockout');
 
       // 1. Check if already authenticated in this session - show banner but do NOT force redirect
-      const hasActiveSession = ((sessionStorage.getItem('cic_admin_logged_in') === 'true' && sessionStorage.getItem('cic_admin_session_token')) ||
-        (localStorage.getItem('cic_admin_logged_in') === 'true' && localStorage.getItem('cic_admin_session_token')));
-      if (hasActiveSession) {
+      if (sessionStorage.getItem('cic_admin_logged_in') === 'true' && sessionStorage.getItem('cic_admin_session_token')) {
         const sessionBanner = document.getElementById('activeSessionBanner');
         if (sessionBanner) sessionBanner.style.display = 'block';
       }
@@ -399,13 +397,6 @@
             sessionStorage.setItem('cic_admin_session_token', sessionToken);
             sessionStorage.setItem('cic_admin_session_time', Date.now().toString());
             sessionStorage.setItem('cic_admin_email_masked', maskedEmail || 'ad***@cic1995.org');
-
-            if (typeof localStorage !== 'undefined') {
-              localStorage.setItem('cic_admin_logged_in', 'true');
-              localStorage.setItem('cic_admin_session_token', sessionToken);
-              localStorage.setItem('cic_admin_session_time', Date.now().toString());
-              localStorage.setItem('cic_admin_email_masked', maskedEmail || 'ad***@cic1995.org');
-            }
 
             errorBox.style.display = 'none';
             btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';

@@ -4,17 +4,14 @@
  * category manager, CSV export, and content management.
  */
 
-let isAdminAuthenticated = ((typeof sessionStorage !== 'undefined') && sessionStorage.getItem('cic_admin_logged_in') === 'true') ||
-  ((typeof localStorage !== 'undefined') && localStorage.getItem('cic_admin_logged_in') === 'true');
+let isAdminAuthenticated = (typeof sessionStorage !== 'undefined') && 
+  sessionStorage.getItem('cic_admin_logged_in') === 'true';
 
 if (!isAdminAuthenticated) {
   if (typeof window !== 'undefined') {
     window.location.replace('login.html');
   }
 } else {
-  if (typeof sessionStorage !== 'undefined') {
-    sessionStorage.setItem('cic_admin_logged_in', 'true');
-  }
   if (typeof document !== 'undefined' && document.documentElement) {
     document.documentElement.style.display = '';
   }
@@ -201,12 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
       sessionStorage.removeItem('cic_admin_session_token');
       sessionStorage.removeItem('cic_admin_session_time');
       sessionStorage.removeItem('cic_admin_email_masked');
-      if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('cic_admin_logged_in');
-        localStorage.removeItem('cic_admin_session_token');
-        localStorage.removeItem('cic_admin_session_time');
-        localStorage.removeItem('cic_admin_email_masked');
-      }
       isAdminAuthenticated = false;
       window.location.href = 'login.html';
     });
@@ -1082,10 +1073,9 @@ function renderAdminCategories() {
       <div style="background: var(--white); border: 2px dashed var(--slate-200); border-radius: var(--radius-xl); padding: 3rem 1.5rem; text-align: center;">
         <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="color: var(--slate-400); margin-bottom: 1rem;"><path d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
         <h4 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 0.5rem;">${isTotallyEmpty ? 'All Dues &amp; Payment Categories Deleted' : 'No Matching Payment Categories Found'}</h4>
-        <p style="color: var(--slate-500); font-size: 0.9rem; margin-bottom: 1.25rem;">${isTotallyEmpty ? 'There are currently no active or configured dues streams in the manager. You can add new custom categories or restore the default standard dues anytime.' : 'Try adjusting your filter or search query, or create a new assessment category.'}</p>
+        <p style="color: var(--slate-500); font-size: 0.9rem; margin-bottom: 1.25rem;">${isTotallyEmpty ? 'There are currently no active or configured dues streams in the manager. You can add new custom categories anytime.' : 'Try adjusting your filter or search query, or create a new assessment category.'}</p>
         <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
           <button type="button" class="btn btn-primary" onclick="openCategoryModal()">+ Add Payment Category</button>
-          ${isTotallyEmpty ? '<button type="button" class="btn btn-outline-light" onclick="resetDefaultCategories()">Restore Standard Dues (10 Items)</button>' : ''}
         </div>
       </div>
     `;
@@ -1444,7 +1434,7 @@ window.deleteCategory = function(catId) {
   const cat = cats.find(c => c.id === catId);
   if (!cat) return;
 
-  const confirmMsg = `Are you sure you want to delete "${cat.name}"?\n\nThis will remove it completely from the payment portal and admin manager.\n(You can restore the 10 standard association dues anytime using "Restore Standard Dues").`;
+  const confirmMsg = `Are you sure you want to delete "${cat.name}"?\n\nThis will remove it completely from the payment portal and admin manager.`;
   if (confirm(confirmMsg)) {
     const updated = cats.filter(c => c.id !== catId);
     DataStore.saveCategories(updated);
@@ -1499,7 +1489,7 @@ window.clearAllCategories = function() {
     }
     return;
   }
-  const confirmMsg = `Are you sure you want to delete all ${cats.length} dues and payment categories from the manager?\n\nThis will remove them completely from the payment portal and admin manager.\n(You can restore the 10 standard dues anytime using "Restore Standard Dues").`;
+  const confirmMsg = `Are you sure you want to delete all ${cats.length} dues and payment categories from the manager?\n\nThis will remove them completely from the payment portal and admin manager.`;
   if (confirm(confirmMsg)) {
     DataStore.saveCategories([]);
     localStorage.setItem('haa_payment_pulse', Date.now().toString());
@@ -4181,7 +4171,7 @@ function initAdminLeadershipMembers() {
   switchLeadershipMembersSubtab(activeLeadershipMembersSubtab);
 }
 
-function switchLeadershipMembersSubtab(tab) {
+window.switchLeadershipMembersSubtab = function(tab) {
   activeLeadershipMembersSubtab = tab;
   const leadersSec = document.getElementById('adminLeadersSection');
   const membersSec = document.getElementById('adminMembersSection');
@@ -4205,8 +4195,7 @@ function switchLeadershipMembersSubtab(tab) {
     if (subtabLeadersBtn) subtabLeadersBtn.classList.add('active');
     renderAdminLeadership();
   }
-}
-window.switchLeadershipMembersSubtab = switchLeadershipMembersSubtab;
+};
 
 window.toggleAdminLeaderForm = function(forceClose) {
   const card = document.getElementById('adminLeaderFormCard');
