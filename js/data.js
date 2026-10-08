@@ -362,104 +362,7 @@ const DEFAULT_NEWS = [];
 const DEFAULT_GALLERY = [];
 
 
-const DEFAULT_PAYMENTS = [
-  {
-    reference: 'HAA-2026-89104',
-    receiptNumber: 'REC-2026-0041',
-    name: 'Dr. Obinna Eze',
-    phone: '08034567890',
-    email: 'obinna.eze@example.com',
-    paymentType: 'Monthly Dues',
-    selectedMonths: ['January', 'February', 'March'],
-    amount: 15000,
-    gateway: 'Paystack',
-    channel: 'Debit Card',
-    status: 'Successful',
-    date: '2026-09-14 14:22:10',
-    timestamp: 1789395730000,
-    itemDescription: 'Monthly Dues (3 Months: Jan, Feb, Mar)'
-  },
-  {
-    reference: 'HAA-2026-77312',
-    receiptNumber: 'REC-2026-0040',
-    name: 'Mrs. Funmilayo Adeleke',
-    phone: '08123456789',
-    email: 'funmi.adeleke@gmail.com',
-    paymentType: 'Annual Dues',
-    selectedMonths: [],
-    amount: 25000,
-    gateway: 'Flutterwave',
-    channel: 'Bank Transfer',
-    status: 'Successful',
-    date: '2026-09-13 11:05:45',
-    timestamp: 1789309545000,
-    itemDescription: 'Annual Dues (2026 Session)'
-  },
-  {
-    reference: 'HAA-2026-65481',
-    receiptNumber: 'REC-2026-0039',
-    name: 'Arc. Babatunde Lawal',
-    phone: '09012345678',
-    email: 'blawal@archpartners.ng',
-    paymentType: 'Project Contribution',
-    selectedMonths: [],
-    amount: 100000,
-    gateway: 'Paystack',
-    channel: 'Debit Card',
-    status: 'Successful',
-    date: '2026-09-12 16:40:02',
-    timestamp: 1789243202000,
-    itemDescription: 'Modern Ultra-Modern Science & STEM Laboratories Contribution'
-  },
-  {
-    reference: 'HAA-2026-54129',
-    receiptNumber: 'REC-2026-0038',
-    name: 'Engr. Nnamdi Okoli',
-    phone: '08098765432',
-    email: 'nnamdi.okoli@energysolutions.com',
-    paymentType: 'Monthly Dues',
-    selectedMonths: ['January', 'February', 'March', 'April', 'May', 'June'],
-    amount: 30000,
-    gateway: 'Monnify',
-    channel: 'Bank Transfer',
-    status: 'Successful',
-    date: '2026-09-10 09:18:33',
-    timestamp: 1789043913000,
-    itemDescription: 'Monthly Dues (6 Months: Jan, Feb, Mar, Apr, May, Jun)'
-  },
-  {
-    reference: 'HAA-2026-43901',
-    receiptNumber: 'REC-2026-0037',
-    name: 'Ms. Grace Danladi',
-    phone: '08155543210',
-    email: 'grace.danladi@yahoo.co.uk',
-    paymentType: 'Event Registration',
-    selectedMonths: [],
-    amount: 15000,
-    gateway: 'Remita',
-    channel: 'USSD',
-    status: 'Successful',
-    date: '2026-09-08 19:35:12',
-    timestamp: 1788898512000,
-    itemDescription: 'Grand Annual Alumni Reunion & Gala Night 2026 Ticket'
-  },
-  {
-    reference: 'HAA-2026-32098',
-    receiptNumber: 'REC-2026-0036',
-    name: 'Chief Victor Uwazurike',
-    phone: '07033445566',
-    email: 'chief.uwazurike@holdings.ng',
-    paymentType: 'Donation',
-    selectedMonths: [],
-    amount: 250000,
-    gateway: 'Paystack',
-    channel: 'Bank Transfer',
-    status: 'Successful',
-    date: '2026-09-05 13:12:00',
-    timestamp: 1788613920000,
-    itemDescription: 'Alumni Endowment & Indigent Scholarship Donation'
-  }
-];
+const DEFAULT_PAYMENTS = [];
 
 /**
  * DataStore module wrapping LocalStorage
@@ -507,8 +410,15 @@ const DataStore = {
         this.saveGallery(cleanedGal);
       }
     }
-    if (!localStorage.getItem(STORAGE_KEYS.PAYMENTS)) {
-      localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify(DEFAULT_PAYMENTS));
+    const storedPayments = this.get(STORAGE_KEYS.PAYMENTS);
+    if (!storedPayments || !Array.isArray(storedPayments)) {
+      localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify([]));
+    } else {
+      const demoRefs = ['HAA-2026-89104', 'HAA-2026-77312', 'HAA-2026-65481', 'HAA-2026-54129', 'HAA-2026-43901', 'HAA-2026-32098'];
+      const isPureDemo = storedPayments.length > 0 && storedPayments.every(p => demoRefs.includes(p.reference));
+      if (isPureDemo) {
+        localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify([]));
+      }
     }
     // Purge any legacy unhashed credentials from browser storage
     try {
@@ -603,7 +513,34 @@ const DataStore = {
   },
 
   getPayments() {
-    return this.get(STORAGE_KEYS.PAYMENTS) || DEFAULT_PAYMENTS;
+    const payments = this.get(STORAGE_KEYS.PAYMENTS);
+    return (payments && Array.isArray(payments)) ? payments : [];
+  },
+
+  savePayments(payments) {
+    this.set(STORAGE_KEYS.PAYMENTS, payments || []);
+  },
+
+  resetPayments() {
+    this.set(STORAGE_KEYS.PAYMENTS, []);
+    try { localStorage.setItem('haa_payment_pulse', Date.now().toString()); } catch (_) {}
+    try { localStorage.setItem('haa_sync_pulse', Date.now().toString()); } catch (_) {}
+    return [];
+  },
+
+  resetSystem(keepCredentials = true) {
+    this.set(STORAGE_KEYS.PAYMENTS, []);
+    this.set(STORAGE_KEYS.MESSAGES, []);
+    this.set(STORAGE_KEYS.CONFIG, JSON.parse(JSON.stringify(DEFAULT_CONFIG)));
+    this.set(STORAGE_KEYS.CATEGORIES, JSON.parse(JSON.stringify(DEFAULT_CATEGORIES)));
+    try { localStorage.setItem('haa_categories_initialized_v1', 'true'); } catch (_) {}
+    try { localStorage.setItem('haa_payment_pulse', Date.now().toString()); } catch (_) {}
+    try { localStorage.setItem('haa_categories_pulse', Date.now().toString()); } catch (_) {}
+    try { localStorage.setItem('haa_sync_pulse', Date.now().toString()); } catch (_) {}
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('datastore:system_reset'));
+    }
+    return true;
   },
 
   addPayment(payment) {

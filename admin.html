@@ -418,8 +418,12 @@
               <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.15rem; margin-bottom: 0.35rem;">Real-time Financial Audit Snapshot</h4>
               <p style="font-size: 0.88rem; color: var(--slate-600); margin: 0;">Zero login payments are synchronized immediately. Receipts can be validated publicly by any auditor or member via the public verification engine.</p>
             </div>
-            <div style="display: flex; gap: 0.75rem;">
-              <button class="btn btn-navy btn-sm" id="btnExportPaymentsCsv">
+            <div style="display: flex; gap: 0.65rem; flex-wrap: wrap;">
+              <button type="button" class="btn btn-outline-light btn-sm" onclick="resetSystemFinancialData()" style="display: inline-flex; align-items: center; gap: 0.4rem; font-weight: 700; color: #dc2626; border-color: rgba(220, 38, 38, 0.35); background: rgba(254, 242, 242, 0.7);" title="Reset overview reporting and financial transactions to ₦0">
+                <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                Reset Overview to ₦0
+              </button>
+              <button class="btn btn-navy btn-sm" id="btnExportPaymentsCsv" onclick="exportPaymentsToCSV()">
                 <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                 Export Ledger to CSV
               </button>
@@ -2200,6 +2204,33 @@
                   Save Gateway Settings
                 </button>
               </form>
+            </div>
+          </div>
+
+          <!-- System Maintenance & Data Reset Card -->
+          <div style="background: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-lg); padding: 1.75rem; margin-top: 1.5rem; border-left: 4px solid #dc2626; box-shadow: var(--shadow-sm);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.25rem;">
+              <div>
+                <span class="badge badge-subtle" style="color: #dc2626; background: rgba(220, 38, 38, 0.1); margin-bottom: 0.4rem; font-weight: 700; font-size: 0.75rem; padding: 0.2rem 0.55rem;">
+                  Audit Controls &bull; System Maintenance
+                </span>
+                <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.25rem; margin-top: 0.25rem; margin-bottom: 0.25rem;">
+                  System Reset &amp; Ledger Clearing
+                </h4>
+                <p style="font-size: 0.88rem; color: var(--slate-600); margin: 0; max-width: 620px;">
+                  Reset Overview reporting metrics back to ₦0, clear all demo transaction records, or execute a complete system state refresh for the class tenure. Admin login credentials are preserved safely.
+                </p>
+              </div>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+                <button type="button" class="btn btn-outline-light" onclick="resetSystemFinancialData()" style="display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; color: #dc2626; border-color: rgba(220, 38, 38, 0.4); background: rgba(254, 242, 242, 0.6);">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  Reset Overview to ₦0
+                </button>
+                <button type="button" class="btn btn-outline-light" onclick="resetEntireSystem()" style="display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; color: #ffffff; background: #dc2626; border-color: #dc2626;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  Full System Reset
+                </button>
+              </div>
             </div>
           </div>
         </div>

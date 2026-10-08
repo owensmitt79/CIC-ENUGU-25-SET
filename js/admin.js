@@ -1505,6 +1505,65 @@ window.clearAllCategories = function() {
 };
 
 /**
+ * Reset Financial Reporting & Overview to ₦0
+ */
+window.resetSystemFinancialData = function() {
+  const confirmMsg = 'Are you sure you want to reset Overview & Financial Reporting to ₦0?\n\n' +
+    '• All transaction receipts, ledger entries, and revenue counters will reset to 0\n' +
+    '• Overview KPI statistics will be reset to ₦0\n' +
+    '• Admin security credentials and configurations will remain intact\n\n' +
+    'Click OK to confirm resetting reporting to ₦0.';
+
+  if (confirm(confirmMsg)) {
+    DataStore.resetPayments();
+    localStorage.setItem('haa_payment_pulse', Date.now().toString());
+    localStorage.setItem('haa_sync_pulse', Date.now().toString());
+
+    loadAdminDashboardData();
+    if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
+    if (typeof renderAdminMonthlyDuesTable === 'function') renderAdminMonthlyDuesTable();
+    if (typeof renderAdminCategories === 'function') renderAdminCategories();
+    if (typeof renderDuesCategoryChips === 'function') renderDuesCategoryChips();
+
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast('✓ Overview & Financial Reporting successfully reset to ₦0!', 'success');
+    } else {
+      alert('✓ Overview & Financial Reporting successfully reset to ₦0!');
+    }
+  }
+};
+
+/**
+ * Full System Reset (Keep Admin Login)
+ */
+window.resetEntireSystem = function() {
+  const confirmMsg = '⚠️ FULL SYSTEM RESET WARNING\n\n' +
+    'Are you sure you want to perform a complete system reset?\n\n' +
+    '• Overview and all financial ledgers will reset to ₦0\n' +
+    '• All transactions and messages will be cleared\n' +
+    '• Dues architecture will reset to the 10 standard approved dues\n' +
+    '• Configuration parameters will reset to defaults\n' +
+    '• Administrator login credentials will be safely PRESERVED\n\n' +
+    'Type OK to proceed.';
+
+  if (confirm(confirmMsg)) {
+    DataStore.resetSystem(true);
+
+    loadAdminDashboardData();
+    if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
+    if (typeof renderAdminMonthlyDuesTable === 'function') renderAdminMonthlyDuesTable();
+    if (typeof renderAdminCategories === 'function') renderAdminCategories();
+    if (typeof renderDuesCategoryChips === 'function') renderDuesCategoryChips();
+
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast('✓ Full system reset completed! Reporting is now at ₦0.', 'success');
+    } else {
+      alert('✓ Full system reset completed! Reporting is now at ₦0.');
+    }
+  }
+};
+
+/**
  * ============================================================================
  * Admin Events Scheduling & Ingestion Management Suite
  * ============================================================================
