@@ -4,10 +4,13 @@
  * category manager, CSV export, and content management.
  */
 
+const isAdminPage = (typeof window !== 'undefined') && 
+  (window.location.pathname.toLowerCase().endsWith('admin.html') || window.location.pathname.toLowerCase().includes('/admin.html'));
+
 let isAdminAuthenticated = (typeof sessionStorage !== 'undefined') && 
   sessionStorage.getItem('cic_admin_logged_in') === 'true';
 
-if (!isAdminAuthenticated) {
+if (isAdminPage && !isAdminAuthenticated) {
   if (typeof window !== 'undefined') {
     window.location.replace('login.html');
   }
