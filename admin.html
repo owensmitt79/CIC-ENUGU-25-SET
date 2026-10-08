@@ -8,10 +8,14 @@
   <!-- Immediate Authentication Guard: Strictly prevent unauthorized page access -->
   <script>
     (function() {
-      const isAuth = sessionStorage.getItem('cic_admin_logged_in') === 'true';
+      const isAuth = (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('cic_admin_logged_in') === 'true') ||
+        (typeof localStorage !== 'undefined' && localStorage.getItem('cic_admin_logged_in') === 'true');
       if (!isAuth) {
         window.location.replace('login.html');
       } else {
+        if (typeof sessionStorage !== 'undefined') {
+          sessionStorage.setItem('cic_admin_logged_in', 'true');
+        }
         if (document.documentElement) {
           document.documentElement.style.display = '';
         }
@@ -289,8 +293,9 @@
     <div id="adminMainDashboard">
       <!-- Executive Sidebar Navigation -->
       <aside class="admin-nav-bar">
-        <div class="admin-sidebar-header">
+        <div class="admin-sidebar-header" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: opacity 0.2s;" onclick="switchAdminPane('adminPane_Overview')" title="Click to view Overview &amp; Reporting" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">
           <span class="admin-sidebar-title">Admin Management</span>
+          <span style="font-size: 0.65rem; color: var(--cic-blue-300); opacity: 0.7;">Dashboard &rarr;</span>
         </div>
 
         <button type="button" class="admin-tab-btn active" data-pane="adminPane_Overview" onclick="switchAdminPane('adminPane_Overview')">

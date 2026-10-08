@@ -4,14 +4,17 @@
  * category manager, CSV export, and content management.
  */
 
-let isAdminAuthenticated = (typeof sessionStorage !== 'undefined') && 
-  sessionStorage.getItem('cic_admin_logged_in') === 'true';
+let isAdminAuthenticated = ((typeof sessionStorage !== 'undefined') && sessionStorage.getItem('cic_admin_logged_in') === 'true') ||
+  ((typeof localStorage !== 'undefined') && localStorage.getItem('cic_admin_logged_in') === 'true');
 
 if (!isAdminAuthenticated) {
   if (typeof window !== 'undefined') {
     window.location.replace('login.html');
   }
 } else {
+  if (typeof sessionStorage !== 'undefined') {
+    sessionStorage.setItem('cic_admin_logged_in', 'true');
+  }
   if (typeof document !== 'undefined' && document.documentElement) {
     document.documentElement.style.display = '';
   }
@@ -198,6 +201,12 @@ document.addEventListener('DOMContentLoaded', () => {
       sessionStorage.removeItem('cic_admin_session_token');
       sessionStorage.removeItem('cic_admin_session_time');
       sessionStorage.removeItem('cic_admin_email_masked');
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('cic_admin_logged_in');
+        localStorage.removeItem('cic_admin_session_token');
+        localStorage.removeItem('cic_admin_session_time');
+        localStorage.removeItem('cic_admin_email_masked');
+      }
       isAdminAuthenticated = false;
       window.location.href = 'login.html';
     });
@@ -4172,7 +4181,7 @@ function initAdminLeadershipMembers() {
   switchLeadershipMembersSubtab(activeLeadershipMembersSubtab);
 }
 
-window.switchLeadershipMembersSubtab = function(tab) {
+function switchLeadershipMembersSubtab(tab) {
   activeLeadershipMembersSubtab = tab;
   const leadersSec = document.getElementById('adminLeadersSection');
   const membersSec = document.getElementById('adminMembersSection');
@@ -4196,7 +4205,8 @@ window.switchLeadershipMembersSubtab = function(tab) {
     if (subtabLeadersBtn) subtabLeadersBtn.classList.add('active');
     renderAdminLeadership();
   }
-};
+}
+window.switchLeadershipMembersSubtab = switchLeadershipMembersSubtab;
 
 window.toggleAdminLeaderForm = function(forceClose) {
   const card = document.getElementById('adminLeaderFormCard');
