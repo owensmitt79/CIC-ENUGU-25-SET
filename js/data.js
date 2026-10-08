@@ -165,140 +165,7 @@ const DEFAULT_CATEGORIES = [
 
 const DEFAULT_LEADERSHIP = [];
 
-const DEFAULT_MEMBERS = [
-  {
-    id: 'mem-1995-001',
-    name: 'Engr. Michael C. Adebayo, FNSE',
-    classYear: 'Class of 1995',
-    email: 'm.adebayo@cic1995.org',
-    phone: '0803 452 1109',
-    chapter: 'Lagos Main',
-    profession: 'Civil / Structural Engineering',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-002',
-    name: 'Dr. (Mrs.) Chinwe E. Okonkwo',
-    classYear: 'Class of 1995',
-    email: 'c.okonkwo@cic1995.org',
-    phone: '0802 981 4452',
-    chapter: 'Enugu Central',
-    profession: 'Consultant Pediatrician',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-003',
-    name: 'Barr. Tunde O. Balogun',
-    classYear: 'Class of 1995',
-    email: 'tunde.balogun@legalpartners.ng',
-    phone: '0818 776 2210',
-    chapter: 'Abuja FCT',
-    profession: 'Senior Corporate Counsel',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-004',
-    name: 'Mr. Franklyn I. Chukwuma, FCA',
-    classYear: 'Class of 1995',
-    email: 'f.chukwuma@fincapital.com',
-    phone: '0703 118 9033',
-    chapter: 'Lagos Main',
-    profession: 'Chartered Accountant / Auditor',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-005',
-    name: 'Dr. Kenneth S. Nwachukwu',
-    classYear: 'Class of 1995',
-    email: 'k.nwachukwu@healthnet.org',
-    phone: '0805 667 8901',
-    chapter: 'Enugu Central',
-    profession: 'Chief Medical Officer',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-006',
-    name: 'Comrade David K. Mensah',
-    classYear: 'Class of 1995',
-    email: 'd.mensah@mediagroup.ng',
-    phone: '0812 345 6789',
-    chapter: 'Port Harcourt',
-    profession: 'Public Relations Consultant',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-007',
-    name: 'Arc. Emeka J. Nnamani',
-    classYear: 'Class of 1995',
-    email: 'e.nnamani@archstudio.com',
-    phone: '0803 992 3411',
-    chapter: 'Enugu Central',
-    profession: 'Principal Architect',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-008',
-    name: 'Mr. Obinna Patrick Ezeh',
-    classYear: 'Class of 1995',
-    email: 'obinna.ezeh@techventures.io',
-    phone: '0806 771 8844',
-    chapter: 'UK / London',
-    profession: 'Software Solutions Architect',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-009',
-    name: 'Dr. Ifeanyi K. Onyeka',
-    classYear: 'Class of 1995',
-    email: 'ifeanyi.onyeka@medspecialists.org',
-    phone: '0813 552 9012',
-    chapter: 'USA / Houston',
-    profession: 'Orthopedic Surgeon',
-    duesStatus: 'Pending',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-010',
-    name: 'Engr. Nnamdi Collins Umeh',
-    classYear: 'Class of 1995',
-    email: 'nnamdi.umeh@petroinfra.ng',
-    phone: '0802 443 1920',
-    chapter: 'Port Harcourt',
-    profession: 'Petroleum Engineer',
-    duesStatus: 'Pending',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-011',
-    name: 'Mr. Kelechi B. Agbo',
-    classYear: 'Class of 1995',
-    email: 'k.agbo@investcorp.ng',
-    phone: '0706 889 2241',
-    chapter: 'Abuja FCT',
-    profession: 'Fintech Product Manager',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  },
-  {
-    id: 'mem-1995-012',
-    name: 'Prof. Uzoma G. Ibe',
-    classYear: 'Class of 1995',
-    email: 'uzoma.ibe@uniedu.org',
-    phone: '0803 774 5510',
-    chapter: 'USA / Atlanta',
-    profession: 'Professor of Economics',
-    duesStatus: 'Active',
-    dateJoined: '1995-07-15'
-  }
-];
+const DEFAULT_MEMBERS = [];
 
 const DEFAULT_EVENTS = [
   {
@@ -381,8 +248,19 @@ const DataStore = {
     if (!localStorage.getItem(STORAGE_KEYS.LEADERSHIP)) {
       localStorage.setItem(STORAGE_KEYS.LEADERSHIP, JSON.stringify(DEFAULT_LEADERSHIP));
     }
-    if (!localStorage.getItem(STORAGE_KEYS.MEMBERS)) {
-      localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify(DEFAULT_MEMBERS));
+    const storedMembers = this.get(STORAGE_KEYS.MEMBERS);
+    if (!storedMembers || !Array.isArray(storedMembers)) {
+      localStorage.setItem(STORAGE_KEYS.MEMBERS, JSON.stringify([]));
+    } else {
+      const demoMemberIds = [
+        'mem-1995-001', 'mem-1995-002', 'mem-1995-003', 'mem-1995-004',
+        'mem-1995-005', 'mem-1995-006', 'mem-1995-007', 'mem-1995-008',
+        'mem-1995-009', 'mem-1995-010', 'mem-1995-011', 'mem-1995-012'
+      ];
+      const cleanedMembers = storedMembers.filter(m => !demoMemberIds.includes(m.id));
+      if (cleanedMembers.length !== storedMembers.length) {
+        this.saveMembers(cleanedMembers);
+      }
     }
     if (!localStorage.getItem(STORAGE_KEYS.EVENTS)) {
       localStorage.setItem(STORAGE_KEYS.EVENTS, JSON.stringify(DEFAULT_EVENTS));
@@ -1020,8 +898,38 @@ const DataStore = {
       }
     } catch (e) {}
     return true;
+  },
+
+  resetPayments() {
+    this.savePayments([]);
+    return true;
+  },
+
+  resetMembers() {
+    this.saveMembers([]);
+    return true;
+  },
+
+  resetSystem() {
+    this.savePayments([]);
+    this.saveMembers([]);
+    this.saveLeadership([]);
+    this.saveProjects([]);
+    this.saveNews([]);
+    this.saveGallery([]);
+    this.saveCategories(DEFAULT_CATEGORIES);
+    localStorage.setItem(STORAGE_KEYS.CONFIG, JSON.stringify(DEFAULT_CONFIG));
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('datastore:updated', { detail: { key: 'ALL' } }));
+    }
+    return true;
   }
 };
 
 // Auto-initialize store on load
 DataStore.init();
+
+// Expose on global window object
+if (typeof window !== 'undefined') {
+  window.DataStore = DataStore;
+}

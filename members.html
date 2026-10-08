@@ -261,13 +261,19 @@
         }
 
         if (filtered.length === 0) {
+          const isFilterActive = !!query || selectedChapter !== 'ALL';
+          const title = isFilterActive ? 'No Alumni Members Match Criteria' : 'Alumni Member Directory Empty';
+          const desc = isFilterActive 
+            ? 'Try clearing your search query or switching the chapter filter to "All Chapters".' 
+            : 'No alumni members have been registered yet. New members registered or uploaded in the portal will appear here immediately.';
+
           grid.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1.5rem; background: var(--white); border-radius: var(--radius-lg); border: 1.5px dashed var(--slate-300);">
               <svg width="44" height="44" fill="none" stroke="var(--slate-400)" stroke-width="1.5" viewBox="0 0 24 24" style="margin: 0 auto 0.75rem auto; display: block;">
                 <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
               </svg>
-              <h4 style="font-family: var(--font-heading); color: var(--cic-blue-900); font-size: 1.25rem; margin-bottom: 0.4rem;">No Alumni Members Found</h4>
-              <p style="color: var(--slate-600); font-size: 0.9rem;">Try adjusting your search criteria or chapter filter.</p>
+              <h4 style="font-family: var(--font-heading); color: var(--cic-blue-900); font-size: 1.25rem; margin-bottom: 0.4rem;">${title}</h4>
+              <p style="color: var(--slate-600); font-size: 0.9rem;">${desc}</p>
             </div>
           `;
           return;
@@ -323,7 +329,7 @@
         if (!e.key || e.key.includes('member') || e.key.includes('sync')) renderMembers();
       });
       window.addEventListener('datastore:updated', (e) => {
-        if (!e.detail?.key || e.detail.key.includes('member') || e.detail.key.includes('sync')) renderMembers();
+        renderMembers();
       });
     });
   </script>

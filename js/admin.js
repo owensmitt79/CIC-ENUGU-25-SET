@@ -5014,4 +5014,67 @@ window.exportMembersToCSV = function() {
   URL.revokeObjectURL(url);
 };
 
+window.clearAllAdminMembers = function() {
+  const list = (typeof DataStore !== 'undefined') ? DataStore.getMembers() : [];
+  if (!list || list.length === 0) {
+    alert('Alumni Member Directory is already empty.');
+    return;
+  }
+  if (confirm(`Are you sure you want to permanently delete all ${list.length} member(s) from the Alumni Members directory? This cannot be undone.`)) {
+    if (typeof DataStore !== 'undefined') {
+      DataStore.saveMembers([]);
+    }
+    updateLeadershipMembersCounts();
+    renderAdminMembers();
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast('All alumni members cleared from directory', 'success');
+    } else {
+      alert('✓ Member directory cleared.');
+    }
+  }
+};
+
+window.resetSystemFinancialData = function() {
+  if (confirm('Are you sure you want to reset Overview reporting metrics and clear all transactions to ₦0?')) {
+    if (typeof DataStore !== 'undefined') {
+      DataStore.savePayments([]);
+    }
+    if (typeof loadAdminDashboardData === 'function') {
+      loadAdminDashboardData();
+    }
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast('Overview reporting reset to ₦0', 'success');
+    } else {
+      alert('✓ Overview reporting metrics and ledger reset to ₦0.');
+    }
+  }
+};
+
+window.resetEntireSystem = function() {
+  if (confirm('⚠️ WARNING: Full System Reset will:\n- Reset Overview and Collections to ₦0\n- Remove all Alumni Member Directory records\n- Remove all Executive Leadership profiles\n- Remove all Projects, News, and Gallery items\n- Restore default Dues & Payment Categories\n\nYour Admin credentials will remain intact.\n\nAre you sure you want to execute a Full System Reset?')) {
+    if (typeof DataStore !== 'undefined' && typeof DataStore.resetSystem === 'function') {
+      DataStore.resetSystem();
+    }
+    if (typeof loadAdminDashboardData === 'function') {
+      loadAdminDashboardData();
+    }
+    if (typeof renderAdminLeadership === 'function') {
+      renderAdminLeadership();
+    }
+    if (typeof renderAdminMembers === 'function') {
+      renderAdminMembers();
+    }
+    updateLeadershipMembersCounts();
+    if (typeof updateNewsGalleryBadgeCounts === 'function') {
+      updateNewsGalleryBadgeCounts();
+    }
+    if (typeof showReceiptToast === 'function') {
+      showReceiptToast('Full system reset completed successfully', 'success');
+    } else {
+      alert('✓ Full system reset completed successfully.');
+    }
+  }
+};
+
+
 
