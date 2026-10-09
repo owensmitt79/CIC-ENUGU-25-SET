@@ -256,6 +256,127 @@
         if (nameInput) nameInput.focus();
       }
     }
+
+    window.checkAdminDatabaseConnection = async function() {
+      const dot = document.getElementById('adminDbStatusDot');
+      const label = document.getElementById('adminDbStatusLabel');
+      
+      const runCheck = async () => {
+        if (typeof window.testFirebaseConnection === 'function') {
+          return await window.testFirebaseConnection();
+        }
+        // Fallback direct check if module still loading
+        const apiKey = atob("QUl6YVN5Q1VJSnFwaUt6dVBtWkEzMFFkNTNEYUpSV2JkVGZ1U1hr");
+        const projectId = "cicenuguset95";
+        const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/config?key=${apiKey}`;
+        try {
+          const res = await fetch(url);
+          if (res.ok) return { ok: true, status: 'connected', message: 'Connected to Cloud Firestore' };
+          const data = await res.json().catch(() => ({}));
+          const errMessage = data?.error?.message || res.statusText;
+          const isNotProvisioned = String(errMessage).includes('has not been used in project') || 
+                                   String(errMessage).includes('disabled') || 
+                                   (data?.error?.status === 'PERMISSION_DENIED' && String(errMessage).includes('Cloud Firestore API'));
+          if (isNotProvisioned) {
+            return {
+              ok: false,
+              status: 'not_provisioned',
+              message: 'Cloud Firestore database has not been created yet in project ' + projectId,
+              fixUrl: `https://console.firebase.google.com/project/${projectId}/firestore`
+            };
+          }
+          return { ok: false, status: 'error', message: errMessage };
+        } catch (e) {
+          return { ok: false, status: 'network_error', message: e.message };
+        }
+      };
+
+      try {
+        const result = await runCheck();
+        window.__lastDbCheckResult = result;
+        if (result.ok) {
+          if (dot) dot.style.background = '#10b981';
+          if (label) label.textContent = 'DB: Online';
+        } else if (result.status === 'not_provisioned') {
+          if (dot) dot.style.background = '#f59e0b';
+          if (label) label.textContent = 'DB: Not Created';
+        } else {
+          if (dot) dot.style.background = '#ef4444';
+          if (label) label.textContent = 'DB: Error';
+        }
+      } catch (err) {
+        if (dot) dot.style.background = '#ef4444';
+        if (label) label.textContent = 'DB: Offline';
+      }
+    };
+
+    window.showDatabaseConnectionModal = function() {
+      const res = window.__lastDbCheckResult || { status: 'not_provisioned' };
+      const body = document.getElementById('genericModalBody');
+      const modal = document.getElementById('genericModal');
+      if (!body || !modal) return;
+      
+      let html = '';
+      if (res.ok) {
+        html = `
+          <div style="text-align: center; padding: 1.5rem 0.5rem;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: #ecfdf5; color: #059669; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.75rem;">✓</div>
+            <h3 style="font-family: var(--font-heading); color: var(--cic-blue-900); margin-bottom: 0.5rem;">Cloud Firestore Connected</h3>
+            <p style="color: var(--slate-600); font-size: 0.95rem; margin-bottom: 1.5rem;">The Google Firebase Cloud Firestore database for <strong>cicenuguset95</strong> is reachable and active.</p>
+            <button class="btn btn-primary" onclick="closeGenericModal()">Done</button>
+          </div>
+        `;
+      } else if (res.status === 'not_provisioned') {
+        html = `
+          <div style="padding: 1rem 0.5rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: #fffbeb; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700;">⚠️</div>
+              <div>
+                <h3 style="font-family: var(--font-heading); color: var(--cic-blue-900); margin: 0; font-size: 1.25rem;">Cloud Firestore Setup Needed</h3>
+                <div style="font-size: 0.8rem; color: var(--slate-500);">Project ID: cicenuguset95</div>
+              </div>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; font-size: 0.88rem; line-height: 1.5; color: var(--slate-700);">
+              <p style="margin: 0 0 0.5rem 0;"><strong>Why isn't it connecting?</strong></p>
+              Google Cloud returned: <em>Cloud Firestore API has not been used in project cicenuguset95 before or it is disabled</em>.<br><br>
+              In Firebase, the database is <strong>not created automatically</strong>. You must click <strong>"Create database"</strong> once in your Firebase Console.
+            </div>
+            <div style="margin-bottom: 1.5rem;">
+              <h4 style="font-size: 0.92rem; color: var(--cic-blue-900); margin-bottom: 0.5rem;">How to activate in 30 seconds:</h4>
+              <ol style="padding-left: 1.25rem; font-size: 0.86rem; color: var(--slate-600); line-height: 1.7; margin: 0;">
+                <li>Click the <strong>Open Firebase Console</strong> button below.</li>
+                <li>Click the blue <strong>"Create database"</strong> button.</li>
+                <li>Select database location (e.g., <code>europe-west3</code> or <code>us-central1</code>).</li>
+                <li>Select <strong>Start in test mode</strong> (or production mode) and click <strong>Create</strong>.</li>
+              </ol>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+              <button class="btn btn-outline-light" onclick="closeGenericModal()" style="color: var(--slate-700); border-color: var(--slate-300);">Close</button>
+              <a href="https://console.firebase.google.com/project/cicenuguset95/firestore" target="_blank" rel="noopener" class="btn btn-primary" style="font-weight: 700;">Open Firebase Console &rarr;</a>
+            </div>
+          </div>
+        `;
+      } else {
+        html = `
+          <div style="padding: 1rem 0.5rem;">
+            <h3 style="font-family: var(--font-heading); color: var(--cic-blue-900); margin-bottom: 0.5rem;">Database Connection Diagnostic</h3>
+            <p style="color: var(--slate-600); font-size: 0.9rem; margin-bottom: 1rem;">Status: <strong>${res.message || 'Offline'}</strong></p>
+            <div style="display: flex; justify-content: flex-end;">
+              <button class="btn btn-primary" onclick="closeGenericModal()">Close</button>
+            </div>
+          </div>
+        `;
+      }
+      body.innerHTML = html;
+      modal.classList.add('active');
+    };
+
+    // Auto-check connection after DOM loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => setTimeout(window.checkAdminDatabaseConnection, 800));
+    } else {
+      setTimeout(window.checkAdminDatabaseConnection, 800);
+    }
   </script>
 </head>
 <body class="admin-standalone">
@@ -272,7 +393,12 @@
       </a>
     </div>
 
-    <div style="display: flex; align-items: center; gap: 1rem;">
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <!-- Cloud Database Connection Indicator -->
+      <button id="adminDbStatusBadge" type="button" onclick="showDatabaseConnectionModal()" class="btn btn-sm btn-outline-light" style="display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; padding: 0.35rem 0.75rem; border-color: rgba(255,255,255,0.25); cursor: pointer;" title="Click to view Database Connection details">
+        <span id="adminDbStatusDot" style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block;"></span>
+        <span id="adminDbStatusLabel">Database: Checking...</span>
+      </button>
       <a href="./" class="btn btn-sm btn-outline-light" style="display: inline-flex; align-items: center; gap: 0.4rem;">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
         Return to Website
