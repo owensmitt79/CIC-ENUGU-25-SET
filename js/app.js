@@ -224,31 +224,13 @@ function renderLeadership() {
 
   const leaders = DataStore.getLeadership();
   if (!leaders || leaders.length === 0) {
-    container.innerHTML = `
-      <div style="grid-column: 1 / -1; text-align: center; padding: 4.5rem 1.5rem; background: var(--white); border-radius: var(--radius-lg); border: 1.5px dashed var(--slate-300); box-shadow: var(--shadow-sm); max-width: 720px; margin: 0 auto;">
-        <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--cic-blue-50); color: var(--cic-blue-600); display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem auto;">
-          <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
-            <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-          </svg>
-        </div>
-        <h3 style="font-family: var(--font-heading); color: var(--cic-blue-900); font-size: 1.45rem; margin-bottom: 0.6rem;">
-          Executive Council Roster Reset
-        </h3>
-        <p style="color: var(--slate-600); max-width: 520px; margin: 0 auto 1.75rem auto; font-size: 0.95rem; line-height: 1.6;">
-          All previous executive profiles have been reset. Updated leadership directory information will be published here upon official conclusion of elections and council constitution.
-        </p>
-        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-          <a href="members.html" class="btn btn-primary btn-sm">
-            View Members Directory &rarr;
-          </a>
-          <a href="contact.html" class="btn btn-outline-light btn-sm" style="color: var(--cic-blue-700); border-color: var(--cic-blue-300); background: var(--white);">
-            Contact Secretariat
-          </a>
-        </div>
-      </div>
-    `;
+    container.innerHTML = '';
+    const sec = document.getElementById('leadership');
+    if (sec) sec.style.display = 'none';
     return;
   }
+  const sec = document.getElementById('leadership');
+  if (sec) sec.style.display = '';
 
   container.innerHTML = leaders.map((leader, idx) => `
     <div class="exec-card">
