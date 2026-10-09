@@ -3,24 +3,388 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Members Directory &amp; Fellowship | CIC Alumni 1995 Set</title>
-  <meta name="description" content="Official Class of 1995 Members Directory and Fellowship for the College of the Immaculate Conception (CIC) Alumni Association. Explore verified alumni, chapter networks, and membership benefits.">
-  
+  <title>Members Directory | CIC Alumni 1995 Set</title>
+  <meta name="description" content="Official Class of 1995 Members Directory for the College of the Immaculate Conception (CIC) Alumni Association Enugu. Verified alumni roster managed by the Executive Secretariat.">
+
   <!-- Core Security & Privacy Directives -->
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://checkout.paystack.com https://*.paystack.co https://*.flutterwave.com; object-src 'none'; base-uri 'self'; form-action 'self' https:; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests;">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
-  
-  <!-- Preconnect & DNS-Prefetch for Core Web Vitals (PageSpeed) -->
+
   <!-- Core Web Vitals (PageSpeed) Optimized Font Delivery -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700&display=swap">
-  
+
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
 
+  <style>
+    /* ======================================================
+       MEMBERS DIRECTORY — Scoped Page Styles
+       ====================================================== */
 
+    /* Page header strip */
+    .mem-page-header {
+      padding: 3.5rem 0 2rem 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+    }
+    .mem-page-header .section-badge {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.65rem;
+    }
+    .mem-page-header h1 {
+      margin-top: 0.4rem;
+      margin-bottom: 0;
+    }
+    .mem-page-subtitle {
+      font-size: 0.95rem;
+      color: var(--slate-600);
+      margin-top: 0.5rem;
+      max-width: 600px;
+    }
+    .mem-stat-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--cic-blue-50);
+      border: 1px solid var(--cic-blue-200);
+      color: var(--cic-blue-800);
+      border-radius: 9999px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    /* Controls bar */
+    .mem-controls-bar {
+      padding: 1.25rem 0;
+      background: var(--white);
+      border-bottom: 1px solid var(--slate-200);
+      position: sticky;
+      top: 64px;
+      z-index: 40;
+    }
+    .mem-controls-inner {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .mem-search-wrap {
+      flex: 1;
+      min-width: 220px;
+      position: relative;
+    }
+    .mem-search-wrap svg {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--slate-400);
+      pointer-events: none;
+    }
+    .mem-search-wrap input {
+      width: 100%;
+      padding: 0.6rem 1rem 0.6rem 2.75rem;
+      border: 1.5px solid var(--slate-300);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      color: var(--slate-800);
+      background: var(--white);
+      transition: border-color 0.15s;
+      box-sizing: border-box;
+    }
+    .mem-search-wrap input:focus {
+      outline: none;
+      border-color: var(--cic-blue-500);
+      box-shadow: 0 0 0 3px rgba(43,87,151,0.1);
+    }
+    .mem-filter-select {
+      padding: 0.6rem 1rem;
+      border: 1.5px solid var(--slate-300);
+      border-radius: var(--radius-md);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      color: var(--slate-700);
+      background: var(--white);
+      cursor: pointer;
+      min-width: 145px;
+    }
+    .mem-filter-select:focus {
+      outline: none;
+      border-color: var(--cic-blue-500);
+    }
+    .mem-view-toggle {
+      display: flex;
+      border: 1.5px solid var(--slate-300);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+    }
+    .mem-view-btn {
+      padding: 0.6rem 0.85rem;
+      border: none;
+      background: var(--white);
+      cursor: pointer;
+      color: var(--slate-500);
+      transition: background 0.15s, color 0.15s;
+      display: flex;
+      align-items: center;
+    }
+    .mem-view-btn.active {
+      background: var(--cic-blue-600);
+      color: var(--white);
+    }
+
+    /* Members directory */
+    .mem-directory-section {
+      padding: 2.5rem 0 4rem 0;
+      background: var(--slate-50);
+      min-height: 400px;
+    }
+
+    /* --- GRID VIEW (card layout) --- */
+    .mem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 1.25rem;
+    }
+    .mem-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem 1.5rem 1.25rem 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+      position: relative;
+    }
+    .mem-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--cic-blue-300);
+    }
+    .mem-card-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cic-blue-600), var(--cic-blue-900));
+      color: var(--white);
+      font-family: var(--font-heading);
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      letter-spacing: 0.03em;
+      flex-shrink: 0;
+    }
+    .mem-card-name {
+      font-family: var(--font-heading);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--cic-blue-900);
+      margin-bottom: 0.2rem;
+      line-height: 1.3;
+    }
+    .mem-card-profession {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+      margin-bottom: 0.85rem;
+    }
+    .mem-card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.75rem;
+    }
+    .mem-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+    .mem-tag-chapter {
+      background: var(--cic-blue-50);
+      color: var(--cic-blue-700);
+      border: 1px solid var(--cic-blue-200);
+    }
+    .mem-tag-status-active {
+      background: rgba(16,185,129,0.1);
+      color: #065F46;
+      border: 1px solid rgba(16,185,129,0.25);
+    }
+    .mem-tag-status-pending {
+      background: rgba(245,158,11,0.1);
+      color: #92400E;
+      border: 1px solid rgba(245,158,11,0.25);
+    }
+    .mem-tag-status-exempt {
+      background: rgba(99,102,241,0.1);
+      color: #3730A3;
+      border: 1px solid rgba(99,102,241,0.25);
+    }
+    .mem-card-divider {
+      border: none;
+      border-top: 1px solid var(--slate-100);
+      margin: 0.75rem 0;
+    }
+    .mem-card-contact {
+      font-size: 0.78rem;
+      color: var(--slate-500);
+      line-height: 1.6;
+    }
+    .mem-card-contact span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .mem-card-number {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--slate-400);
+      letter-spacing: 0.04em;
+    }
+
+    /* --- LIST VIEW (table-like) --- */
+    .mem-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .mem-list-row {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 0.9rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    .mem-list-row:hover {
+      border-color: var(--cic-blue-300);
+      box-shadow: var(--shadow-sm);
+    }
+    .mem-list-avatar {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cic-blue-600), var(--cic-blue-900));
+      color: var(--white);
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .mem-list-name-col {
+      flex: 1;
+      min-width: 0;
+    }
+    .mem-list-name {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: var(--cic-blue-900);
+    }
+    .mem-list-sub {
+      font-size: 0.75rem;
+      color: var(--slate-500);
+    }
+    .mem-list-chapter {
+      min-width: 140px;
+      font-size: 0.78rem;
+      color: var(--cic-blue-700);
+      font-weight: 600;
+    }
+    .mem-list-status {
+      min-width: 100px;
+      text-align: right;
+    }
+
+    /* Empty state */
+    .mem-empty-state {
+      text-align: center;
+      padding: 4rem 1.5rem;
+      color: var(--slate-500);
+    }
+    .mem-empty-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--slate-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      color: var(--slate-400);
+    }
+    .mem-empty-title {
+      font-family: var(--font-heading);
+      font-size: 1.25rem;
+      color: var(--cic-blue-900);
+      margin-bottom: 0.5rem;
+    }
+    .mem-empty-sub {
+      font-size: 0.9rem;
+      max-width: 420px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Results summary bar */
+    .mem-results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .mem-results-count {
+      font-size: 0.85rem;
+      color: var(--slate-600);
+      font-weight: 600;
+    }
+
+    /* Loading spinner */
+    .mem-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 3rem 1.5rem;
+      color: var(--slate-500);
+    }
+    .mem-spinner {
+      width: 24px;
+      height: 24px;
+      border: 3px solid var(--slate-200);
+      border-top-color: var(--cic-blue-500);
+      border-radius: 50%;
+      animation: mem-spin 0.75s linear infinite;
+    }
+    @keyframes mem-spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 640px) {
+      .mem-grid { grid-template-columns: 1fr; }
+      .mem-controls-inner { flex-direction: column; align-items: stretch; }
+      .mem-search-wrap { min-width: unset; }
+      .mem-list-chapter, .mem-list-status { display: none; }
+      .mem-controls-bar { position: relative; top: 0; }
+    }
+  </style>
 </head>
 <body>
 
@@ -71,16 +435,98 @@
   <!-- ==========================================================================
        PAGE BANNER
        ========================================================================== -->
-  <section class="section" style="padding: 4rem 0 2.5rem 0; border-bottom: 1px solid var(--slate-100); background-color: var(--white);">
+  <section class="mem-page-header">
     <div class="container">
-      <div class="section-header" style="margin-bottom: 0;">
-        <span class="section-badge">Alumni Roll</span>
-        <h1 class="section-title" style="margin-top: 0.5rem;">Class of 1995 Members</h1>
+      <div style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 1.25rem;">
+        <div>
+          <span class="section-badge">Alumni Roll</span>
+          <h1 class="section-title" style="margin-top: 0.4rem; margin-bottom: 0;">Class of 1995 Members Directory</h1>
+          <p class="mem-page-subtitle">Verified alumni roster maintained by the Executive Secretariat. All members are officially registered with the CIC 1995 Set Alumni Association.</p>
+        </div>
+        <div style="display: flex; gap: 0.65rem; align-items: center; flex-wrap: wrap; padding-bottom: 0.25rem;">
+          <span class="mem-stat-pill" id="memberCountPill">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            <span id="memberTotalLabel">Loading...</span>
+          </span>
+          <a href="payment.html" class="btn btn-sm btn-outline-light" style="color: var(--cic-blue-700); border-color: var(--cic-blue-300); font-weight: 700;">
+            Pay Dues &rarr;
+          </a>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- ==========================================================================
+       CONTROLS / FILTER BAR
+       ========================================================================== -->
+  <div class="mem-controls-bar">
+    <div class="container">
+      <div class="mem-controls-inner">
+        <!-- Search -->
+        <div class="mem-search-wrap">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="memSearchInput" placeholder="Search by name, profession, chapter..." oninput="renderMembersDirectory()" autocomplete="off">
+        </div>
 
+        <!-- Chapter filter -->
+        <select id="memChapterFilter" class="mem-filter-select" onchange="renderMembersDirectory()">
+          <option value="ALL">All Chapters</option>
+          <option value="Enugu Central">Enugu Central</option>
+          <option value="Lagos Main">Lagos Main</option>
+          <option value="Abuja FCT">Abuja FCT</option>
+          <option value="Port Harcourt">Port Harcourt</option>
+          <option value="UK / London">UK / London</option>
+          <option value="USA / Houston">USA / Houston</option>
+          <option value="USA / Atlanta">USA / Atlanta</option>
+          <option value="Diaspora / Other">Diaspora / Other</option>
+        </select>
+
+        <!-- Status filter -->
+        <select id="memStatusFilter" class="mem-filter-select" onchange="renderMembersDirectory()">
+          <option value="ALL">All Statuses</option>
+          <option value="Active">Active / Paid</option>
+          <option value="Pending">Pending</option>
+          <option value="Exempt">Exempt / Honorary</option>
+        </select>
+
+        <!-- View toggle -->
+        <div class="mem-view-toggle">
+          <button type="button" class="mem-view-btn active" id="viewBtnGrid" onclick="setMembersView('grid')" title="Card Grid View">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </button>
+          <button type="button" class="mem-view-btn" id="viewBtnList" onclick="setMembersView('list')" title="List View">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MEMBERS DIRECTORY LISTING
+       ========================================================================== -->
+  <section class="mem-directory-section">
+    <div class="container">
+      <!-- Results summary -->
+      <div class="mem-results-bar">
+        <div class="mem-results-count" id="memResultsSummary">
+          <!-- Updated dynamically -->
+        </div>
+        <div style="font-size: 0.78rem; color: var(--slate-500);">
+          Data managed by Executive Secretariat &bull; Updated in real-time
+        </div>
+      </div>
+
+      <!-- The directory output container -->
+      <div id="memDirectoryOutput">
+        <!-- Loading state -->
+        <div class="mem-loading" id="memLoadingState">
+          <div class="mem-spinner"></div>
+          <span>Loading member roster...</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ==========================================================================
        SITE FOOTER
@@ -148,11 +594,245 @@
     </div>
   </footer>
 
-  <!-- Scripts with defer for unblocked DOM parsing -->
-  <!-- Firebase SDK Integration & Analytics -->
+  <!-- Scripts -->
   <script type="module" src="js/firebase-config.js?v=3.9"></script>
   <script src="js/data.js?v=3.9" defer></script>
   <script src="js/app.js?v=3.9" defer></script>
+
+  <script>
+    /* ==========================================================
+       Members Directory — Public Rendering Engine
+       Reads from DataStore (localStorage) and renders live.
+       Responds to admin changes in real-time via storage events.
+       ========================================================== */
+
+    let _currentView = 'grid';
+
+    function escMem(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function getMemberInitials(name) {
+      return (name || 'AL').trim().split(/\s+/).map(n => n[0] || '').slice(0, 2).join('').toUpperCase() || 'AL';
+    }
+
+    function getStatusTagClass(status) {
+      const s = (status || '').toLowerCase();
+      if (s === 'active') return 'mem-tag-status-active';
+      if (s === 'exempt') return 'mem-tag-status-exempt';
+      return 'mem-tag-status-pending';
+    }
+
+    function getStatusLabel(status) {
+      const s = (status || '').toLowerCase();
+      if (s === 'active') return '✓ Active';
+      if (s === 'exempt') return '★ Exempt';
+      return '⏳ Pending';
+    }
+
+    function setMembersView(view) {
+      _currentView = view;
+      document.getElementById('viewBtnGrid').classList.toggle('active', view === 'grid');
+      document.getElementById('viewBtnList').classList.toggle('active', view === 'list');
+      renderMembersDirectory();
+    }
+
+    function renderMembersDirectory() {
+      const output = document.getElementById('memDirectoryOutput');
+      const loading = document.getElementById('memLoadingState');
+      const resultsSummary = document.getElementById('memResultsSummary');
+      const totalLabel = document.getElementById('memberTotalLabel');
+      const countPill = document.getElementById('memberCountPill');
+
+      if (!output) return;
+
+      // Hide loading spinner
+      if (loading) loading.style.display = 'none';
+
+      // Guard: DataStore must be available
+      if (typeof DataStore === 'undefined') {
+        output.innerHTML = '<div class="mem-loading"><span>Initializing roster data...</span></div>';
+        return;
+      }
+
+      // Fetch and filter members
+      const allMembers = DataStore.getMembers() || [];
+      const query = (document.getElementById('memSearchInput')?.value || '').toLowerCase().trim();
+      const chapterFilter = document.getElementById('memChapterFilter')?.value || 'ALL';
+      const statusFilter = document.getElementById('memStatusFilter')?.value || 'ALL';
+
+      // Update pill count with total
+      if (totalLabel) totalLabel.textContent = allMembers.length + ' Registered Alumni';
+      if (countPill) countPill.title = allMembers.length + ' total members in the directory';
+
+      const filtered = allMembers.filter(m => {
+        if (chapterFilter !== 'ALL' && m.chapter !== chapterFilter) return false;
+        if (statusFilter !== 'ALL' && m.duesStatus !== statusFilter) return false;
+        if (!query) return true;
+        return (m.name || '').toLowerCase().includes(query) ||
+               (m.profession || '').toLowerCase().includes(query) ||
+               (m.chapter || '').toLowerCase().includes(query) ||
+               (m.email || '').toLowerCase().includes(query) ||
+               (m.classYear || '').toLowerCase().includes(query);
+      });
+
+      // Update results summary
+      if (resultsSummary) {
+        if (filtered.length === allMembers.length) {
+          resultsSummary.textContent = allMembers.length > 0
+            ? `Showing all ${allMembers.length} registered alumni`
+            : '';
+        } else {
+          resultsSummary.textContent = `Showing ${filtered.length} of ${allMembers.length} alumni`;
+        }
+      }
+
+      // Empty state
+      if (allMembers.length === 0) {
+        output.innerHTML = `
+          <div class="mem-empty-state">
+            <div class="mem-empty-icon">
+              <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            </div>
+            <div class="mem-empty-title">Directory Not Yet Published</div>
+            <div class="mem-empty-sub">
+              The Executive Secretariat has not yet published the Class of 1995 Members Directory. Please check back or contact the secretariat for more information.
+            </div>
+            <div style="margin-top: 1.5rem;">
+              <a href="contact.html" class="btn btn-primary" style="font-weight: 700;">Contact Secretariat</a>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Filtered empty
+      if (filtered.length === 0) {
+        output.innerHTML = `
+          <div class="mem-empty-state">
+            <div class="mem-empty-icon">
+              <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+            <div class="mem-empty-title">No Alumni Found</div>
+            <div class="mem-empty-sub">No members match your current search or filter criteria. Try changing your filters.</div>
+            <div style="margin-top: 1.25rem;">
+              <button class="btn btn-outline-light" onclick="clearMemberFilters()" style="color: var(--cic-blue-700); border-color: var(--cic-blue-300);">
+                Clear Filters
+              </button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Render based on current view
+      if (_currentView === 'list') {
+        output.innerHTML = `
+          <div class="mem-list">
+            ${filtered.map((m, idx) => `
+              <div class="mem-list-row">
+                <div class="mem-list-avatar">${escMem(getMemberInitials(m.name))}</div>
+                <div class="mem-list-name-col">
+                  <div class="mem-list-name">${escMem(m.name)}</div>
+                  <div class="mem-list-sub">${escMem(m.profession || 'Alumnus')} &bull; ${escMem(m.classYear || 'Class of 1995')}</div>
+                </div>
+                <div class="mem-list-chapter">${escMem(m.chapter || 'Enugu Central')}</div>
+                <div class="mem-list-status">
+                  <span class="mem-tag ${getStatusTagClass(m.duesStatus)}">${getStatusLabel(m.duesStatus)}</span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      } else {
+        output.innerHTML = `
+          <div class="mem-grid">
+            ${filtered.map((m, idx) => `
+              <div class="mem-card">
+                <span class="mem-card-number">#${String(idx + 1).padStart(3, '0')}</span>
+                <div class="mem-card-avatar">${escMem(getMemberInitials(m.name))}</div>
+                <div class="mem-card-name">${escMem(m.name)}</div>
+                <div class="mem-card-profession">${escMem(m.profession || 'Alumnus')}</div>
+                <div class="mem-card-meta">
+                  <span class="mem-tag mem-tag-chapter">
+                    <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    ${escMem(m.chapter || 'Enugu Central')}
+                  </span>
+                  <span class="mem-tag ${getStatusTagClass(m.duesStatus)}">
+                    ${getStatusLabel(m.duesStatus)}
+                  </span>
+                </div>
+                <hr class="mem-card-divider">
+                <div class="mem-card-contact">
+                  <span title="${escMem(m.classYear || 'Class of 1995')}">
+                    📅 ${escMem(m.classYear || 'Class of 1995')}
+                  </span>
+                  ${m.dateJoined ? `<span>📋 Enrolled: ${escMem(m.dateJoined)}</span>` : ''}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+    }
+
+    function clearMemberFilters() {
+      const search = document.getElementById('memSearchInput');
+      const chapter = document.getElementById('memChapterFilter');
+      const status = document.getElementById('memStatusFilter');
+      if (search) search.value = '';
+      if (chapter) chapter.value = 'ALL';
+      if (status) status.value = 'ALL';
+      renderMembersDirectory();
+    }
+
+    // Initialise on DOMContentLoaded — after data.js has loaded
+    function initMembersPage() {
+      if (typeof DataStore !== 'undefined') {
+        renderMembersDirectory();
+      } else {
+        // data.js not yet ready — wait for it
+        let tries = 0;
+        const poll = setInterval(() => {
+          tries++;
+          if (typeof DataStore !== 'undefined') {
+            clearInterval(poll);
+            renderMembersDirectory();
+          } else if (tries > 30) {
+            clearInterval(poll);
+            const output = document.getElementById('memDirectoryOutput');
+            if (output) {
+              output.innerHTML = '<div class="mem-empty-state"><div class="mem-empty-title">Unable to Load Directory</div><div class="mem-empty-sub">Please refresh the page or contact the secretariat.</div></div>';
+            }
+          }
+        }, 200);
+      }
+    }
+
+    // Listen for real-time admin updates (admin panel writes to localStorage)
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'haa_members_v1' || e.key === 'haa_sync_pulse') {
+        renderMembersDirectory();
+      }
+    });
+
+    // Also listen for same-tab DataStore updates
+    window.addEventListener('datastore:updated', function(e) {
+      if (e.detail && e.detail.key === 'haa_members_v1') {
+        renderMembersDirectory();
+      }
+    });
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        // data.js is deferred, so wait a moment
+        setTimeout(initMembersPage, 300);
+      });
+    } else {
+      setTimeout(initMembersPage, 300);
+    }
+  </script>
 
 </body>
 </html>
