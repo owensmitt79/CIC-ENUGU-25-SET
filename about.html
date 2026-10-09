@@ -13,16 +13,10 @@
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
 
-  <!-- Preconnect & DNS-Prefetch for Core Web Vitals (PageSpeed) -->
-  <link rel="dns-prefetch" href="https://fonts.googleapis.com">
-  <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+  <!-- Core Web Vitals (PageSpeed) Optimized Font Delivery -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" media="print" onload="this.media='all'">
-  <noscript>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap">
-  </noscript>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Outfit:wght@400;500;600;700&display=swap">
 
   <!-- Stylesheet -->
   <link rel="stylesheet" href="css/style.css">
@@ -37,7 +31,7 @@
     <div class="container">
       <nav class="navbar">
         <a href="./" class="brand-crest">
-          <img src="images/logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img">
+          <img src="images/logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img" width="42" height="48" fetchpriority="high" decoding="async">
           <div class="crest-text">
             <span class="crest-title">CIC ALUMNI</span>
             <span class="crest-subtitle">1995 SET</span>
@@ -232,7 +226,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="brand-crest" style="margin-bottom: 1rem;">
-            <img src="images/logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img">
+            <img src="images/logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img" width="42" height="48" loading="lazy" decoding="async">
             <div class="crest-text">
               <span class="crest-title">CIC ALUMNI</span>
               <span class="crest-subtitle">1995 SET</span>

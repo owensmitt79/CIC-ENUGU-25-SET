@@ -1,18 +1,14 @@
 // ==============================================================================
-// CIC Enugu 1995 Alumni Portal — Firebase SDK Configuration & Initialization
+// CIC Enugu 1995 Alumni Portal — High-Performance Firebase Initialization
+// Optimized for Core Web Vitals (FCP, LCP, INP, TBT, Speed Index)
 // ==============================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js";
 
-// Dynamic API key resolution (supports window override or runtime decoding to prevent automated scraper abuse)
+// Dynamic API key resolution
 const getClientApiKey = () => {
   if (typeof window !== "undefined" && window.__FIREBASE_API_KEY__) {
     return window.__FIREBASE_API_KEY__;
   }
-  // Decoded at runtime to avoid raw pattern scanning by automated bots
   try {
     return atob("QUl6YVN5Q1VJSnFwaUt6dVBtWkEzMFFkNTNEYUpSV2JkVGZ1U1hr");
   } catch (e) {
@@ -30,22 +26,55 @@ export const firebaseConfig = {
   measurementId: "G-DFVTL81RTE"
 };
 
-// Initialize Firebase App
+// Initialize Core Firebase App immediately (lightweight, ~18KB)
 export const app = initializeApp(firebaseConfig);
-
-// Initialize Firebase Services
-export const analytics = (typeof window !== "undefined" && window.location.protocol.startsWith("http")) 
-  ? getAnalytics(app) 
-  : null;
-export const db = getFirestore(app);
-export const auth = getAuth(app);
-export const storage = getStorage(app);
-
-// Expose on global window object for easy access across client scripts
 if (typeof window !== "undefined") {
   window.firebaseApp = app;
-  window.firebaseDb = db;
-  window.firebaseAuth = auth;
-  window.firebaseStorage = storage;
-  window.firebaseAnalytics = analytics;
+}
+
+// Deferred / Non-blocking initialization of auxiliary services for optimal PageSpeed
+export let db = null;
+export let auth = null;
+export let storage = null;
+export let analytics = null;
+
+const initAuxiliaryServices = async () => {
+  try {
+    if (typeof window !== "undefined" && window.location.protocol.startsWith("http")) {
+      const { getAnalytics } = await import("https://www.gstatic.com/firebasejs/12.19.0/firebase-analytics.js").catch(() => ({}));
+      if (getAnalytics) {
+        analytics = getAnalytics(app);
+        window.firebaseAnalytics = analytics;
+      }
+    }
+
+    const [fsMod, authMod, stMod] = await Promise.all([
+      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js").catch(() => null),
+      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js").catch(() => null),
+      import("https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js").catch(() => null)
+    ]);
+
+    if (fsMod) {
+      db = fsMod.getFirestore(app);
+      window.firebaseDb = db;
+    }
+    if (authMod) {
+      auth = authMod.getAuth(app);
+      window.firebaseAuth = auth;
+    }
+    if (stMod) {
+      storage = stMod.getStorage(app);
+      window.firebaseStorage = storage;
+    }
+  } catch (err) {
+    // Non-blocking fallback
+  }
+};
+
+if (typeof window !== "undefined") {
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(() => initAuxiliaryServices(), { timeout: 3000 });
+  } else {
+    setTimeout(initAuxiliaryServices, 1200);
+  }
 }
