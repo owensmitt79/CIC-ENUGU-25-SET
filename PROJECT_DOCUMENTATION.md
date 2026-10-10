@@ -19,7 +19,7 @@
 7. [Digital Receipt Generation & Public Verification](#7-digital-receipt-generation--public-verification)
 8. [Executive Admin Control Suite](#8-executive-admin-control-suite)
 9. [Data Architecture & LocalStorage Schema](#9-data-architecture--localstorage-schema)
-10. [Database Schema & Backend Readiness (Supabase)](#10-database-schema--backend-readiness-supabase)
+10. [Database Architecture & Backend Readiness](#10-database-architecture--backend-readiness)
 11. [Deployment & Operations Guide](#11-deployment--operations-guide)
 12. [Administrator & User Manual](#12-administrator--user-manual)
 13. [Recent Changelog & Milestones](#13-recent-changelog--milestones)
@@ -64,9 +64,6 @@ The project follows a clean, organized, zero-dependency layout:
 Eng ilo/
 ├── README.md                       # High-level overview and quick-start guide
 ├── PROJECT_DOCUMENTATION.md        # Comprehensive technical documentation (this file)
-├── DATABASE_SETUP_PROMPT.md        # Cloud SQL / PostgreSQL prompt specifications
-├── SUPABASE_DATABASE_PROMPT.md     # Supabase backend migration instructions
-├── supabase_schema.sql             # Complete PostgreSQL/Supabase schema & RLS policies
 ├── index.html                      # Homepage (Hero, statistics, project highlights, news, gallery)
 ├── about.html                      # History of CIC Enugu, brotherhood narrative, 7 commitments
 ├── leadership.html                 # Executive Council directory with executive bio readers
@@ -307,18 +304,9 @@ interface ProjectRecord {
 
 ---
 
-## 10. Database Schema & Backend Readiness (Supabase)
+## 10. Database Architecture & Backend Readiness
 
-The platform is designed for zero-downtime migration to **Supabase** or any **PostgreSQL** instance:
-* `supabase_schema.sql` contains the complete production-grade DDL:
-  * Table `payments`: Maps all transaction fields with indexed references.
-  * Table `projects`: Maps developmental initiatives.
-  * Table `members`: Maps alumni directory with dues statuses.
-  * Table `leadership`: Maps executive council members.
-  * Table `news`: Maps official dispatches.
-  * Table `payment_categories`: Maps customizable dues categories.
-* Includes Row Level Security (RLS) policies allowing public read and authenticated administrative writes.
-* Setup guidance is provided in [SUPABASE_DATABASE_PROMPT.md](file:///c:/Users/user_pc/Desktop/Eng%20ilo/SUPABASE_DATABASE_PROMPT.md) and [DATABASE_SETUP_PROMPT.md](file:///c:/Users/user_pc/Desktop/Eng%20ilo/DATABASE_SETUP_PROMPT.md).
+The platform uses client-side DataStore caching and is architected for seamless connection to any standard Node.js/Express, PostgreSQL, or REST API backend without third-party platform lock-in.
 
 ---
 

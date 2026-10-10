@@ -267,8 +267,6 @@
   </footer>
 
   <!-- Scripts -->
-  <!-- Firebase SDK Integration & Analytics -->
-  <script type="module" src="js/firebase-config.js?v=3.9"></script>
   <script src="js/data.js?v=3.5"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
@@ -369,16 +367,6 @@
           // 2. Cryptographic one-way hash verification
           if (!authenticated && typeof DataStore !== 'undefined' && DataStore.verifyAdminCredentials) {
             authenticated = await DataStore.verifyAdminCredentials(effectiveEmail, enteredPassword);
-          }
-
-          // 3. Fallback to Firebase Auth if user registered in cloud
-          if (!authenticated) {
-            try {
-              if (window.firebaseAuth && typeof window.firebaseAuth.signInWithEmailAndPassword === 'function') {
-                await window.firebaseAuth.signInWithEmailAndPassword(window.firebaseAuth, effectiveEmail, enteredPassword);
-                authenticated = true;
-              }
-            } catch (fbErr) {}
           }
 
           if (authenticated) {

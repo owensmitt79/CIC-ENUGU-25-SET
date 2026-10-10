@@ -1,8 +1,5 @@
 {
   "name": "cic-enugu-1995-portal",
   "version": "1.0.0",
-  "type": "module",
-  "dependencies": {
-    "firebase": "^12.19.0"
-  }
+  "type": "module"
 }
