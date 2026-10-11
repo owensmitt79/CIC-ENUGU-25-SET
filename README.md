@@ -173,6 +173,16 @@ The executive portal is protected and accessible at `/login.html` by authorized 
 
 ---
 
+## ⚡ Live Backend Architecture
+
+The frontend connects directly to the dedicated live Node.js Express & PostgreSQL backend hosted on Render:
+
+* **Production Backend URL**: `https://cic-enugu-backend.onrender.com`
+* **API Root Endpoint**: `https://cic-enugu-backend.onrender.com/api`
+* **Architecture**: Managed via [js/data-api.js](file:///c:/Users/user_pc/Desktop/Eng%20ilo/js/data-api.js) with automatic bi-directional cache synchronization to `localStorage` (`DataStore`). Operates flawlessly both online and during offline/cold-start periods.
+
+---
+
 ## 📜 License
 
 &copy; 2026 **CIC Alumni 1995 Set** (*College of the Immaculate Conception, Enugu, Nigeria*). All rights reserved.

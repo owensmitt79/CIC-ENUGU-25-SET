@@ -267,7 +267,8 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="js/data.js?v=3.5"></script>
+  <script src="js/data-api.js?v=4.0"></script>
+  <script src="js/data.js?v=4.0"></script>
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // 0. Clear any stale lockouts or cooldowns on load
@@ -359,12 +360,24 @@
 
           let authenticated = false;
 
-          // 1. Direct standard credential match (guaranteed instant success)
-          if ((effectiveEmail === 'admin@cic1995.org' || effectiveEmail === 'admin') && (enteredPassword === 'admin123' || enteredPassword === 'admin')) {
+          // 1. Attempt live Node.js backend authentication
+          if (typeof ApiClient !== 'undefined' && ApiClient.Auth) {
+            try {
+              const res = await ApiClient.Auth.login(effectiveEmail, enteredPassword, enteredPassword);
+              if (res && (res.token || res.user)) {
+                authenticated = true;
+              }
+            } catch (apiErr) {
+              console.log('Backend auth attempt info:', apiErr.message);
+            }
+          }
+
+          // 2. Direct standard credential match (guaranteed instant success for local/demo access)
+          if (!authenticated && (effectiveEmail === 'admin@cic1995.org' || effectiveEmail === 'admin') && (enteredPassword === 'admin123' || enteredPassword === 'admin')) {
             authenticated = true;
           }
 
-          // 2. Cryptographic one-way hash verification
+          // 3. Cryptographic one-way hash verification
           if (!authenticated && typeof DataStore !== 'undefined' && DataStore.verifyAdminCredentials) {
             authenticated = await DataStore.verifyAdminCredentials(effectiveEmail, enteredPassword);
           }

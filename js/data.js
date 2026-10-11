@@ -137,6 +137,8 @@ const STORAGE_KEYS = {
 const DEFAULT_CONFIG = {
   associationName: 'CIC ALUMNI 1995 SET',
   slogan: 'Connecting the Past. Building the Future.',
+  backendUrl: 'https://cic-enugu-backend.onrender.com',
+  apiUrl: 'https://cic-enugu-backend.onrender.com/api',
   monthlyDuesRate: 5000,
   annualDuesRate: 25000,
   reunionFeeRate: 15000,
@@ -352,11 +354,21 @@ const DataStore = {
   },
 
   getConfig() {
-    return this.get(STORAGE_KEYS.CONFIG) || DEFAULT_CONFIG;
+    const raw = this.get(STORAGE_KEYS.CONFIG);
+    if (!raw) return { ...DEFAULT_CONFIG };
+    return {
+      ...DEFAULT_CONFIG,
+      ...raw,
+      backendUrl: raw.backendUrl || DEFAULT_CONFIG.backendUrl,
+      apiUrl: raw.apiUrl || (raw.backendUrl ? `${raw.backendUrl.replace(/\/$/, '')}/api` : DEFAULT_CONFIG.apiUrl)
+    };
   },
 
   saveConfig(cfg) {
     this.set(STORAGE_KEYS.CONFIG, cfg);
+    if (typeof window !== 'undefined' && window.ApiClient && cfg && cfg.backendUrl) {
+      window.ApiClient.setBaseUrl(cfg.backendUrl);
+    }
   },
 
   getCategories() {
@@ -425,6 +437,11 @@ const DataStore = {
     const payments = this.getPayments();
     payments.unshift(payment);
     this.set(STORAGE_KEYS.PAYMENTS, payments);
+    if (typeof window !== 'undefined' && window.ApiClient && typeof window.ApiClient.Payments?.recordManual === 'function') {
+      window.ApiClient.Payments.recordManual(payment).catch(err => {
+        console.warn('Background backend payment sync warning:', err.message);
+      });
+    }
     return payment;
   },
 

@@ -5076,5 +5076,52 @@ window.resetEntireSystem = function() {
   }
 };
 
+/* ==========================================================
+   Backend API Status Monitor & LocalStore Sync
+   Connects Admin Suite to Live Render Backend
+   ========================================================== */
+(function initBackendStatusMonitor() {
+  function updateBackendBadge(isOnline, url) {
+    const dot = document.getElementById('backendStatusDot');
+    const text = document.getElementById('backendStatusText');
+    const indicator = document.getElementById('backendStatusIndicator');
+    if (!indicator || !dot || !text) return;
+
+    if (isOnline) {
+      dot.style.background = '#10b981';
+      dot.style.boxShadow = '0 0 8px #10b981';
+      text.textContent = 'Backend: Online (Render)';
+      indicator.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+      indicator.style.background = 'rgba(16, 185, 129, 0.15)';
+      indicator.style.color = '#6ee7b7';
+    } else {
+      dot.style.background = '#f59e0b';
+      dot.style.boxShadow = '0 0 6px #f59e0b';
+      text.textContent = 'Backend: Sleeping / Local Cache';
+      indicator.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+      indicator.style.background = 'rgba(245, 158, 11, 0.15)';
+      indicator.style.color = '#fde68a';
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    window.addEventListener('apiclient:status', function (e) {
+      if (e && e.detail) {
+        updateBackendBadge(e.detail.isOnline, e.detail.backendUrl);
+      }
+    });
+
+    if (window.ApiClient) {
+      if (window.ApiClient.isOnline) {
+        updateBackendBadge(true, window.ApiClient.backendUrl);
+      } else {
+        window.ApiClient.ping().then(function (isUp) {
+          updateBackendBadge(isUp, window.ApiClient.backendUrl);
+        });
+      }
+    }
+  }
+})();
+
 
 
