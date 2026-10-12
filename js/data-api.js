@@ -3,14 +3,14 @@
  * REST API Client & LocalStorage Sync Adapter
  * Connects the static frontend to the live Node.js Express backend.
  * 
- * Default Backend URL: https://cic-enugu-backend.onrender.com
- * Default API Endpoint: https://cic-enugu-backend.onrender.com/api
+ * Default Backend URL: http://localhost:5050
+ * Default API Endpoint: http://localhost:5050/api
  */
 
 (function (window) {
   'use strict';
 
-  const LIVE_BACKEND_URL = 'https://cic-enugu-backend.onrender.com';
+  const LIVE_BACKEND_URL = 'http://localhost:5050';
   const LIVE_API_BASE = `${LIVE_BACKEND_URL}/api`;
 
   // Determine API base URL (checks localStorage override first, then live Render backend)

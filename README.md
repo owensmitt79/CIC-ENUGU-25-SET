@@ -177,8 +177,8 @@ The executive portal is protected and accessible at `/login.html` by authorized 
 
 The frontend connects directly to the dedicated live Node.js Express & PostgreSQL backend hosted on Render:
 
-* **Production Backend URL**: `https://cic-enugu-backend.onrender.com`
-* **API Root Endpoint**: `https://cic-enugu-backend.onrender.com/api`
+* **Production Backend URL**: `http://localhost:5050`
+* **API Root Endpoint**: `http://localhost:5050/api`
 * **Architecture**: Managed via [js/data-api.js](file:///c:/Users/user_pc/Desktop/Eng%20ilo/js/data-api.js) with automatic bi-directional cache synchronization to `localStorage` (`DataStore`). Operates flawlessly both online and during offline/cold-start periods.
 
 ---

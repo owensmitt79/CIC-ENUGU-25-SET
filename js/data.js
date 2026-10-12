@@ -137,8 +137,8 @@ const STORAGE_KEYS = {
 const DEFAULT_CONFIG = {
   associationName: 'CIC ALUMNI 1995 SET',
   slogan: 'Connecting the Past. Building the Future.',
-  backendUrl: 'https://cic-enugu-backend.onrender.com',
-  apiUrl: 'https://cic-enugu-backend.onrender.com/api',
+  backendUrl: 'http://localhost:5050',
+  apiUrl: 'http://localhost:5050/api',
   monthlyDuesRate: 5000,
   annualDuesRate: 25000,
   reunionFeeRate: 15000,
