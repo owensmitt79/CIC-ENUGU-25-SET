@@ -69,6 +69,7 @@ Eng ilo/
 ├── leadership.html                 # Executive Council directory with executive bio readers
 ├── members.html                    # Class of 1995 Members Directory with live search & filters
 ├── projects.html                   # Developmental capital projects, progress bars, and donors
+├── ledger.html                     # Public Contributions & Remittance Transparency Ledger
 ├── gallery.html                    # Alumni photo and media gallery with interactive lightbox
 ├── verify.html                     # Public transaction reference and receipt verification portal
 ├── payment.html                    # Zero-login dues & donation checkout platform

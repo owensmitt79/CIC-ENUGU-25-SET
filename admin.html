@@ -263,7 +263,7 @@
   <!-- Admin Page Header -->
   <header class="admin-standalone-header">
     <div style="display: flex; align-items: center; gap: 0.85rem;">
-      <a href="./" style="display: flex; align-items: center; gap: 0.65rem; text-decoration: none; color: inherit;">
+      <a href="index.html" style="display: flex; align-items: center; gap: 0.65rem; text-decoration: none; color: inherit; cursor: pointer; transition: transform 0.2s ease, opacity 0.2s ease;" title="Return to Home Page" onmouseover="this.style.opacity='0.9'; this.style.transform='scale(1.02)';" onmouseout="this.style.opacity='1'; this.style.transform='scale(1)';">
         <img src="images/logo.png" alt="CIC Alumni 1995 Crest" style="height: 32px; width: auto; object-fit: contain;">
         <div>
           <div style="font-family: var(--font-heading); font-size: 0.98rem; font-weight: 800; letter-spacing: 0.04em; color: var(--white); line-height: 1.1;">CIC ALUMNI 1995 SET</div>
@@ -279,10 +279,6 @@
         <span id="backendStatusText">Backend: Online</span>
       </a>
 
-      <a href="./" class="btn btn-sm btn-outline-light" style="display: inline-flex; align-items: center; gap: 0.4rem;">
-        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-        Return to Website
-      </a>
       <a href="admin.html#" class="btn btn-sm btn-danger btn-admin-logout" style="display: inline-flex; align-items: center; gap: 0.4rem; background: rgba(239,68,68,0.2); border: 1px solid rgba(239,68,68,0.4); color: #fca5a5;">
         <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
         Sign Out

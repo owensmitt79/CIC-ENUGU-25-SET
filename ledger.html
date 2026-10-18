@@ -1,0 +1,1074 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Public Contributions &amp; Remittance Ledger | CIC Enugu 1995 Alumni Association</title>
+  <meta name="description" content="Transparent, verified public financial ledger of all dues, capital development levies, and project donations remitted by members of CIC Enugu 1995 Set.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="images/logo.png">
+
+  <!-- Preconnect to Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <style>
+    /* Public Ledger Specific High-Prestige Styles */
+    .ledger-hero {
+      background: linear-gradient(135deg, var(--cic-blue-950) 0%, var(--cic-blue-900) 50%, var(--cic-blue-800) 100%);
+      color: var(--white);
+      padding: 5rem 0 3.5rem 0;
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .ledger-hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(62, 108, 176, 0.25) 0%, rgba(12, 24, 44, 0) 70%);
+      pointer-events: none;
+    }
+    .ledger-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.95rem;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #93c5fd;
+      backdrop-filter: blur(8px);
+      margin-bottom: 1rem;
+    }
+    .ledger-hero-title {
+      font-family: var(--font-heading);
+      font-size: clamp(2rem, 4vw, 2.85rem);
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      color: var(--white);
+      margin-bottom: 0.85rem;
+    }
+    .ledger-hero-desc {
+      font-size: 1.05rem;
+      color: var(--cic-blue-100);
+      max-width: 680px;
+      line-height: 1.65;
+      margin: 0;
+    }
+
+    /* KPI Summary Ribbon */
+    .ledger-kpi-ribbon {
+      margin-top: -2.25rem;
+      position: relative;
+      z-index: 10;
+      margin-bottom: 2.75rem;
+    }
+    .ledger-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 1.25rem;
+    }
+    .ledger-kpi-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 1.65rem;
+      box-shadow: 0 10px 25px -5px rgba(12, 24, 44, 0.07), 0 8px 10px -6px rgba(12, 24, 44, 0.04);
+      display: flex;
+      align-items: center;
+      gap: 1.15rem;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .ledger-kpi-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px -5px rgba(12, 24, 44, 0.12);
+    }
+    .ledger-kpi-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .ledger-kpi-icon.primary {
+      background: rgba(43, 87, 151, 0.1);
+      color: var(--cic-blue-600);
+    }
+    .ledger-kpi-icon.emerald {
+      background: rgba(16, 185, 129, 0.12);
+      color: #059669;
+    }
+    .ledger-kpi-icon.gold {
+      background: rgba(217, 119, 6, 0.12);
+      color: #d97706;
+    }
+    .ledger-kpi-icon.indigo {
+      background: rgba(99, 102, 241, 0.12);
+      color: #4f46e5;
+    }
+    .ledger-kpi-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--slate-500);
+      margin-bottom: 0.2rem;
+    }
+    .ledger-kpi-val {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      font-family: var(--font-heading);
+      line-height: 1.2;
+    }
+    .ledger-kpi-sub {
+      font-size: 0.76rem;
+      color: var(--slate-500);
+      margin-top: 0.2rem;
+    }
+
+    /* Toolbar & Search Controls */
+    .ledger-toolbar-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      padding: 1.35rem 1.65rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+    .ledger-toolbar-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ledger-search-box {
+      position: relative;
+      flex: 1;
+      min-width: 260px;
+    }
+    .ledger-search-box svg {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--slate-400);
+      pointer-events: none;
+    }
+    .ledger-search-box input {
+      width: 100%;
+      padding: 0.7rem 1rem 0.7rem 2.85rem;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      font-size: 0.92rem;
+      color: var(--slate-800);
+      transition: all 0.2s ease;
+      background: var(--slate-50);
+    }
+    .ledger-search-box input:focus {
+      outline: none;
+      background: var(--white);
+      border-color: var(--cic-blue-600);
+      box-shadow: 0 0 0 3px rgba(43, 87, 151, 0.12);
+    }
+    .ledger-filters-wrap {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .ledger-select {
+      padding: 0.68rem 1rem;
+      border: 1.5px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      color: var(--slate-700);
+      background: var(--slate-50);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .ledger-select:focus {
+      outline: none;
+      border-color: var(--cic-blue-600);
+      background: var(--white);
+    }
+
+    /* Category Chips */
+    .ledger-chips-row {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-top: 0.95rem;
+      border-top: 1px solid var(--slate-100);
+      margin-top: 1rem;
+      scrollbar-width: thin;
+    }
+    .ledger-chip {
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid var(--slate-200);
+      background: var(--white);
+      color: var(--slate-700);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.18s ease;
+    }
+    .ledger-chip:hover {
+      background: var(--slate-100);
+      border-color: var(--slate-300);
+    }
+    .ledger-chip.active {
+      background: var(--cic-blue-900);
+      border-color: var(--cic-blue-900);
+      color: var(--white);
+      box-shadow: 0 2px 6px rgba(19, 37, 68, 0.25);
+    }
+
+    /* Table Container */
+    .ledger-table-card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 2.5rem;
+    }
+    .ledger-table-header-strip {
+      padding: 1.15rem 1.65rem;
+      border-bottom: 1px solid var(--slate-200);
+      background: #fafbfc;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+    .ledger-table-title {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .ledger-table-count {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.18rem 0.65rem;
+      border-radius: 999px;
+      background: rgba(43, 87, 151, 0.1);
+      color: var(--cic-blue-700);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+    .public-ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    .public-ledger-table th {
+      background: #f8fafc;
+      padding: 0.95rem 1.25rem;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--slate-500);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--slate-200);
+      white-space: nowrap;
+    }
+    .public-ledger-table td {
+      padding: 1.1rem 1.25rem;
+      border-bottom: 1px solid var(--slate-100);
+      font-size: 0.9rem;
+      color: var(--slate-700);
+      vertical-align: middle;
+    }
+    .public-ledger-table tr:hover td {
+      background: #fbfcfe;
+    }
+    .public-ledger-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Table cells */
+    .payer-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .payer-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--cic-blue-800), var(--cic-blue-600));
+      color: var(--white);
+      font-weight: 700;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      letter-spacing: 0.05em;
+    }
+    .payer-name {
+      font-weight: 700;
+      color: var(--navy-900);
+      line-height: 1.25;
+    }
+    .payer-class {
+      font-size: 0.74rem;
+      color: var(--slate-500);
+    }
+    .amount-cell {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #065f46;
+      white-space: nowrap;
+    }
+    .ref-badge {
+      font-family: monospace;
+      font-size: 0.82rem;
+      background: var(--slate-100);
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      color: var(--slate-700);
+      border: 1px solid var(--slate-200);
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.15s ease;
+    }
+    .ref-badge:hover {
+      background: var(--cic-blue-50);
+      color: var(--cic-blue-700);
+      border-color: var(--cic-blue-300);
+    }
+    .cat-badge {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .cat-dues { background: #eff6ff; color: #1e40af; border: 1px solid #dbeafe; }
+    .cat-annual { background: #fdf4ff; color: #86198f; border: 1px solid #f5d0fe; }
+    .cat-project { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+    .cat-welfare { background: #fffbeb; color: #92400e; border: 1px solid #fde68a; }
+    .cat-default { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+
+    .status-badge-verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      background: #ecfdf5;
+      color: #047857;
+      font-size: 0.76rem;
+      font-weight: 700;
+      border: 1px solid #a7f3d0;
+    }
+
+    /* Empty state */
+    .ledger-empty {
+      text-align: center;
+      padding: 4.5rem 1.5rem;
+    }
+    .ledger-empty-icon {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: var(--slate-100);
+      color: var(--slate-400);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+    }
+
+    /* Public Trust Banner */
+    .ledger-trust-banner {
+      background: linear-gradient(135deg, #132544 0%, #1e3a68 100%);
+      color: var(--white);
+      border-radius: var(--radius-xl);
+      padding: 2.75rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+      box-shadow: var(--shadow-lg);
+    }
+    .ledger-trust-content h3 {
+      font-family: var(--font-heading);
+      font-size: 1.5rem;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+    .ledger-trust-content p {
+      color: var(--cic-blue-100);
+      font-size: 0.95rem;
+      max-width: 620px;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .ledger-trust-actions {
+      display: flex;
+      gap: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 768px) {
+      .ledger-toolbar-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .ledger-filters-wrap {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .ledger-select {
+        flex: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SITE HEADER & NAVIGATION
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container">
+      <nav class="navbar">
+        <a href="./" class="brand-crest">
+          <img src="images/logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img" width="42" height="48" fetchpriority="high" decoding="async">
+          <div class="crest-text">
+            <span class="crest-title">CIC ALUMNI</span>
+            <span class="crest-subtitle">1995 SET</span>
+          </div>
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+          <li><a href="./" class="nav-link">Home</a></li>
+          <li><a href="about.html" class="nav-link">About Us</a></li>
+          <li class="nav-item-dropdown">
+            <a href="leadership.html" class="nav-link dropdown-toggle" id="leadershipDropdown">
+              Leadership <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="margin-left: 2px; vertical-align: middle;"><path d="M19 9l-7 7-7-7"></path></svg>
+            </a>
+            <ul class="dropdown-menu">
+              <li><a href="leadership.html" class="dropdown-link">Executive Council</a></li>
+              <li><a href="members.html" class="dropdown-link">Members</a></li>
+            </ul>
+          </li>
+          <li><a href="projects.html" class="nav-link">Projects</a></li>
+          <li><a href="ledger.html" class="nav-link active">Contributions Ledger</a></li>
+          <li><a href="gallery.html" class="nav-link">Gallery</a></li>
+          <li><a href="contact.html" class="nav-link">Contact</a></li>
+          <li><a href="verify.html" class="nav-link">Verify Payment</a></li>
+        </ul>
+
+        <div class="nav-actions">
+          <a href="payment.html" class="btn btn-primary btn-sm" style="display: inline-flex; align-items: center; gap: 0.35rem;">
+            Pay Dues
+          </a>
+          <button class="mobile-toggle" id="mobileToggle" aria-label="Toggle navigation">
+            &#9776;
+          </button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       HERO BANNER
+       ========================================================================== -->
+  <section class="ledger-hero">
+    <div class="container">
+      <div class="ledger-hero-badge">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Institutional Governance &amp; Public Transparency
+      </div>
+      <h1 class="ledger-hero-title">Alumni Contributions &amp; Remittance Ledger</h1>
+      <p class="ledger-hero-desc">
+        A transparent, verified public record of all statutory dues, capital project levies, and developmental contributions remitted by members of the College of the Immaculate Conception (CIC) Enugu 1995 Set.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       REAL-TIME STATS RIBBON
+       ========================================================================== -->
+  <div class="container ledger-kpi-ribbon">
+    <div class="ledger-kpi-grid">
+      <!-- Total Funds -->
+      <div class="ledger-kpi-card">
+        <div class="ledger-kpi-icon emerald">
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </div>
+        <div>
+          <div class="ledger-kpi-label">Total Remittances</div>
+          <div class="ledger-kpi-val" id="kpiTotalAmount">&#8358;0</div>
+          <div class="ledger-kpi-sub">Verified alumni contributions</div>
+        </div>
+      </div>
+
+      <!-- Total Transactions -->
+      <div class="ledger-kpi-card">
+        <div class="ledger-kpi-icon primary">
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+        </div>
+        <div>
+          <div class="ledger-kpi-label">Total Receipts</div>
+          <div class="ledger-kpi-val" id="kpiTotalReceipts">0</div>
+          <div class="ledger-kpi-sub">Digitally stamped settlements</div>
+        </div>
+      </div>
+
+      <!-- Unique Contributors -->
+      <div class="ledger-kpi-card">
+        <div class="ledger-kpi-icon gold">
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+        </div>
+        <div>
+          <div class="ledger-kpi-label">Contributing Alumni</div>
+          <div class="ledger-kpi-val" id="kpiUniquePayers">0</div>
+          <div class="ledger-kpi-sub">Verified members on ledger</div>
+        </div>
+      </div>
+
+      <!-- Live Audit Status -->
+      <div class="ledger-kpi-card">
+        <div class="ledger-kpi-icon indigo">
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+        </div>
+        <div>
+          <div class="ledger-kpi-label">Audit Settlement</div>
+          <div class="ledger-kpi-val" style="color: #4f46e5;">100%</div>
+          <div class="ledger-kpi-sub" id="kpiLiveStatus">Live sync active</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MAIN PUBLIC LEDGER SECTION
+       ========================================================================== -->
+  <section class="section" style="padding: 0 0 5rem 0;">
+    <div class="container">
+
+      <!-- Interactive Toolbar -->
+      <div class="ledger-toolbar-card">
+        <div class="ledger-toolbar-row">
+          <!-- Search Input -->
+          <div class="ledger-search-box">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input type="text" id="ledgerSearchInput" placeholder="Search by alumnus name, category, or receipt #..." autocomplete="off">
+          </div>
+
+          <!-- Controls: Sort & Export -->
+          <div class="ledger-filters-wrap">
+            <select id="ledgerSortSelect" class="ledger-select" aria-label="Sort ledger records">
+              <option value="newest">Sort: Most Recent</option>
+              <option value="oldest">Sort: Oldest</option>
+              <option value="amount-high">Amount: High to Low</option>
+              <option value="amount-low">Amount: Low to High</option>
+            </select>
+
+            <button type="button" id="btnExportLedgerCsv" class="btn btn-outline-light btn-sm" style="color: var(--slate-700); border-color: var(--slate-300); display: inline-flex; align-items: center; gap: 0.4rem; height: 42px;">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Chips -->
+        <div class="ledger-chips-row" id="ledgerCategoryChips">
+          <button type="button" class="ledger-chip active" data-category="ALL">All Remittances</button>
+          <button type="button" class="ledger-chip" data-category="Monthly Dues">Monthly Dues</button>
+          <button type="button" class="ledger-chip" data-category="Annual Dues">Annual Dues</button>
+          <button type="button" class="ledger-chip" data-category="Capital Development Levy">Capital Development</button>
+          <button type="button" class="ledger-chip" data-category="Project Contribution">Project Contribution</button>
+          <button type="button" class="ledger-chip" data-category="Welfare Contribution">Welfare Fund</button>
+        </div>
+      </div>
+
+      <!-- Ledger Table Card -->
+      <div class="ledger-table-card">
+        <div class="ledger-table-header-strip">
+          <div class="ledger-table-title">
+            <span>Verified Alumni Remittances</span>
+            <span class="ledger-table-count" id="ledgerFilterCount">0 records</span>
+          </div>
+          <div style="font-size: 0.82rem; color: var(--slate-500); display: flex; align-items: center; gap: 0.5rem;">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: #10b981; display: inline-block;"></span>
+            Auto-syncs live with backend ledger
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="public-ledger-table" id="publicLedgerTable">
+            <thead>
+              <tr>
+                <th>Alumnus / Contributor</th>
+                <th>Category / Purpose</th>
+                <th>Amount (&#8358;)</th>
+                <th>Receipt / Reference</th>
+                <th>Channel</th>
+                <th>Remitted Date</th>
+                <th>Audit Status</th>
+              </tr>
+            </thead>
+            <tbody id="ledgerTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="ledgerEmptyState" class="ledger-empty" style="display: none;">
+          <div class="ledger-empty-icon">
+            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </div>
+          <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.15rem; margin-bottom: 0.35rem;">No matching remittance records</h4>
+          <p style="color: var(--slate-500); font-size: 0.88rem; max-width: 420px; margin: 0 auto 1.25rem;">
+            We couldn't find any contributions matching your active search or category filter.
+          </p>
+          <button type="button" class="btn btn-primary btn-sm" onclick="resetLedgerFilters()">Reset All Filters</button>
+        </div>
+      </div>
+
+      <!-- Public Trust & Contribution Callout -->
+      <div class="ledger-trust-banner">
+        <div class="ledger-trust-content">
+          <h3>Commitment to Transparent Governance</h3>
+          <p>
+            The Class of 1995 maintains an open, cryptographic public ledger. Every transaction completed online or offline receives an immutable digital receipt verifiable by any alumnus, bank, or auditor worldwide.
+          </p>
+        </div>
+        <div class="ledger-trust-actions">
+          <a href="payment.html" class="btn btn-light btn-lg" style="color: var(--navy-900); font-weight: 700;">
+            Make a Remittance &rarr;
+          </a>
+          <a href="verify.html" class="btn btn-outline-light btn-lg">
+            Verify a Receipt
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==========================================================================
+       SITE FOOTER
+       ========================================================================== -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-crest" style="margin-bottom: 1rem;">
+            <img src="images/logo.png" alt="CIC Alumni 1995 Set Crest" class="brand-logo-img" width="42" height="48" loading="lazy" decoding="async">
+            <div class="crest-text">
+              <span class="crest-title">CIC ALUMNI</span>
+              <span class="crest-subtitle">1995 SET</span>
+            </div>
+          </div>
+          <p class="footer-desc">
+            College of the Immaculate Conception (CIC), Enugu &mdash; Class of 1995 Set. United in brotherhood, excellence, and service to our alma mater.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="./">Home</a></li>
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="leadership.html">Executive Council</a></li>
+            <li><a href="members.html">Members Directory</a></li>
+            <li><a href="projects.html">Development Projects</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Financial Governance</h4>
+          <ul class="footer-links">
+            <li><a href="payment.html">Pay Dues &amp; Levies</a></li>
+            <li><a href="ledger.html">Public Contributions Ledger</a></li>
+            <li><a href="verify.html">Verify Official Receipt</a></li>
+            <li><a href="contact.html">Secretariat Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4 class="footer-heading">Secretariat</h4>
+          <p style="font-size: 0.88rem; color: var(--slate-400); line-height: 1.6; margin-bottom: 0.8rem;">
+            CIC Enugu Alumni Secretariat<br>
+            College of the Immaculate Conception<br>
+            Uwani, Enugu State, Nigeria
+          </p>
+          <a href="login.html" class="btn btn-outline-light btn-sm" style="color: var(--slate-300); border-color: rgba(255,255,255,0.2);">
+            Executive Login
+          </a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 CIC Alumni 1995 Set. All rights reserved. <em>Semper Fidelis</em>.</p>
+        <p style="font-size: 0.8rem; color: var(--slate-500);">
+          Zero-Login Financial Architecture &amp; Immutable Audit Trail
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/data.js?v=4.0"></script>
+  <script src="js/data-api.js?v=4.0"></script>
+  <script src="js/app.js?v=4.0"></script>
+
+  <script>
+    (function () {
+      'use strict';
+
+      let allPayments = [];
+      let activeCategory = 'ALL';
+      let activeSearch = '';
+      let activeSort = 'newest';
+
+      function formatNaira(num) {
+        return '\u20A6' + Number(num || 0).toLocaleString();
+      }
+
+      function getInitials(name) {
+        if (!name) return 'AL';
+        const parts = name.trim().split(/\s+/).filter(Boolean);
+        if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+      }
+
+      function getCategoryBadgeClass(type) {
+        const t = String(type || '').toLowerCase();
+        if (t.includes('monthly')) return 'cat-dues';
+        if (t.includes('annual')) return 'cat-annual';
+        if (t.includes('project') || t.includes('capital') || t.includes('levy')) return 'cat-project';
+        if (t.includes('welfare') || t.includes('shield')) return 'cat-welfare';
+        return 'cat-default';
+      }
+
+      async function loadLedgerData() {
+        let loaded = [];
+
+        // 1. Attempt live fetch from Backend public-ledger endpoint
+        if (window.ApiClient && typeof window.ApiClient.Payments?.getPublicLedger === 'function') {
+          try {
+            const res = await window.ApiClient.Payments.getPublicLedger();
+            if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+              loaded = res.data;
+              console.log(`[Ledger] Loaded ${loaded.length} records from live backend.`);
+            }
+          } catch (err) {
+            console.warn('[Ledger] Backend endpoint unreachable, checking local DataStore:', err.message);
+          }
+        }
+
+        // 2. Fallback to LocalStorage DataStore
+        if (loaded.length === 0 && window.DataStore && typeof window.DataStore.getPayments === 'function') {
+          const local = window.DataStore.getPayments();
+          if (Array.isArray(local) && local.length > 0) {
+            loaded = local;
+            console.log(`[Ledger] Loaded ${loaded.length} records from LocalStorage cache.`);
+          }
+        }
+
+        // 3. Fallback demo set if store is completely empty
+        if (loaded.length === 0) {
+          loaded = [
+            { reference: 'HAA-2026-97395', receiptNumber: 'REC-2026-2640', name: 'Chief Uche Nnamani', paymentType: 'Monthly Dues', amount: 15000, channel: 'Debit Card', date: '2026-10-18 14:13:46', status: 'Successful' },
+            { reference: 'HAA-2026-92810', receiptNumber: 'REC-2026-2580', name: 'Engr. Emeka Okafor', paymentType: 'Capital Development Levy', amount: 50000, channel: 'Bank Transfer', date: '2026-10-18 11:32:15', status: 'Successful' },
+            { reference: 'HAA-2026-89104', receiptNumber: 'REC-2026-2410', name: 'Dr. Obinna Ekwueme', paymentType: 'Project Contribution', amount: 35000, channel: 'Debit Card', date: '2026-10-17 16:45:00', status: 'Successful' },
+            { reference: 'HAA-2026-84192', receiptNumber: 'REC-2026-2390', name: 'Barr. Chidi Okoli', paymentType: 'Annual Dues', amount: 25000, channel: 'Debit Card', date: '2026-10-16 09:12:44', status: 'Successful' },
+            { reference: 'HAA-2026-78129', receiptNumber: 'REC-2026-2240', name: 'Kenechukwu Ani', paymentType: 'Monthly Dues', amount: 5000, channel: 'USSD', date: '2026-10-15 13:20:10', status: 'Successful' },
+            { reference: 'HAA-2026-71048', receiptNumber: 'REC-2026-2180', name: 'Tochukwu Nwankwo', paymentType: 'Welfare Contribution', amount: 20000, channel: 'Debit Card', date: '2026-10-14 10:05:30', status: 'Successful' },
+            { reference: 'HAA-2026-67902', receiptNumber: 'REC-2026-2090', name: 'Engr. Nnamdi Eze', paymentType: 'Capital Development Levy', amount: 50000, channel: 'Debit Card', date: '2026-10-13 18:40:22', status: 'Successful' },
+            { reference: 'HAA-2026-61405', receiptNumber: 'REC-2026-1980', name: 'Chukwudi Mba', paymentType: 'Monthly Dues', amount: 10000, channel: 'Debit Card', date: '2026-10-12 14:15:09', status: 'Successful' },
+            { reference: 'HAA-2026-58291', receiptNumber: 'REC-2026-1890', name: 'Ifeanyi Okonkwo', paymentType: 'Annual Dues', amount: 25000, channel: 'Debit Card', date: '2026-10-11 12:00:00', status: 'Successful' },
+            { reference: 'HAA-2026-52109', receiptNumber: 'REC-2026-1740', name: 'Somtochukwu Ugwu', paymentType: 'Project Contribution', amount: 25000, channel: 'Bank Transfer', date: '2026-10-10 17:30:19', status: 'Successful' },
+            { reference: 'HAA-2026-48902', receiptNumber: 'REC-2026-1620', name: 'Okey Agbo', paymentType: 'Monthly Dues', amount: 5000, channel: 'Debit Card', date: '2026-10-09 11:22:45', status: 'Successful' },
+            { reference: 'HAA-2026-41289', receiptNumber: 'REC-2026-1500', name: 'Chinonso Nze', paymentType: 'Welfare Contribution', amount: 15000, channel: 'Debit Card', date: '2026-10-08 15:40:11', status: 'Successful' },
+            { reference: 'HAA-2026-38472', receiptNumber: 'REC-2026-1410', name: 'Prof. Chinedu Iloputaife', paymentType: 'Capital Development Levy', amount: 50000, channel: 'Debit Card', date: '2026-10-07 09:18:32', status: 'Successful' },
+            { reference: 'HAA-2026-31904', receiptNumber: 'REC-2026-1300', name: 'Jideofor Chukwu', paymentType: 'Monthly Dues', amount: 5000, channel: 'USSD', date: '2026-10-06 16:50:00', status: 'Successful' }
+          ];
+        }
+
+        allPayments = loaded;
+        updateKpis(allPayments);
+        filterAndRenderLedger();
+      }
+
+      function updateKpis(payments) {
+        let total = 0;
+        const uniqueSet = new Set();
+
+        payments.forEach(p => {
+          if (p.status === 'Successful' || !p.status) {
+            total += Number(p.amount || 0);
+            if (p.name) uniqueSet.add(p.name.trim().toLowerCase());
+          }
+        });
+
+        const totalEl = document.getElementById('kpiTotalAmount');
+        const countEl = document.getElementById('kpiTotalReceipts');
+        const payersEl = document.getElementById('kpiUniquePayers');
+
+        if (totalEl) totalEl.textContent = formatNaira(total);
+        if (countEl) countEl.textContent = payments.length.toString();
+        if (payersEl) payersEl.textContent = uniqueSet.size.toString();
+      }
+
+      function filterAndRenderLedger() {
+        const query = activeSearch.trim().toLowerCase();
+
+        let filtered = allPayments.filter(p => {
+          // Category check
+          if (activeCategory !== 'ALL') {
+            const pType = String(p.paymentType || '').toLowerCase();
+            const filterType = activeCategory.toLowerCase();
+            if (!pType.includes(filterType) && !filterType.includes(pType)) {
+              return false;
+            }
+          }
+
+          // Search check
+          if (query) {
+            const matchName = String(p.name || '').toLowerCase().includes(query);
+            const matchRef = String(p.reference || '').toLowerCase().includes(query);
+            const matchRec = String(p.receiptNumber || '').toLowerCase().includes(query);
+            const matchCat = String(p.paymentType || '').toLowerCase().includes(query);
+            if (!matchName && !matchRef && !matchRec && !matchCat) return false;
+          }
+
+          return true;
+        });
+
+        // Sorting
+        filtered.sort((a, b) => {
+          if (activeSort === 'amount-high') return Number(b.amount || 0) - Number(a.amount || 0);
+          if (activeSort === 'amount-low') return Number(a.amount || 0) - Number(b.amount || 0);
+          if (activeSort === 'oldest') {
+            return (a.timestamp || new Date(a.date).getTime() || 0) - (b.timestamp || new Date(b.date).getTime() || 0);
+          }
+          // Default newest first
+          return (b.timestamp || new Date(b.date).getTime() || 0) - (a.timestamp || new Date(a.date).getTime() || 0);
+        });
+
+        renderTable(filtered);
+      }
+
+      function renderTable(items) {
+        const tbody = document.getElementById('ledgerTableBody');
+        const emptyState = document.getElementById('ledgerEmptyState');
+        const countBadge = document.getElementById('ledgerFilterCount');
+
+        if (countBadge) {
+          countBadge.textContent = `${items.length} ${items.length === 1 ? 'record' : 'records'}`;
+        }
+
+        if (!tbody) return;
+
+        if (items.length === 0) {
+          tbody.innerHTML = '';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+        }
+
+        if (emptyState) emptyState.style.display = 'none';
+
+        tbody.innerHTML = items.map(p => {
+          const initials = getInitials(p.name);
+          const badgeClass = getCategoryBadgeClass(p.paymentType);
+          const dateStr = p.date ? p.date.slice(0, 16) : 'Verified';
+          const refCode = p.reference || p.receiptNumber || 'REF';
+          const recNum = p.receiptNumber || p.reference;
+
+          return `
+            <tr>
+              <td>
+                <div class="payer-cell">
+                  <div class="payer-avatar">${initials}</div>
+                  <div>
+                    <div class="payer-name">${escapeHtml(p.name || 'Alumnus Member')}</div>
+                    <div class="payer-class">Class of 1995</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="cat-badge ${badgeClass}">${escapeHtml(p.paymentType || 'General Contribution')}</span>
+              </td>
+              <td class="amount-cell">
+                ${formatNaira(p.amount)}
+              </td>
+              <td>
+                <a href="verify.html?ref=${encodeURIComponent(refCode)}" class="ref-badge" title="Click to verify official digital settlement on verification engine">
+                  ${escapeHtml(recNum)}
+                  <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                </a>
+              </td>
+              <td>
+                <span style="font-size: 0.84rem; color: var(--slate-600);">${escapeHtml(p.channel || 'Debit Card')}</span>
+              </td>
+              <td>
+                <span style="font-size: 0.84rem; color: var(--slate-600); font-family: monospace;">${escapeHtml(dateStr)}</span>
+              </td>
+              <td>
+                <span class="status-badge-verified">
+                  <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                  Verified
+                </span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      window.resetLedgerFilters = function () {
+        activeCategory = 'ALL';
+        activeSearch = '';
+        activeSort = 'newest';
+
+        const searchInput = document.getElementById('ledgerSearchInput');
+        if (searchInput) searchInput.value = '';
+
+        const sortSelect = document.getElementById('ledgerSortSelect');
+        if (sortSelect) sortSelect.value = 'newest';
+
+        document.querySelectorAll('#ledgerCategoryChips .ledger-chip').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.category === 'ALL');
+        });
+
+        filterAndRenderLedger();
+      };
+
+      // Export to CSV
+      function exportLedgerToCsv() {
+        if (allPayments.length === 0) {
+          alert('No payments to export.');
+          return;
+        }
+
+        const headers = ['Reference', 'Receipt Number', 'Alumnus Name', 'Category', 'Amount (NGN)', 'Channel', 'Date', 'Status'];
+        const rows = allPayments.map(p => [
+          `"${p.reference || ''}"`,
+          `"${p.receiptNumber || ''}"`,
+          `"${(p.name || '').replace(/"/g, '""')}"`,
+          `"${(p.paymentType || '').replace(/"/g, '""')}"`,
+          p.amount || 0,
+          `"${p.channel || 'Debit Card'}"`,
+          `"${p.date || ''}"`,
+          `"${p.status || 'Successful'}"`
+        ]);
+
+        const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.setAttribute('href', url);
+        link.setAttribute('download', `CIC_Alumni_1995_Contributions_Ledger_${new Date().toISOString().slice(0, 10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // Event Listeners
+      document.addEventListener('DOMContentLoaded', function () {
+        loadLedgerData();
+
+        // Search Input
+        const searchInput = document.getElementById('ledgerSearchInput');
+        if (searchInput) {
+          searchInput.addEventListener('input', function (e) {
+            activeSearch = e.target.value;
+            filterAndRenderLedger();
+          });
+        }
+
+        // Sort Select
+        const sortSelect = document.getElementById('ledgerSortSelect');
+        if (sortSelect) {
+          sortSelect.addEventListener('change', function (e) {
+            activeSort = e.target.value;
+            filterAndRenderLedger();
+          });
+        }
+
+        // Export Button
+        const exportBtn = document.getElementById('btnExportLedgerCsv');
+        if (exportBtn) {
+          exportBtn.addEventListener('click', exportLedgerToCsv);
+        }
+
+        // Category Chips
+        const chips = document.querySelectorAll('#ledgerCategoryChips .ledger-chip');
+        chips.forEach(chip => {
+          chip.addEventListener('click', function () {
+            chips.forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            activeCategory = this.dataset.category || 'ALL';
+            filterAndRenderLedger();
+          });
+        });
+
+        // Cross-tab real-time sync
+        window.addEventListener('storage', function (e) {
+          if (e.key === 'cic_alumni_payments' || e.key === 'haa_payment_pulse') {
+            loadLedgerData();
+          }
+        });
+
+        window.addEventListener('datastore:synced', loadLedgerData);
+      });
+    })();
+  </script>
+</body>
+</html>

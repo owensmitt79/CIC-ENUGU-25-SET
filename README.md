@@ -50,6 +50,11 @@ A member simply:
   * Live category filtering and full-article modal reader.
 * **Alumni Photo Gallery**:
   * Visual albums (*Reunions*, *Projects*, *Campus Life*) with an interactive responsive lightbox reader.
+* **Public Contributions & Remittance Ledger ([ledger.html](file:///c:/Users/user_pc/Desktop/Eng%20ilo/ledger.html))**:
+  * Real-time transparency ledger displaying all verified dues, capital project contributions, and welfare donations.
+  * Live KPI cards (Total Remittances, Receipts Issued, Contributing Alumni, and Audit Rate).
+  * Interactive multi-field search, category filter pills, sorting options, and 1-click **Export to CSV**.
+  * 1-click receipt verification link for every transaction on the ledger.
 * **Public Payment Verification Engine & Receipt Generator ([verify.html](file:///c:/Users/user_pc/Desktop/Eng%20ilo/verify.html))**:
   * Public lookup tool where any member or auditor can verify any transaction reference or receipt number.
   * Instant **"View & Print Official Receipt"** button opening an official printable receipt modal with QR code, CIC Crest, and PDF download.
@@ -88,6 +93,7 @@ Eng ilo/
 ├── leadership.html         # Dedicated Executive Council directory
 ├── members.html            # Dedicated Class of 1995 Members Directory with search & filters
 ├── projects.html           # Dedicated Development Projects, funding progress & filters
+├── ledger.html             # Dedicated Public Contributions & Remittance Transparency Ledger
 ├── gallery.html            # Dedicated Alumni Photo & Media Gallery with interactive lightbox
 ├── verify.html             # Dedicated official transaction & receipt verification portal
 ├── payment.html            # Dedicated zero-login dues & donation checkout platform
@@ -180,6 +186,7 @@ The frontend connects directly to the dedicated live Node.js Express & PostgreSQ
 * **Production Backend URL**: `http://localhost:5050`
 * **API Root Endpoint**: `http://localhost:5050/api`
 * **Architecture**: Managed via [js/data-api.js](file:///c:/Users/user_pc/Desktop/Eng%20ilo/js/data-api.js) with automatic bi-directional cache synchronization to `localStorage` (`DataStore`). Operates flawlessly both online and during offline/cold-start periods.
+* **Storage & Uploads**: Supports Supabase Storage uploads via `/api/upload/supabase` with automatic fallback to standard upload endpoints. Configurable dynamically via `ApiClient.Upload`.
 
 ---
 

@@ -210,6 +210,11 @@
         return ApiClient.request(`/payments${query ? `?${query}` : ''}`);
       },
 
+      async getPublicLedger(params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return ApiClient.request(`/payments/public-ledger${query ? `?${query}` : ''}`);
+      },
+
       getExportCsvUrl() {
         return `${ApiClient.baseUrl}/payments/export/csv`;
       }
@@ -399,23 +404,152 @@
     },
 
     // -------------------------------------------------------------
-    // FILE / IMAGE UPLOADS
+    // FILE / IMAGE UPLOADS (SUPABASE STORAGE & LOCAL FALLBACK)
     // -------------------------------------------------------------
     Upload: {
-      async uploadBase64(base64DataUrl, folder = 'general') {
-        return ApiClient.request('/upload', {
+      /**
+       * Supabase storage configuration state
+       */
+      preferSupabase: (function () {
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const saved = localStorage.getItem('cic_upload_provider');
+            if (saved !== null) return saved === 'supabase';
+          }
+        } catch (_) {}
+        return true; // Default to Supabase Storage endpoint
+      })(),
+
+      defaultBucket: (function () {
+        try {
+          if (typeof localStorage !== 'undefined') {
+            const saved = localStorage.getItem('cic_supabase_bucket');
+            if (saved && saved.trim()) return saved.trim();
+          }
+        } catch (_) {}
+        return 'cic-uploads';
+      })(),
+
+      /**
+       * Set upload provider preference ('supabase' | 'local')
+       */
+      setProvider(provider) {
+        this.preferSupabase = provider === 'supabase';
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('cic_upload_provider', this.preferSupabase ? 'supabase' : 'local');
+          }
+        } catch (_) {}
+        console.log(`[ApiClient.Upload] Provider preference updated: ${this.preferSupabase ? 'supabase' : 'local'}`);
+      },
+
+      /**
+       * Set default Supabase storage bucket
+       */
+      setBucket(bucketName) {
+        if (!bucketName) return;
+        this.defaultBucket = bucketName.trim();
+        try {
+          if (typeof localStorage !== 'undefined') {
+            localStorage.setItem('cic_supabase_bucket', this.defaultBucket);
+          }
+        } catch (_) {}
+        console.log(`[ApiClient.Upload] Default bucket updated: ${this.defaultBucket}`);
+      },
+
+      /**
+       * Upload file directly to Supabase Storage via /api/upload/supabase
+       * @param {File|Blob} file
+       * @param {string} [folder='general']
+       * @param {string} [bucket]
+       * @returns {Promise<{ success: boolean, url: string, provider: string, path: string }>}
+       */
+      async uploadToSupabase(file, folder = 'general', bucket = null) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('folder', folder);
+        if (bucket || this.defaultBucket) {
+          formData.append('bucket', bucket || this.defaultBucket);
+        }
+
+        return ApiClient.request('/upload/supabase', {
           method: 'POST',
-          body: { base64: base64DataUrl, folder }
+          body: formData
         });
       },
 
-      async uploadFile(file, folder = 'general') {
+      /**
+       * Upload Base64 Data URL directly to Supabase Storage via /api/upload/supabase
+       * @param {string} base64DataUrl
+       * @param {string} [folder='general']
+       * @param {string} [bucket]
+       * @returns {Promise<{ success: boolean, url: string, provider: string, path: string }>}
+       */
+      async uploadBase64ToSupabase(base64DataUrl, folder = 'general', bucket = null) {
+        return ApiClient.request('/upload/supabase', {
+          method: 'POST',
+          body: {
+            base64: base64DataUrl,
+            folder,
+            bucket: bucket || this.defaultBucket
+          }
+        });
+      },
+
+      /**
+       * High-level file upload: Routes to Supabase Storage with graceful fallback to standard /upload
+       * @param {File|Blob} file
+       * @param {string} [folder='general']
+       * @param {Object} [options={}] - { useSupabase, bucket, fallback = true }
+       * @returns {Promise<{ success: boolean, url: string, provider: string }>}
+       */
+      async uploadFile(file, folder = 'general', options = {}) {
+        const useSupabase = options.useSupabase !== undefined ? options.useSupabase : this.preferSupabase;
+        const fallback = options.fallback !== false;
+
+        if (useSupabase) {
+          try {
+            const res = await this.uploadToSupabase(file, folder, options.bucket);
+            if (res && res.url) return res;
+          } catch (err) {
+            console.warn('[ApiClient.Upload] Supabase upload failed, falling back to standard upload:', err.message);
+            if (!fallback) throw err;
+          }
+        }
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('folder', folder);
         return ApiClient.request('/upload', {
           method: 'POST',
           body: formData
+        });
+      },
+
+      /**
+       * High-level Base64 upload: Routes to Supabase Storage with graceful fallback to standard /upload
+       * @param {string} base64DataUrl
+       * @param {string} [folder='general']
+       * @param {Object} [options={}] - { useSupabase, bucket, fallback = true }
+       * @returns {Promise<{ success: boolean, url: string, provider: string }>}
+       */
+      async uploadBase64(base64DataUrl, folder = 'general', options = {}) {
+        const useSupabase = options.useSupabase !== undefined ? options.useSupabase : this.preferSupabase;
+        const fallback = options.fallback !== false;
+
+        if (useSupabase) {
+          try {
+            const res = await this.uploadBase64ToSupabase(base64DataUrl, folder, options.bucket);
+            if (res && res.url) return res;
+          } catch (err) {
+            console.warn('[ApiClient.Upload] Supabase Base64 upload failed, falling back to standard upload:', err.message);
+            if (!fallback) throw err;
+          }
+        }
+
+        return ApiClient.request('/upload', {
+          method: 'POST',
+          body: { base64: base64DataUrl, folder }
         });
       }
     },
