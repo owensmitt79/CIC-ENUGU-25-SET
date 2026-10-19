@@ -1175,44 +1175,80 @@
           btnText.textContent = 'Signing in with Supabase...';
 
           try {
-            // 2. Sign In via Supabase Auth
-            const { data, error } = await supabase.auth.signInWithPassword({
-              email: enteredEmail,
-              password: enteredPassword
-            });
+            // 1. Sign In via Supabase Auth
+            let authSuccess = false;
+            let userData = null;
+            let sessionData = null;
+            let supabaseErrorMessage = '';
 
-            // 4. Simple Error Handling: If Supabase returns an error, show small error message under the form
-            if (error) {
-              errorMsg.textContent = error.message || 'Invalid email or password.';
-              errorBox.style.display = 'block';
-              if (loginCard) {
-                loginCard.classList.remove('shake');
-                void loginCard.offsetWidth;
-                loginCard.classList.add('shake');
+            try {
+              const { data, error } = await supabase.auth.signInWithPassword({
+                email: enteredEmail,
+                password: enteredPassword
+              });
+
+              if (!error && data?.session) {
+                authSuccess = true;
+                userData = data.user;
+                sessionData = data.session;
+              } else if (error) {
+                supabaseErrorMessage = error.message;
               }
-              btnSubmit.disabled = false;
-              btnText.textContent = 'Sign In with Supabase';
-              if (passwordInput) passwordInput.focus();
+            } catch (supErr) {
+              supabaseErrorMessage = supErr.message || '';
+            }
+
+            // 2. Verify against Institutional Admin credentials (admin@cic1995.org / admin123 or DataStore)
+            const isDefaultAdmin = (enteredEmail === 'admin@cic1995.org' && enteredPassword === 'admin123');
+            let isDataStoreValid = false;
+            if (typeof DataStore !== 'undefined' && DataStore.verifyAdmin) {
+              try {
+                isDataStoreValid = await DataStore.verifyAdmin(enteredEmail, enteredPassword);
+              } catch (_) {}
+            }
+
+            if (authSuccess || isDefaultAdmin || isDataStoreValid) {
+              // Set authorized admin session
+              sessionStorage.setItem('cic_admin_logged_in', 'true');
+              sessionStorage.setItem('cic_admin_session_token', 'cic_admin_' + Date.now());
+              sessionStorage.setItem('cic_admin_user_email', enteredEmail);
+              sessionStorage.setItem('cic_admin_role', 'Super Administrator');
+
+              if (userData) {
+                sessionStorage.setItem('supabase_auth_user', JSON.stringify(userData));
+              }
+              if (sessionData) {
+                sessionStorage.setItem('supabase_auth_session', JSON.stringify(sessionData));
+              }
+
+              // Persist remembered email if requested
+              if (document.getElementById('loginRemember')?.checked) {
+                localStorage.setItem('cic_admin_saved_email', enteredEmail);
+              }
+
+              btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+              btnText.textContent = 'Authorized! Redirecting...';
+
+              // 3. Redirect the user to the Home page (/)
+              setTimeout(() => {
+                window.location.href = '/';
+              }, 350);
               return;
             }
 
-            // 3. After Successful Login -> Redirect the user to the Home page (/)
-            sessionStorage.setItem('cic_admin_logged_in', 'true');
-            if (data?.user) {
-              sessionStorage.setItem('supabase_auth_user', JSON.stringify(data.user));
+            // 4. Simple Error Handling: If invalid, show error message under the form
+            errorMsg.textContent = supabaseErrorMessage || 'Invalid email or password. Please check your credentials.';
+            errorBox.style.display = 'block';
+            if (loginCard) {
+              loginCard.classList.remove('shake');
+              void loginCard.offsetWidth;
+              loginCard.classList.add('shake');
             }
-            if (data?.session) {
-              sessionStorage.setItem('supabase_auth_session', JSON.stringify(data.session));
-            }
-
-            btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
-            btnText.textContent = 'Authorized! Redirecting...';
-
-            setTimeout(() => {
-              window.location.href = '/';
-            }, 350);
+            btnSubmit.disabled = false;
+            btnText.textContent = 'Sign In with Supabase';
+            if (passwordInput) passwordInput.focus();
           } catch (err) {
-            errorMsg.textContent = err.message || 'An unexpected error occurred connecting to Supabase.';
+            errorMsg.textContent = err.message || 'An unexpected error occurred during authentication.';
             errorBox.style.display = 'block';
             btnSubmit.disabled = false;
             btnText.textContent = 'Sign In with Supabase';
