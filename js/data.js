@@ -889,6 +889,9 @@ const DataStore = {
     if (email && email.includes('@')) {
       const emailHash = await this._hashSecret((email || '').toLowerCase().trim());
       localStorage.setItem(STORAGE_KEYS.ADMIN_EMAIL_HASH, emailHash);
+      try {
+        localStorage.setItem('cic_admin_saved_email', (email || '').toLowerCase().trim());
+      } catch (e) {}
     }
     try {
       localStorage.removeItem('haa_admin_pin_v1');
@@ -907,6 +910,7 @@ const DataStore = {
     localStorage.setItem(STORAGE_KEYS.ADMIN_PIN_HASH, '4ba040cac3a5efc4765e886a736b40fde0369c74ff9957af668028509e1906e2');
     localStorage.setItem(STORAGE_KEYS.ADMIN_EMAIL_HASH, '8e8eee8da5377c187cb832575e06f62ba3f324ce99ae9a15a99a31a24167af73');
     try {
+      localStorage.removeItem('cic_admin_saved_email');
       localStorage.removeItem('haa_admin_pin_v1');
       localStorage.removeItem('haa_admin_email_v1');
       if (typeof sessionStorage !== 'undefined') {

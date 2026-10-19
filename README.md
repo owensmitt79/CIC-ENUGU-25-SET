@@ -73,6 +73,7 @@ Accessible via `/login.html`:
 * **News & Announcements Publishing Studio**: Executive admin control over portal notices and bulletins with full create, edit, pin as featured headline, preview modal, instant multi-field search, category filtering, and delete actions with zero-reload real-time public synchronization.
 * **Monthly Dues Rate Configurator**: Adjust statutory monthly dues rate (e.g., ₦5,000) with instant site-wide recalculation.
 * **Gateway Settings**: Toggle active gateway (**Paystack**, **Flutterwave**, **Monnify**, **Remita**) and switch between Test Mode and Live Mode.
+* **Self-Service Password Recovery & Reset Suite**: Multi-path credential recovery engine on `/login.html` with 6-digit OTP verification, live strength meter, 1-click Emergency Master Restore (`admin123`), and Secretariat Helpdesk contacts.
 
 ---
 

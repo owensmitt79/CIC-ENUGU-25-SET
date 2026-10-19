@@ -1,5 +1,8 @@
 {
   "name": "cic-enugu-1995-portal",
   "version": "1.0.0",
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.118.0"
+  }
 }

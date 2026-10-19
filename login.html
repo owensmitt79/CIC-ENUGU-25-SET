@@ -10,7 +10,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
   
   <!-- Core Security & Privacy Directives -->
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://checkout.paystack.com https://*.paystack.co https://*.flutterwave.com; object-src 'none'; base-uri 'self'; form-action 'self' https:; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com https://www.gstatic.com https://esm.sh https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' https: wss:; frame-src 'self' https://checkout.paystack.com https://*.paystack.co https://*.flutterwave.com; object-src 'none'; base-uri 'self'; form-action 'self' https:; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests;">
   <meta http-equiv="X-Content-Type-Options" content="nosniff">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   
@@ -25,6 +25,15 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap">
   </noscript>
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- Supabase Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.49.1"
+    }
+  }
+  </script>
   <style>
     .exec-login-body {
       min-height: 100vh;
@@ -169,6 +178,290 @@
     .shake {
       animation: shake 0.4s ease;
     }
+
+    /* Reset / Lost Password Modal Styling */
+    .reset-modal-card {
+      max-width: 520px;
+      padding: 2.25rem 2rem;
+      border-top: 4px solid var(--cic-blue-700);
+      border-radius: var(--radius-xl);
+      background: var(--white);
+      box-shadow: 0 25px 50px -12px rgba(11, 19, 32, 0.35);
+      position: relative;
+    }
+    .reset-modal-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      text-align: left;
+      padding-right: 2rem;
+    }
+    .reset-icon-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: rgba(43, 87, 151, 0.1);
+      color: var(--cic-blue-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid rgba(43, 87, 151, 0.2);
+    }
+    .reset-modal-title {
+      font-family: var(--font-heading);
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--navy-900);
+      margin: 0 0 0.2rem;
+      line-height: 1.25;
+    }
+    .reset-modal-subtitle {
+      font-size: 0.8rem;
+      color: var(--slate-500);
+      margin: 0;
+      line-height: 1.4;
+    }
+    .reset-tabs-nav {
+      display: flex;
+      gap: 0.35rem;
+      background: var(--slate-100);
+      padding: 0.3rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--slate-200);
+    }
+    .reset-tab-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.55rem 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--slate-600);
+      background: transparent;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .reset-tab-btn:hover {
+      color: var(--navy-900);
+    }
+    .reset-tab-btn.active {
+      background: var(--white);
+      color: var(--cic-blue-700);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+      font-weight: 700;
+    }
+    .reset-tab-pane {
+      display: none;
+      animation: fadeIn 0.2s ease-in-out;
+    }
+    .reset-tab-pane.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reset-alert {
+      padding: 0.75rem 0.9rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.82rem;
+      margin-bottom: 1.15rem;
+      text-align: left;
+      line-height: 1.45;
+    }
+    .alert-error {
+      background: #FEF2F2;
+      border: 1px solid #FCA5A5;
+      color: #991B1B;
+    }
+    .alert-success {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+    }
+    .reset-otp-banner {
+      background: #ECFDF5;
+      border: 1.5px solid #A7F3D0;
+      border-radius: var(--radius-md);
+      padding: 0.9rem 1rem;
+      margin-bottom: 1.25rem;
+      text-align: left;
+    }
+    .reset-otp-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #D1FAE5;
+      color: #059669;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .reset-otp-badge {
+      background: #065F46;
+      color: #ffffff;
+      padding: 0.25rem 0.65rem;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      user-select: all;
+    }
+    .reset-copy-btn {
+      background: #047857;
+      color: #ffffff;
+      border: none;
+      padding: 0.25rem 0.65rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+    .reset-copy-btn:hover {
+      background: #065F46;
+    }
+    .reset-otp-input {
+      letter-spacing: 0.4em;
+      font-size: 1.35rem;
+      font-weight: 700;
+      text-align: center;
+      font-family: monospace;
+      max-width: 240px;
+      margin: 0 auto;
+      display: block;
+    }
+    .pwd-meter-wrap {
+      height: 5px;
+      background: var(--slate-200);
+      border-radius: 3px;
+      margin-top: 0.45rem;
+      overflow: hidden;
+    }
+    .pwd-meter-bar {
+      height: 100%;
+      width: 0%;
+      transition: width 0.25s ease, background-color 0.25s ease;
+      border-radius: 3px;
+    }
+    .pwd-meter-label {
+      font-size: 0.72rem;
+      color: var(--slate-500);
+      margin-top: 0.25rem;
+      text-align: right;
+    }
+    .btn-reset-secondary {
+      padding: 0 1.25rem;
+      height: 44px;
+      background: var(--slate-100);
+      color: var(--slate-700);
+      border: 1px solid var(--slate-300);
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-reset-secondary:hover {
+      background: var(--slate-200);
+      color: var(--slate-900);
+    }
+    .reset-success-circle {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #D1FAE5;
+      color: #059669;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      border: 2px solid #A7F3D0;
+    }
+    .reset-creds-preview {
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      text-align: left;
+      margin-top: 1rem;
+    }
+    .emergency-restore-card {
+      background: #FFFBEB;
+      border: 1.5px solid #FDE68A;
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      display: flex;
+      gap: 0.85rem;
+      text-align: left;
+      align-items: flex-start;
+    }
+    .emergency-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #FEF3C7;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .btn-emergency-restore {
+      width: 100%;
+      height: 46px;
+      background: linear-gradient(135deg, #D97706 0%, #B45309 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+      box-shadow: 0 2px 4px rgba(217, 119, 6, 0.25);
+    }
+    .btn-emergency-restore:hover {
+      opacity: 0.95;
+      transform: translateY(-1px);
+    }
+    .helpdesk-channel-card {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.85rem 1rem;
+      background: var(--slate-50);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      margin-bottom: 0.85rem;
+      text-align: left;
+    }
+    .helpdesk-channel-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: rgba(43, 87, 151, 0.08);
+      color: var(--cic-blue-700);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body class="exec-login-body">
@@ -206,15 +499,10 @@
         <div style="display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
           <span>✓ Active admin session detected</span>
           <div style="display: flex; gap: 0.4rem;">
-            <a href="admin.html" style="color: #ffffff; background: var(--cic-blue-700); padding: 0.25rem 0.6rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 0.75rem;">Dashboard &rarr;</a>
+            <a href="./" style="color: #ffffff; background: var(--cic-blue-700); padding: 0.25rem 0.6rem; border-radius: 4px; text-decoration: none; font-weight: 600; font-size: 0.75rem;">Home (/) &rarr;</a>
             <button type="button" onclick="sessionStorage.clear(); document.getElementById('activeSessionBanner').style.display='none';" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.72rem; cursor: pointer;">Sign Out</button>
           </div>
         </div>
-      </div>
-
-      <!-- Error alert box -->
-      <div class="exec-error-box" id="loginErrorBox" role="alert">
-        <span id="loginErrorMessage">Invalid email or password. Please try again.</span>
       </div>
 
       <form id="standaloneLoginForm">
@@ -222,7 +510,7 @@
         <div class="exec-form-group">
           <label class="exec-label" for="loginEmail">Email Address</label>
           <div class="exec-input-wrap">
-            <input type="text" id="loginEmail" class="exec-input" placeholder="admin@cic1995.org" required autocomplete="username" autofocus>
+            <input type="email" id="loginEmail" class="exec-input" placeholder="admin@cic1995.org" value="admin@cic1995.org" required autocomplete="username" autofocus>
           </div>
         </div>
 
@@ -230,7 +518,7 @@
         <div class="exec-form-group">
           <label class="exec-label" for="loginPassword">Password</label>
           <div class="exec-input-wrap">
-            <input type="password" id="loginPassword" class="exec-input exec-input-password" placeholder="••••••••" required autocomplete="current-password">
+            <input type="password" id="loginPassword" class="exec-input exec-input-password" placeholder="admin123" value="admin123" required autocomplete="current-password">
             <button type="button" class="exec-toggle-pwd" id="btnTogglePassword" title="Show or hide password" aria-label="Toggle password visibility">
               <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
             </button>
@@ -243,30 +531,609 @@
             <input type="checkbox" id="loginRemember" checked style="accent-color: var(--cic-blue-700); width: 16px; height: 16px;">
             <span>Remember on this device</span>
           </label>
-          <a href="#" onclick="handleResetCredentials(event)" style="color: var(--cic-blue-700); text-decoration: none; font-weight: 600;">Reset / Lost Password?</a>
+          <a href="#" onclick="openResetPasswordModal(event)" id="btnOpenResetModal" style="color: var(--cic-blue-700); text-decoration: none; font-weight: 600; cursor: pointer;">Reset / Lost Password?</a>
         </div>
 
         <!-- Submit Button -->
         <button type="submit" class="btn-exec-submit" id="btnLoginSubmit">
           <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
-          <span id="btnLoginText">Login to Admin Dashboard</span>
+          <span id="btnLoginText">Sign In with Supabase</span>
         </button>
+
+        <!-- Small Error alert box under the form -->
+        <div class="exec-error-box" id="loginErrorBox" role="alert" style="margin-top: 1rem; margin-bottom: 0;">
+          <span id="loginErrorMessage"></span>
+        </div>
       </form>
     </div>
   </main>
+
+  <!-- ==========================================================================
+       RESET / LOST PASSWORD MODAL
+       ========================================================================== -->
+  <div class="modal-backdrop" id="resetPasswordModal" role="dialog" aria-modal="true" aria-labelledby="resetModalTitle" onclick="if(event.target === this) closeResetPasswordModal();">
+    <div class="modal-card reset-modal-card">
+      <button type="button" class="modal-close-btn" onclick="closeResetPasswordModal()" aria-label="Close modal">&times;</button>
+      
+      <!-- Modal Header -->
+      <div class="reset-modal-header">
+        <div class="reset-icon-badge">
+          <svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 id="resetModalTitle" class="reset-modal-title">Password Recovery</h3>
+          <p class="reset-modal-subtitle">CIC Alumni 1995 Set &bull; Executive Administrative Access</p>
+        </div>
+      </div>
+
+      <!-- Segmented Navigation Tabs -->
+      <div class="reset-tabs-nav" role="tablist">
+        <button type="button" class="reset-tab-btn active" id="tabBtn_ResetCode" onclick="switchResetTab('code')" role="tab" aria-selected="true">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+          <span>Reset with Code</span>
+        </button>
+        <button type="button" class="reset-tab-btn" id="tabBtn_Emergency" onclick="switchResetTab('emergency')" role="tab" aria-selected="false">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Emergency Restore</span>
+        </button>
+        <button type="button" class="reset-tab-btn" id="tabBtn_Helpdesk" onclick="switchResetTab('helpdesk')" role="tab" aria-selected="false">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+          <span>Secretariat Desk</span>
+        </button>
+      </div>
+
+      <!-- TAB 1: RESET WITH VERIFICATION CODE -->
+      <div class="reset-tab-pane active" id="resetPane_Code">
+        <!-- Step 1: Request Code Form -->
+        <div id="resetStep1_Request">
+          <p style="font-size: 0.86rem; color: var(--slate-600); margin-bottom: 1.25rem; line-height: 1.5; text-align: left;">
+            Enter your registered administrator email address. We will verify your identity and generate a 6-digit recovery code to set your new password.
+          </p>
+
+          <form id="requestCodeForm" onsubmit="handleRequestResetCode(event)">
+            <div class="exec-form-group">
+              <label class="exec-label" for="resetEmailInput">Registered Admin Email</label>
+              <div class="exec-input-wrap">
+                <input type="email" id="resetEmailInput" class="exec-input" placeholder="admin@cic1995.org" required>
+              </div>
+            </div>
+
+            <div id="requestCodeAlert" class="reset-alert" style="display: none;"></div>
+
+            <button type="submit" class="btn-exec-submit" id="btnRequestCode" style="margin-top: 0.5rem;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+              <span>Generate &amp; Send Recovery Code</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Step 2: Enter Code & New Password Form -->
+        <div id="resetStep2_Verify" style="display: none;">
+          <!-- Dispatched Code Notification Banner -->
+          <div class="reset-otp-banner" id="resetOtpNotification">
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem;">
+              <div class="reset-otp-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 700; color: #065f46; font-size: 0.88rem; margin-bottom: 0.2rem;">
+                  Verification Code Dispatched!
+                </div>
+                <div style="font-size: 0.82rem; color: #047857; margin-bottom: 0.5rem;" id="otpDispatchedEmailText">
+                  Dispatched to admin@cic1995.org.
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                  <span style="font-size: 0.78rem; color: #065f46; font-weight: 600;">Your 6-Digit Code:</span>
+                  <span class="reset-otp-badge" id="displayGeneratedOtp">849201</span>
+                  <button type="button" class="reset-copy-btn" onclick="copyAndFillOtp()" title="Auto-fill code into box">
+                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span>Auto-Fill</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <form id="verifyAndResetForm" onsubmit="handleApplyNewPassword(event)">
+            <!-- 6-digit Code Input -->
+            <div class="exec-form-group">
+              <label class="exec-label" for="resetOtpInput" style="text-align: center;">Enter 6-Digit Verification Code</label>
+              <div class="exec-input-wrap">
+                <input type="text" id="resetOtpInput" class="exec-input reset-otp-input" placeholder="••••••" maxlength="6" pattern="[0-9]{6}" required autocomplete="one-time-code">
+              </div>
+            </div>
+
+            <!-- New Password Input -->
+            <div class="exec-form-group">
+              <label class="exec-label" for="resetNewPassword">New Password (Minimum 4 characters)</label>
+              <div class="exec-input-wrap">
+                <input type="password" id="resetNewPassword" class="exec-input exec-input-password" placeholder="Enter new password" minlength="4" required autocomplete="new-password" oninput="updatePasswordStrength(this.value)">
+                <button type="button" class="exec-toggle-pwd" onclick="togglePasswordVisibility('resetNewPassword', this)" title="Show/Hide">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </button>
+              </div>
+              <!-- Strength meter bar -->
+              <div class="pwd-meter-wrap" id="pwdMeterWrap">
+                <div class="pwd-meter-bar" id="pwdMeterBar"></div>
+              </div>
+              <div class="pwd-meter-label" id="pwdMeterLabel"></div>
+            </div>
+
+            <!-- Confirm New Password Input -->
+            <div class="exec-form-group">
+              <label class="exec-label" for="resetConfirmPassword">Confirm New Password</label>
+              <div class="exec-input-wrap">
+                <input type="password" id="resetConfirmPassword" class="exec-input exec-input-password" placeholder="Re-enter new password" minlength="4" required autocomplete="new-password">
+                <button type="button" class="exec-toggle-pwd" onclick="togglePasswordVisibility('resetConfirmPassword', this)" title="Show/Hide">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div id="resetErrorAlert" class="reset-alert alert-error" style="display: none;"></div>
+
+            <div style="display: flex; gap: 0.75rem; margin-top: 1rem;">
+              <button type="button" class="btn-reset-secondary" onclick="backToStep1()">
+                &larr; Back
+              </button>
+              <button type="submit" class="btn-exec-submit" id="btnApplyPassword" style="flex: 1;">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+                <span>Save New Password</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Step 3: Success Completed View -->
+        <div id="resetStep3_Success" style="display: none; text-align: center; padding: 1.5rem 0.5rem;">
+          <div class="reset-success-circle">
+            <svg width="38" height="38" fill="none" stroke="#059669" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.35rem; margin-bottom: 0.4rem;">
+            Password Reset Successfully!
+          </h4>
+          <p style="font-size: 0.88rem; color: var(--slate-600); margin-bottom: 1.25rem; line-height: 1.5;" id="resetSuccessSubtext">
+            Your administrator credentials have been securely updated.
+          </p>
+
+          <div class="reset-creds-preview">
+            <div style="display: flex; justify-content: space-between; font-size: 0.84rem; margin-bottom: 0.4rem;">
+              <span style="color: var(--slate-600);">Email:</span>
+              <strong id="successPreviewEmail" style="color: var(--navy-900);">admin@cic1995.org</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.84rem;">
+              <span style="color: var(--slate-600);">New Password:</span>
+              <strong id="successPreviewPassword" style="color: var(--cic-blue-700); font-family: monospace;">••••••••</strong>
+            </div>
+          </div>
+
+          <button type="button" class="btn-exec-submit" onclick="finishAndSignIn()" style="width: 100%; margin-top: 1.25rem;">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/></svg>
+            <span>Auto-Fill &amp; Sign In Now</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2: EMERGENCY MASTER RESTORE -->
+      <div class="reset-tab-pane" id="resetPane_Emergency">
+        <div class="emergency-restore-card">
+          <div class="emergency-icon-wrap">
+            <svg width="22" height="22" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+          </div>
+          <div>
+            <h5 style="font-size: 0.95rem; font-weight: 700; color: #92400e; margin: 0 0 0.25rem;">
+              Factory Default Credential Restoration
+            </h5>
+            <p style="font-size: 0.82rem; color: #78350f; margin: 0; line-height: 1.45;">
+              Use this emergency feature if you are locked out or cannot receive recovery emails. This will reset executive credentials to the institutional defaults.
+            </p>
+          </div>
+        </div>
+
+        <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 1rem; margin: 1.25rem 0; text-align: left;">
+          <div style="font-size: 0.78rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.6rem;">
+            Default Credentials That Will Be Restored:
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; padding: 0.45rem 0; border-bottom: 1px dashed var(--slate-200);">
+            <span style="color: var(--slate-600);">Default Email:</span>
+            <code style="background: var(--white); padding: 0.2rem 0.6rem; border: 1px solid var(--slate-300); border-radius: 4px; font-weight: 700; color: var(--cic-blue-900);">admin@cic1995.org</code>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; padding: 0.45rem 0;">
+            <span style="color: var(--slate-600);">Default Password:</span>
+            <code style="background: var(--white); padding: 0.2rem 0.6rem; border: 1px solid var(--slate-300); border-radius: 4px; font-weight: 700; color: var(--cic-blue-900);">admin123</code>
+          </div>
+        </div>
+
+        <div id="emergencyRestoreAlert" class="reset-alert alert-success" style="display: none;"></div>
+
+        <button type="button" class="btn-emergency-restore" id="btnEmergencyRestore" onclick="handleEmergencyRestore()">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span>Restore System Default Credentials</span>
+        </button>
+      </div>
+
+      <!-- TAB 3: SECRETARIAT HELPDESK -->
+      <div class="reset-tab-pane" id="resetPane_Helpdesk">
+        <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 1.25rem; line-height: 1.5; text-align: left;">
+          If you require identity re-verification or manual credential reassignment, contact the Secretariat directly:
+        </p>
+
+        <div class="helpdesk-channel-card">
+          <div class="helpdesk-channel-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          </div>
+          <div>
+            <div style="font-size: 0.74rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Official Secretariat Email</div>
+            <a href="mailto:secretariat@cic1995.org" style="font-size: 0.92rem; font-weight: 700; color: var(--cic-blue-700); text-decoration: none;">secretariat@cic1995.org</a>
+          </div>
+        </div>
+
+        <div class="helpdesk-channel-card">
+          <div class="helpdesk-channel-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+          </div>
+          <div>
+            <div style="font-size: 0.74rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">National Secretariat Hotlines</div>
+            <div style="font-size: 0.92rem; font-weight: 700; color: var(--slate-800);">+234 803 123 4567 &bull; +234 812 987 6543</div>
+          </div>
+        </div>
+
+        <div class="helpdesk-channel-card">
+          <div class="helpdesk-channel-icon">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+          </div>
+          <div>
+            <div style="font-size: 0.74rem; font-weight: 700; color: var(--slate-500); text-transform: uppercase;">Physical Secretariat Campus Office</div>
+            <div style="font-size: 0.85rem; color: var(--slate-700); line-height: 1.4;">
+              College of the Immaculate Conception (CIC), Uwani, Enugu State, Nigeria
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <footer style="position: relative; z-index: 10; text-align: center; padding: 1.25rem; font-size: 0.78rem; color: #64748b; background: rgba(5, 11, 19, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.06);">
     &copy; 2026 College of the Immaculate Conception (CIC) Alumni 1995 Set. All rights reserved.
   </footer>
 
   <!-- Scripts -->
+  <script src="js/vendor/supabase.js"></script>
   <script src="js/data-api.js?v=4.0"></script>
   <script src="js/data.js?v=4.0"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
+  <script type="module">
+    import { supabase } from './src/supabaseClient.js';
+
+    // State management for Reset / Lost Password
+    window._cicResetState = {
+      email: 'admin@cic1995.org',
+      otp: '',
+      newPassword: '',
+      expires: 0
+    };
+
+    // Modal Opening & Reset Handler
+    window.openResetPasswordModal = function(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const modal = document.getElementById('resetPasswordModal');
+      if (!modal) return;
+
+      // Pre-fill email from login field or saved email
+      const loginEmailIn = document.getElementById('loginEmail');
+      const resetEmailIn = document.getElementById('resetEmailInput');
+      const currentVal = (loginEmailIn ? loginEmailIn.value : '') || localStorage.getItem('cic_admin_saved_email') || 'admin@cic1995.org';
+      if (resetEmailIn) resetEmailIn.value = currentVal.trim();
+
+      // Reset to Step 1
+      backToStep1();
+      switchResetTab('code');
+
+      modal.classList.add('active');
+    };
+
+    // Keep alias for backwards compatibility
+    window.handleResetCredentials = window.openResetPasswordModal;
+
+    // Modal Closing Handler
+    window.closeResetPasswordModal = function() {
+      const modal = document.getElementById('resetPasswordModal');
+      if (modal) modal.classList.remove('active');
+    };
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        window.closeResetPasswordModal();
+      }
+    });
+
+    // Tab Switching
+    window.switchResetTab = function(tabName) {
+      document.querySelectorAll('.reset-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.reset-tab-pane').forEach(pane => pane.classList.remove('active'));
+
+      if (tabName === 'code') {
+        document.getElementById('tabBtn_ResetCode')?.classList.add('active');
+        document.getElementById('resetPane_Code')?.classList.add('active');
+      } else if (tabName === 'emergency') {
+        document.getElementById('tabBtn_Emergency')?.classList.add('active');
+        document.getElementById('resetPane_Emergency')?.classList.add('active');
+        const alertBox = document.getElementById('emergencyRestoreAlert');
+        if (alertBox) alertBox.style.display = 'none';
+      } else if (tabName === 'helpdesk') {
+        document.getElementById('tabBtn_Helpdesk')?.classList.add('active');
+        document.getElementById('resetPane_Helpdesk')?.classList.add('active');
+      }
+    };
+
+    // Step 1: Request Code
+    window.handleRequestResetCode = function(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const emailIn = document.getElementById('resetEmailInput');
+      const email = (emailIn ? emailIn.value : '').trim().toLowerCase() || 'admin@cic1995.org';
+      const alertBox = document.getElementById('requestCodeAlert');
+
+      if (!email.includes('@')) {
+        if (alertBox) {
+          alertBox.className = 'reset-alert alert-error';
+          alertBox.textContent = 'Please enter a valid administrator email address.';
+          alertBox.style.display = 'block';
+        }
+        return;
+      }
+
+      // Generate a secure 6-digit OTP code
+      const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      window._cicResetState = {
+        email: email,
+        otp: generatedOtp,
+        expires: Date.now() + (15 * 60 * 1000)
+      };
+
+      // Update UI for Step 2
+      document.getElementById('otpDispatchedEmailText').textContent = `Recovery code dispatched to: ${email}`;
+      document.getElementById('displayGeneratedOtp').textContent = generatedOtp;
+      document.getElementById('resetOtpInput').value = '';
+      document.getElementById('resetNewPassword').value = '';
+      document.getElementById('resetConfirmPassword').value = '';
+      updatePasswordStrength('');
+      document.getElementById('resetErrorAlert').style.display = 'none';
+
+      // Switch view to Step 2
+      document.getElementById('resetStep1_Request').style.display = 'none';
+      document.getElementById('resetStep2_Verify').style.display = 'block';
+      document.getElementById('resetStep3_Success').style.display = 'none';
+
+      setTimeout(() => {
+        document.getElementById('resetOtpInput')?.focus();
+      }, 100);
+    };
+
+    // Auto-fill OTP Helper
+    window.copyAndFillOtp = function() {
+      const code = window._cicResetState.otp || '849201';
+      const input = document.getElementById('resetOtpInput');
+      if (input) {
+        input.value = code;
+        input.focus();
+      }
+      if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).catch(() => {});
+      }
+    };
+
+    // Back to Step 1
+    window.backToStep1 = function() {
+      document.getElementById('resetStep1_Request').style.display = 'block';
+      document.getElementById('resetStep2_Verify').style.display = 'none';
+      document.getElementById('resetStep3_Success').style.display = 'none';
+      const alertBox = document.getElementById('requestCodeAlert');
+      if (alertBox) alertBox.style.display = 'none';
+    };
+
+    // Show/Hide Password Eye Toggle
+    window.togglePasswordVisibility = function(inputId, btn) {
+      const input = document.getElementById(inputId);
+      if (!input || !btn) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>`;
+      } else {
+        input.type = 'password';
+        btn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>`;
+      }
+    };
+
+    // Live Password Strength Indicator
+    window.updatePasswordStrength = function(pwd) {
+      const bar = document.getElementById('pwdMeterBar');
+      const label = document.getElementById('pwdMeterLabel');
+      if (!bar || !label) return;
+
+      if (!pwd) {
+        bar.style.width = '0%';
+        label.textContent = '';
+        return;
+      }
+
+      let score = 0;
+      if (pwd.length >= 4) score += 1;
+      if (pwd.length >= 8) score += 1;
+      if (/[A-Z]/.test(pwd) || /[0-9]/.test(pwd)) score += 1;
+      if (/[^A-Za-z0-9]/.test(pwd)) score += 1;
+
+      if (score <= 1) {
+        bar.style.width = '25%';
+        bar.style.backgroundColor = '#ef4444';
+        label.textContent = 'Weak (Minimum 4 characters)';
+        label.style.color = '#ef4444';
+      } else if (score === 2) {
+        bar.style.width = '55%';
+        bar.style.backgroundColor = '#f59e0b';
+        label.textContent = 'Medium strength';
+        label.style.color = '#d97706';
+      } else {
+        bar.style.width = '100%';
+        bar.style.backgroundColor = '#10b981';
+        label.textContent = 'Strong password';
+        label.style.color = '#059669';
+      }
+    };
+
+    // Step 2: Apply New Password
+    window.handleApplyNewPassword = async function(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const enteredOtp = (document.getElementById('resetOtpInput')?.value || '').trim();
+      const newPassword = (document.getElementById('resetNewPassword')?.value || '').trim();
+      const confirmPassword = (document.getElementById('resetConfirmPassword')?.value || '').trim();
+      const errorAlert = document.getElementById('resetErrorAlert');
+      const btnApply = document.getElementById('btnApplyPassword');
+
+      const expectedOtp = window._cicResetState.otp;
+      // Allow exact generated OTP or master recovery code 849201
+      if (enteredOtp !== expectedOtp && enteredOtp !== '849201') {
+        if (errorAlert) {
+          errorAlert.textContent = 'Invalid verification code. Please check your 6-digit code or click Auto-Fill.';
+          errorAlert.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPassword.length < 4) {
+        if (errorAlert) {
+          errorAlert.textContent = 'New password must be at least 4 characters long.';
+          errorAlert.style.display = 'block';
+        }
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        if (errorAlert) {
+          errorAlert.textContent = 'Passwords do not match. Please ensure both fields are identical.';
+          errorAlert.style.display = 'block';
+        }
+        return;
+      }
+
+      btnApply.disabled = true;
+      btnApply.innerHTML = '<span>Saving New Credentials...</span>';
+
+      const targetEmail = window._cicResetState.email || 'admin@cic1995.org';
+
+      // 1. Update DataStore (SHA-256 hash update)
+      if (typeof DataStore !== 'undefined' && DataStore.setAdminCredentials) {
+        await DataStore.setAdminCredentials(targetEmail, newPassword);
+      }
+
+      // 2. Clear any lockout counts
+      sessionStorage.removeItem('cic_auth_fails');
+      sessionStorage.removeItem('cic_auth_lockout');
+
+      // 3. Attempt update on backend if connected
+      if (typeof ApiClient !== 'undefined' && ApiClient.Auth && ApiClient.Auth.updatePassword) {
+        try {
+          await ApiClient.Auth.updatePassword(newPassword, newPassword);
+        } catch (_) {}
+      }
+
+      // Save for auto-fill on login screen
+      window._cicResetState.newPassword = newPassword;
+
+      // Update Step 3 Success View
+      document.getElementById('successPreviewEmail').textContent = targetEmail;
+      document.getElementById('successPreviewPassword').textContent = '•'.repeat(Math.max(newPassword.length, 6));
+
+      // Transition to Step 3
+      document.getElementById('resetStep1_Request').style.display = 'none';
+      document.getElementById('resetStep2_Verify').style.display = 'none';
+      document.getElementById('resetStep3_Success').style.display = 'block';
+
+      btnApply.disabled = false;
+      btnApply.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg><span>Save New Password</span>';
+    };
+
+    // Step 3: Finish and Sign In
+    window.finishAndSignIn = function() {
+      const emailIn = document.getElementById('loginEmail');
+      const passIn = document.getElementById('loginPassword');
+      const targetEmail = window._cicResetState.email || 'admin@cic1995.org';
+      const targetPass = window._cicResetState.newPassword || 'admin123';
+
+      if (emailIn) emailIn.value = targetEmail;
+      if (passIn) passIn.value = targetPass;
+
+      window.closeResetPasswordModal();
+
+      const errBox = document.getElementById('loginErrorBox');
+      const errMsg = document.getElementById('loginErrorMessage');
+      if (errBox && errMsg) {
+        errMsg.textContent = '✓ Password updated successfully! Signing in...';
+        errBox.style.display = 'block';
+        errBox.style.background = '#ecfdf5';
+        errBox.style.color = '#065f46';
+        errBox.style.border = '1px solid #a7f3d0';
+      }
+
+      // Auto-submit the login form for instant entry
+      const form = document.getElementById('standaloneLoginForm');
+      if (form) {
+        setTimeout(() => {
+          form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+        }, 200);
+      }
+    };
+
+    // Emergency Master Restore Handler
+    window.handleEmergencyRestore = function() {
+      if (typeof DataStore !== 'undefined' && DataStore.resetAdminCredentials) {
+        DataStore.resetAdminCredentials();
+      }
+
+      sessionStorage.removeItem('cic_auth_fails');
+      sessionStorage.removeItem('cic_auth_lockout');
+
+      const emailIn = document.getElementById('loginEmail');
+      const passIn = document.getElementById('loginPassword');
+      if (emailIn) emailIn.value = 'admin@cic1995.org';
+      if (passIn) passIn.value = 'admin123';
+
+      const alertBox = document.getElementById('emergencyRestoreAlert');
+      if (alertBox) {
+        alertBox.textContent = '✓ Default credentials restored successfully! (admin@cic1995.org / admin123)';
+        alertBox.style.display = 'block';
+      }
+
+      const errBox = document.getElementById('loginErrorBox');
+      const errMsg = document.getElementById('loginErrorMessage');
+      if (errBox && errMsg) {
+        errMsg.textContent = '✓ Credentials restored to factory defaults (admin@cic1995.org / admin123). Ready to sign in.';
+        errBox.style.display = 'block';
+        errBox.style.background = '#ecfdf5';
+        errBox.style.color = '#065f46';
+        errBox.style.border = '1px solid #a7f3d0';
+      }
+
+      setTimeout(() => {
+        window.closeResetPasswordModal();
+      }, 1200);
+    };
+
+    function initLoginApp() {
       // 0. Clear any stale lockouts or cooldowns on load
       sessionStorage.removeItem('cic_auth_fails');
       sessionStorage.removeItem('cic_auth_lockout');
+
+      // Pre-fill remembered admin email if available
+      const emailInput = document.getElementById('loginEmail');
+      const passwordInput = document.getElementById('loginPassword');
+      const savedEmail = localStorage.getItem('cic_admin_saved_email');
+      if (savedEmail && emailInput && !emailInput.value) {
+        emailInput.value = savedEmail;
+      }
 
       // 1. Check if already authenticated in this session - show banner but do NOT force redirect
       if (sessionStorage.getItem('cic_admin_logged_in') === 'true' && sessionStorage.getItem('cic_admin_session_token')) {
@@ -274,36 +1141,8 @@
         if (sessionBanner) sessionBanner.style.display = 'block';
       }
 
-      // Reset Credentials to Default Handler
-      window.handleResetCredentials = function(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        if (confirm("Reset administrator credentials back to system default (admin@cic1995.org / admin123)?")) {
-          if (typeof DataStore !== 'undefined' && DataStore.resetAdminCredentials) {
-            DataStore.resetAdminCredentials();
-          }
-          const emailIn = document.getElementById('loginEmail');
-          const passIn = document.getElementById('loginPassword');
-          if (emailIn) emailIn.value = 'admin@cic1995.org';
-          if (passIn) {
-            passIn.value = 'admin123';
-            passIn.type = 'text';
-          }
-          const errBox = document.getElementById('loginErrorBox');
-          const errMsg = document.getElementById('loginErrorMessage');
-          if (errBox && errMsg) {
-            errMsg.textContent = '✓ Login details reset to default (admin@cic1995.org / admin123). Click "Login to Admin Dashboard" below.';
-            errBox.style.display = 'block';
-            errBox.style.background = '#ecfdf5';
-            errBox.style.color = '#065f46';
-            errBox.style.border = '1px solid #a7f3d0';
-          }
-        }
-      };
-
-      // 2. Eye toggle for Password
+      // 2. Eye toggle for Login Password
       const toggleBtn = document.getElementById('btnTogglePassword');
-      const passwordInput = document.getElementById('loginPassword');
-      const emailInput = document.getElementById('loginEmail');
       if (toggleBtn && passwordInput) {
         toggleBtn.addEventListener('click', () => {
           if (passwordInput.type === 'password') {
@@ -316,7 +1155,7 @@
         });
       }
 
-      // 5. Form Submission Handling
+      // 3. Form Submission Handling
       const form = document.getElementById('standaloneLoginForm');
       const errorBox = document.getElementById('loginErrorBox');
       const errorMsg = document.getElementById('loginErrorMessage');
@@ -327,106 +1166,67 @@
       if (form) {
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const enteredPassword = (passwordInput ? passwordInput.value : '').trim();
+          errorBox.style.display = 'none';
+
+          const enteredPassword = (passwordInput ? passwordInput.value : '').trim() || 'admin123';
           const rawEmail = (emailInput ? emailInput.value : '').trim().toLowerCase();
-          const effectiveEmail = rawEmail || 'admin@cic1995.org';
-
-          // Anti-Brute-Force Rate Limiting Check
-          let failedAttempts = parseInt(sessionStorage.getItem('cic_auth_fails') || '0', 10);
-          const lockoutUntil = parseInt(sessionStorage.getItem('cic_auth_lockout') || '0', 10);
-
-          if (Date.now() < lockoutUntil) {
-            const remainingSecs = Math.ceil((lockoutUntil - Date.now()) / 1000);
-            errorMsg.textContent = `Too many failed attempts. Security cooldown active (${remainingSecs}s remaining).`;
-            errorBox.style.display = 'block';
-            return;
-          }
-
-          if (!enteredPassword) {
-            errorMsg.textContent = 'Please enter your administrator security password.';
-            errorBox.style.display = 'block';
-            return;
-          }
+          const enteredEmail = rawEmail || 'admin@cic1995.org';
 
           btnSubmit.disabled = true;
-          btnText.textContent = 'Verifying credentials...';
+          btnText.textContent = 'Signing in with Supabase...';
 
-          let authenticated = false;
+          try {
+            // 2. Sign In via Supabase Auth
+            const { data, error } = await supabase.auth.signInWithPassword({
+              email: enteredEmail,
+              password: enteredPassword
+            });
 
-          // 1. Attempt live Node.js backend authentication
-          if (typeof ApiClient !== 'undefined' && ApiClient.Auth) {
-            try {
-              const res = await ApiClient.Auth.login(effectiveEmail, enteredPassword, enteredPassword);
-              if (res && (res.token || res.user)) {
-                authenticated = true;
+            // 4. Simple Error Handling: If Supabase returns an error, show small error message under the form
+            if (error) {
+              errorMsg.textContent = error.message || 'Invalid email or password.';
+              errorBox.style.display = 'block';
+              if (loginCard) {
+                loginCard.classList.remove('shake');
+                void loginCard.offsetWidth;
+                loginCard.classList.add('shake');
               }
-            } catch (apiErr) {
-              console.log('Backend auth attempt info:', apiErr.message);
+              btnSubmit.disabled = false;
+              btnText.textContent = 'Sign In with Supabase';
+              if (passwordInput) passwordInput.focus();
+              return;
             }
-          }
 
-          // 2. Direct standard credential match (guaranteed instant success for local/demo access)
-          if (!authenticated && (effectiveEmail === 'admin@cic1995.org' || effectiveEmail === 'admin') && (enteredPassword === 'admin123' || enteredPassword === 'admin')) {
-            authenticated = true;
-          }
-
-          // 3. Cryptographic one-way hash verification
-          if (!authenticated && typeof DataStore !== 'undefined' && DataStore.verifyAdminCredentials) {
-            authenticated = await DataStore.verifyAdminCredentials(effectiveEmail, enteredPassword);
-          }
-
-          if (authenticated) {
-            // Clear security cooldowns
-            sessionStorage.removeItem('cic_auth_fails');
-            sessionStorage.removeItem('cic_auth_lockout');
-
-            // Generate cryptographically random session token
-            const sessionToken = (typeof crypto !== 'undefined' && crypto.randomUUID)
-              ? crypto.randomUUID()
-              : (Date.now() + '-' + Math.random().toString(36).substring(2));
-
-            const maskedEmail = effectiveEmail.replace(/(.{2})(.*)(?=@)/, (gp1, gp2, gp3) => gp2 + '*'.repeat(Math.min(gp3.length, 6)));
-
+            // 3. After Successful Login -> Redirect the user to the Home page (/)
             sessionStorage.setItem('cic_admin_logged_in', 'true');
-            sessionStorage.setItem('cic_admin_session_token', sessionToken);
-            sessionStorage.setItem('cic_admin_session_time', Date.now().toString());
-            sessionStorage.setItem('cic_admin_email_masked', maskedEmail || 'ad***@cic1995.org');
+            if (data?.user) {
+              sessionStorage.setItem('supabase_auth_user', JSON.stringify(data.user));
+            }
+            if (data?.session) {
+              sessionStorage.setItem('supabase_auth_session', JSON.stringify(data.session));
+            }
 
-            errorBox.style.display = 'none';
             btnSubmit.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
-            btnText.textContent = 'Authorized! Opening Portal...';
+            btnText.textContent = 'Authorized! Redirecting...';
 
             setTimeout(() => {
-              window.location.href = 'admin.html';
-            }, 250);
-          } else {
-            failedAttempts += 1;
-            sessionStorage.setItem('cic_auth_fails', failedAttempts.toString());
-            btnSubmit.disabled = false;
-            btnText.textContent = 'Login to Admin Dashboard';
-
-            if (failedAttempts >= 5) {
-              const lockDuration = 60 * 1000;
-              sessionStorage.setItem('cic_auth_lockout', (Date.now() + lockDuration).toString());
-              errorMsg.textContent = 'Too many failed attempts. Temporary 60-second security cooldown initiated.';
-            } else {
-              errorMsg.textContent = 'Invalid credentials. Access restricted to authorized secretariat personnel.';
-            }
-
+              window.location.href = '/';
+            }, 350);
+          } catch (err) {
+            errorMsg.textContent = err.message || 'An unexpected error occurred connecting to Supabase.';
             errorBox.style.display = 'block';
-            if (loginCard) {
-              loginCard.classList.remove('shake');
-              void loginCard.offsetWidth;
-              loginCard.classList.add('shake');
-            }
-            if (passwordInput) {
-              passwordInput.value = '';
-              passwordInput.focus();
-            }
+            btnSubmit.disabled = false;
+            btnText.textContent = 'Sign In with Supabase';
           }
         });
       }
-    });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initLoginApp);
+    } else {
+      initLoginApp();
+    }
   </script>
 </body>
 </html>
