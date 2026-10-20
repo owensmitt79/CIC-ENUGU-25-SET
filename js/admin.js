@@ -5077,11 +5077,11 @@ window.resetEntireSystem = function() {
 };
 
 /* ==========================================================
-   Backend API Status Monitor & LocalStore Sync
-   Connects Admin Suite to Live Render Backend
+   Backend API Status Monitor & Supabase Cloud Sync
+   Connects Admin Suite to Live Supabase Cloud Database
    ========================================================== */
 (function initBackendStatusMonitor() {
-  function updateBackendBadge(isOnline, url) {
+  function updateBackendBadge(isOnline, serviceName) {
     const dot = document.getElementById('backendStatusDot');
     const text = document.getElementById('backendStatusText');
     const indicator = document.getElementById('backendStatusIndicator');
@@ -5090,10 +5090,11 @@ window.resetEntireSystem = function() {
     if (isOnline) {
       dot.style.background = '#10b981';
       dot.style.boxShadow = '0 0 8px #10b981';
-      text.textContent = 'Backend: Online (Render)';
+      text.textContent = 'Backend: Online (' + (serviceName || 'Supabase') + ')';
       indicator.style.borderColor = 'rgba(16, 185, 129, 0.35)';
       indicator.style.background = 'rgba(16, 185, 129, 0.15)';
       indicator.style.color = '#6ee7b7';
+      indicator.title = 'Supabase Cloud Database & Auth are Online';
     } else {
       dot.style.background = '#f59e0b';
       dot.style.boxShadow = '0 0 6px #f59e0b';
@@ -5104,22 +5105,53 @@ window.resetEntireSystem = function() {
     }
   }
 
+  async function checkBackendStatus() {
+    // 1. Check live Supabase Cloud connection
+    const supabaseUrl = 'https://kyyoahufvlahubrkxgyo.supabase.co';
+    const supabaseKey = 'sb_publishable_qAVO4TSs5DGJJnNMI_cn1A_TZ35Qb_J';
+
+    try {
+      const res = await fetch(`${supabaseUrl}/rest/v1/payment_categories?select=id&limit=1`, {
+        method: 'GET',
+        headers: {
+          'apikey': supabaseKey,
+          'Authorization': `Bearer ${supabaseKey}`
+        }
+      });
+      if (res.ok) {
+        updateBackendBadge(true, 'Supabase');
+        return;
+      }
+    } catch (_) {}
+
+    // 2. Check ApiClient (Render / Express) if connected
+    if (window.ApiClient && typeof window.ApiClient.ping === 'function') {
+      try {
+        const isUp = await window.ApiClient.ping();
+        if (isUp) {
+          updateBackendBadge(true, 'Render');
+          return;
+        }
+      } catch (_) {}
+    }
+
+    updateBackendBadge(false);
+  }
+
   if (typeof window !== 'undefined') {
     window.addEventListener('apiclient:status', function (e) {
-      if (e && e.detail) {
-        updateBackendBadge(e.detail.isOnline, e.detail.backendUrl);
+      if (e && e.detail && e.detail.isOnline) {
+        updateBackendBadge(true, 'Render');
       }
     });
 
-    if (window.ApiClient) {
-      if (window.ApiClient.isOnline) {
-        updateBackendBadge(true, window.ApiClient.backendUrl);
-      } else {
-        window.ApiClient.ping().then(function (isUp) {
-          updateBackendBadge(isUp, window.ApiClient.backendUrl);
-        });
-      }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', checkBackendStatus);
+    } else {
+      checkBackendStatus();
     }
+
+    setInterval(checkBackendStatus, 30000);
   }
 })();
 
