@@ -3634,9 +3634,12 @@ function initAdminGalleryStudio() {
         dropzone.classList.remove('dragover');
       }, false);
     });
+  }
 
   // Sync with live Supabase gallery table
   syncGalleryWithSupabase();
+}
+
 function getSupabaseClientInstance() {
   if (typeof window !== 'undefined' && window.supabaseClient && typeof window.supabaseClient.from === 'function') {
     return window.supabaseClient;
