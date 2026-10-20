@@ -754,6 +754,8 @@
   </footer>
 
   <!-- Scripts -->
+  <script src="js/vendor/supabase.js"></script>
+  <script src="js/supabase-client.js?v=4.0"></script>
   <script src="js/data.js?v=4.0"></script>
   <script src="js/data-api.js?v=4.0"></script>
   <script src="js/app.js?v=4.0"></script>
@@ -790,20 +792,53 @@
       async function loadLedgerData() {
         let loaded = [];
 
-        // 1. Attempt live fetch from Backend public-ledger endpoint
-        if (window.ApiClient && typeof window.ApiClient.Payments?.getPublicLedger === 'function') {
+        // 1. Attempt live fetch from Supabase payments table
+        const sb = (typeof window.getSupabaseClient === 'function') ? window.getSupabaseClient() : window.supabaseClient;
+        if (sb && typeof sb.from === 'function') {
           try {
-            const res = await window.ApiClient.Payments.getPublicLedger();
-            if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
-              loaded = res.data;
-              console.log(`[Ledger] Loaded ${loaded.length} records from live backend.`);
+            const { data, error } = await sb
+              .from('payments')
+              .select('*')
+              .order('paid_at', { ascending: false });
+
+            if (!error && Array.isArray(data)) {
+              loaded = data.map(row => ({
+                reference: row.reference,
+                receiptNumber: row.receipt_number || row.reference,
+                name: row.payer_name,
+                email: row.payer_email,
+                phone: row.payer_phone,
+                classYear: row.payer_class_year || 'Class of 1995',
+                paymentType: row.payment_type,
+                selectedMonths: row.selected_months || [],
+                amount: Number(row.amount || 0),
+                gateway: row.gateway || 'Paystack',
+                channel: row.channel || 'Debit Card',
+                status: row.status || 'Successful',
+                date: row.paid_at ? new Date(row.paid_at).toISOString().replace('T', ' ').slice(0, 19) : (row.created_at || ''),
+                timestamp: row.paid_at ? new Date(row.paid_at).getTime() : Date.now(),
+                itemDescription: row.item_description || ''
+              }));
+
+              if (loaded.length > 0) {
+                console.log(`[Ledger] Loaded ${loaded.length} verified records from Supabase cloud database.`);
+              } else {
+                console.log('[Ledger] Supabase payments table is reset (0 records).');
+              }
+
+              // Synchronize local DataStore cache with source of truth
+              if (window.DataStore && typeof window.DataStore.savePayments === 'function') {
+                window.DataStore.savePayments(loaded);
+              }
+            } else if (error) {
+              console.warn('[Ledger] Supabase cloud query notice:', error.message);
             }
           } catch (err) {
-            console.warn('[Ledger] Backend endpoint unreachable, checking local DataStore:', err.message);
+            console.warn('[Ledger] Supabase cloud query warning:', err.message);
           }
         }
 
-        // 2. Fallback to LocalStorage DataStore
+        // 2. Fallback to LocalStorage DataStore if Supabase was unreachable
         if (loaded.length === 0 && window.DataStore && typeof window.DataStore.getPayments === 'function') {
           const local = window.DataStore.getPayments();
           if (Array.isArray(local) && local.length > 0) {
@@ -812,24 +847,32 @@
           }
         }
 
-        // 3. Fallback demo set if store is completely empty
-        if (loaded.length === 0) {
-          loaded = [
-            { reference: 'HAA-2026-97395', receiptNumber: 'REC-2026-2640', name: 'Chief Uche Nnamani', paymentType: 'Monthly Dues', amount: 15000, channel: 'Debit Card', date: '2026-10-18 14:13:46', status: 'Successful' },
-            { reference: 'HAA-2026-92810', receiptNumber: 'REC-2026-2580', name: 'Engr. Emeka Okafor', paymentType: 'Capital Development Levy', amount: 50000, channel: 'Bank Transfer', date: '2026-10-18 11:32:15', status: 'Successful' },
-            { reference: 'HAA-2026-89104', receiptNumber: 'REC-2026-2410', name: 'Dr. Obinna Ekwueme', paymentType: 'Project Contribution', amount: 35000, channel: 'Debit Card', date: '2026-10-17 16:45:00', status: 'Successful' },
-            { reference: 'HAA-2026-84192', receiptNumber: 'REC-2026-2390', name: 'Barr. Chidi Okoli', paymentType: 'Annual Dues', amount: 25000, channel: 'Debit Card', date: '2026-10-16 09:12:44', status: 'Successful' },
-            { reference: 'HAA-2026-78129', receiptNumber: 'REC-2026-2240', name: 'Kenechukwu Ani', paymentType: 'Monthly Dues', amount: 5000, channel: 'USSD', date: '2026-10-15 13:20:10', status: 'Successful' },
-            { reference: 'HAA-2026-71048', receiptNumber: 'REC-2026-2180', name: 'Tochukwu Nwankwo', paymentType: 'Welfare Contribution', amount: 20000, channel: 'Debit Card', date: '2026-10-14 10:05:30', status: 'Successful' },
-            { reference: 'HAA-2026-67902', receiptNumber: 'REC-2026-2090', name: 'Engr. Nnamdi Eze', paymentType: 'Capital Development Levy', amount: 50000, channel: 'Debit Card', date: '2026-10-13 18:40:22', status: 'Successful' },
-            { reference: 'HAA-2026-61405', receiptNumber: 'REC-2026-1980', name: 'Chukwudi Mba', paymentType: 'Monthly Dues', amount: 10000, channel: 'Debit Card', date: '2026-10-12 14:15:09', status: 'Successful' },
-            { reference: 'HAA-2026-58291', receiptNumber: 'REC-2026-1890', name: 'Ifeanyi Okonkwo', paymentType: 'Annual Dues', amount: 25000, channel: 'Debit Card', date: '2026-10-11 12:00:00', status: 'Successful' },
-            { reference: 'HAA-2026-52109', receiptNumber: 'REC-2026-1740', name: 'Somtochukwu Ugwu', paymentType: 'Project Contribution', amount: 25000, channel: 'Bank Transfer', date: '2026-10-10 17:30:19', status: 'Successful' },
-            { reference: 'HAA-2026-48902', receiptNumber: 'REC-2026-1620', name: 'Okey Agbo', paymentType: 'Monthly Dues', amount: 5000, channel: 'Debit Card', date: '2026-10-09 11:22:45', status: 'Successful' },
-            { reference: 'HAA-2026-41289', receiptNumber: 'REC-2026-1500', name: 'Chinonso Nze', paymentType: 'Welfare Contribution', amount: 15000, channel: 'Debit Card', date: '2026-10-08 15:40:11', status: 'Successful' },
-            { reference: 'HAA-2026-38472', receiptNumber: 'REC-2026-1410', name: 'Prof. Chinedu Iloputaife', paymentType: 'Capital Development Levy', amount: 50000, channel: 'Debit Card', date: '2026-10-07 09:18:32', status: 'Successful' },
-            { reference: 'HAA-2026-31904', receiptNumber: 'REC-2026-1300', name: 'Jideofor Chukwu', paymentType: 'Monthly Dues', amount: 5000, channel: 'USSD', date: '2026-10-06 16:50:00', status: 'Successful' }
-          ];
+        // 3. Fallback to Backend public-ledger endpoint if available
+        if (loaded.length === 0 && window.ApiClient && typeof window.ApiClient.Payments?.getPublicLedger === 'function') {
+          try {
+            const res = await window.ApiClient.Payments.getPublicLedger();
+            if (res && res.success && Array.isArray(res.data) && res.data.length > 0) {
+              loaded = res.data;
+              console.log(`[Ledger] Loaded ${loaded.length} records from live backend.`);
+            }
+          } catch (err) {
+            console.warn('[Ledger] Backend endpoint unreachable:', err.message);
+          }
+        }
+
+        // Setup Realtime Live Streaming for Payments
+        if (sb && typeof sb.channel === 'function' && !window._ledgerRealtimeSubscribed) {
+          window._ledgerRealtimeSubscribed = true;
+          try {
+            sb.channel('public:payments:ledger')
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, payload => {
+                console.log('[Ledger] Realtime payment update received:', payload);
+                loadLedgerData();
+              })
+              .subscribe();
+          } catch (rtErr) {
+            console.warn('[Ledger] Realtime subscribe error:', rtErr);
+          }
         }
 
         allPayments = loaded;
@@ -909,7 +952,36 @@
 
         if (items.length === 0) {
           tbody.innerHTML = '';
-          if (emptyState) emptyState.style.display = 'block';
+          if (emptyState) {
+            emptyState.style.display = 'block';
+            if (allPayments.length === 0) {
+              emptyState.innerHTML = `
+                <div class="ledger-empty-icon" style="background: rgba(43, 87, 151, 0.08); color: var(--cic-blue-600);">
+                  <svg width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                </div>
+                <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.25rem; margin-bottom: 0.45rem;">Contributions Ledger Reset &bull; Ready to Record</h4>
+                <p style="color: var(--slate-600); font-size: 0.92rem; max-width: 460px; margin: 0 auto 1.35rem; line-height: 1.55;">
+                  The Contributions Ledger has been reset to ₦0. All incoming alumni remittances, dues, and project contributions paid to the system will automatically appear here in real time.
+                </p>
+                <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+                  <a href="payment.html" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700;">
+                    Make a Payment Now &rarr;
+                  </a>
+                </div>
+              `;
+            } else {
+              emptyState.innerHTML = `
+                <div class="ledger-empty-icon">
+                  <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h4 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.15rem; margin-bottom: 0.35rem;">No matching remittance records</h4>
+                <p style="color: var(--slate-500); font-size: 0.88rem; max-width: 420px; margin: 0 auto 1.25rem;">
+                  We couldn't find any contributions matching your active search or category filter.
+                </p>
+                <button type="button" class="btn btn-primary btn-sm" onclick="resetLedgerFilters()">Reset All Filters</button>
+              `;
+            }
+          }
           return;
         }
 

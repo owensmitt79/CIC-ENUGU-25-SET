@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mainDashboard.style.display = 'flex';
     try {
       loadAdminDashboardData();
+      syncAdminPaymentsFromCloud();
     } catch (err) {
       console.warn('Initial dashboard load warning:', err);
     }
@@ -1507,19 +1508,91 @@ window.clearAllCategories = function() {
 };
 
 /**
- * Reset Financial Reporting & Overview to ₦0
+ * Sync Admin Payments Ledger directly from Supabase Cloud Database
  */
-window.resetSystemFinancialData = function() {
-  const confirmMsg = 'Are you sure you want to reset Overview & Financial Reporting to ₦0?\n\n' +
+async function syncAdminPaymentsFromCloud() {
+  const sb = (typeof window.getSupabaseClient === 'function') ? window.getSupabaseClient() : window.supabaseClient;
+  if (!sb || typeof sb.from !== 'function') return;
+
+  try {
+    const { data, error } = await sb
+      .from('payments')
+      .select('*')
+      .order('paid_at', { ascending: false });
+
+    if (!error && Array.isArray(data)) {
+      const mapped = data.map(row => ({
+        reference: row.reference,
+        receiptNumber: row.receipt_number || row.reference,
+        name: row.payer_name,
+        email: row.payer_email,
+        phone: row.payer_phone,
+        classYear: row.payer_class_year || 'Class of 1995',
+        paymentType: row.payment_type,
+        selectedMonths: row.selected_months || [],
+        amount: Number(row.amount || 0),
+        gateway: row.gateway || 'Paystack',
+        channel: row.channel || 'Debit Card',
+        status: row.status || 'Successful',
+        date: row.paid_at ? new Date(row.paid_at).toISOString().replace('T', ' ').slice(0, 19) : (row.created_at || ''),
+        timestamp: row.paid_at ? new Date(row.paid_at).getTime() : Date.now(),
+        itemDescription: row.item_description || ''
+      }));
+
+      DataStore.savePayments(mapped);
+      loadAdminDashboardData();
+      if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
+      if (typeof renderAdminMonthlyDuesTable === 'function') renderAdminMonthlyDuesTable();
+    }
+  } catch (err) {
+    console.warn('[Admin] Cloud payment sync notice:', err.message);
+  }
+
+  // Subscribe to Realtime updates on payments table
+  if (sb && typeof sb.channel === 'function' && !window._adminPaymentsRealtimeSubscribed) {
+    window._adminPaymentsRealtimeSubscribed = true;
+    try {
+      sb.channel('admin:payments:realtime')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'payments' }, () => {
+          console.log('[Admin] Live payment change received from Supabase Realtime');
+          syncAdminPaymentsFromCloud();
+        })
+        .subscribe();
+    } catch (e) {}
+  }
+}
+
+/**
+ * Reset Financial Reporting & Overview to ₦0
+ * Clears both LocalStorage DataStore and Supabase payments table
+ */
+window.resetSystemFinancialData = async function() {
+  const confirmMsg = 'Are you sure you want to reset the Contributions Ledger and Financial Reporting to ₦0?\n\n' +
     '• All transaction receipts, ledger entries, and revenue counters will reset to 0\n' +
     '• Overview KPI statistics will be reset to ₦0\n' +
-    '• Admin security credentials and configurations will remain intact\n\n' +
-    'Click OK to confirm resetting reporting to ₦0.';
+    '• Supabase cloud payments ledger will be cleared\n' +
+    '• Admin security credentials and dues categories will remain intact\n\n' +
+    'Click OK to confirm resetting the Contributions Ledger to ₦0.';
 
   if (confirm(confirmMsg)) {
-    DataStore.resetPayments();
-    localStorage.setItem('haa_payment_pulse', Date.now().toString());
-    localStorage.setItem('haa_sync_pulse', Date.now().toString());
+    if (typeof DataStore !== 'undefined') {
+      DataStore.resetPayments();
+    }
+
+    const sb = (typeof window.getSupabaseClient === 'function') ? window.getSupabaseClient() : window.supabaseClient;
+    if (sb && typeof sb.from === 'function') {
+      try {
+        await sb.from('payments').delete().neq('reference', '___NON_EXISTENT___');
+        console.log('[Admin] Supabase cloud payments table cleared.');
+      } catch (err) {
+        console.warn('[Admin] Note clearing Supabase cloud payments:', err.message);
+      }
+    }
+
+    try {
+      localStorage.setItem('haa_payment_pulse', Date.now().toString());
+      localStorage.setItem('haa_sync_pulse', Date.now().toString());
+    } catch (_) {}
 
     loadAdminDashboardData();
     if (typeof filterAndRenderPaymentsTable === 'function') filterAndRenderPaymentsTable();
@@ -1528,9 +1601,9 @@ window.resetSystemFinancialData = function() {
     if (typeof renderDuesCategoryChips === 'function') renderDuesCategoryChips();
 
     if (typeof showReceiptToast === 'function') {
-      showReceiptToast('✓ Overview & Financial Reporting successfully reset to ₦0!', 'success');
+      showReceiptToast('✓ Contributions Ledger & Reporting successfully reset to ₦0!', 'success');
     } else {
-      alert('✓ Overview & Financial Reporting successfully reset to ₦0!');
+      alert('✓ Contributions Ledger & Reporting successfully reset to ₦0!');
     }
   }
 };
@@ -5291,21 +5364,7 @@ window.clearAllAdminMembers = function() {
   }
 };
 
-window.resetSystemFinancialData = function() {
-  if (confirm('Are you sure you want to reset Overview reporting metrics and clear all transactions to ₦0?')) {
-    if (typeof DataStore !== 'undefined') {
-      DataStore.savePayments([]);
-    }
-    if (typeof loadAdminDashboardData === 'function') {
-      loadAdminDashboardData();
-    }
-    if (typeof showReceiptToast === 'function') {
-      showReceiptToast('Overview reporting reset to ₦0', 'success');
-    } else {
-      alert('✓ Overview reporting metrics and ledger reset to ₦0.');
-    }
-  }
-};
+// resetSystemFinancialData is defined and handled above
 
 window.resetEntireSystem = function() {
   if (confirm('⚠️ WARNING: Full System Reset will:\n- Reset Overview and Collections to ₦0\n- Remove all Alumni Member Directory records\n- Remove all Executive Leadership profiles\n- Remove all Projects, News, and Gallery items\n- Restore default Dues & Payment Categories\n\nYour Admin credentials will remain intact.\n\nAre you sure you want to execute a Full System Reset?')) {

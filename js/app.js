@@ -1550,7 +1550,7 @@ window.resetPaymentForm = function() {
 /**
  * Handle Verification Lookup and Display Output
  */
-function handlePaymentVerification(ref) {
+async function handlePaymentVerification(ref) {
   const resultBox = document.getElementById('verifyResultBox');
   if (!resultBox) return;
 
@@ -1560,7 +1560,48 @@ function handlePaymentVerification(ref) {
     return;
   }
 
-  const payment = DataStore.findPaymentByRef(ref);
+  const cleanRef = ref.trim().toUpperCase();
+  let payment = DataStore.findPaymentByRef(cleanRef);
+
+  // If not found in local cache, query Supabase cloud database
+  const sb = (typeof window.getSupabaseClient === 'function') ? window.getSupabaseClient() : window.supabaseClient;
+  if (!payment && sb && typeof sb.from === 'function') {
+    try {
+      resultBox.innerHTML = `<div style="color: var(--slate-600); padding: 1rem; text-align: center;">Searching global verification registry...</div>`;
+      resultBox.classList.add('active');
+
+      const { data, error } = await sb
+        .from('payments')
+        .select('*')
+        .or(`reference.ilike.${cleanRef},receipt_number.ilike.${cleanRef}`)
+        .limit(1);
+
+      if (!error && Array.isArray(data) && data.length > 0) {
+        const row = data[0];
+        payment = {
+          reference: row.reference,
+          receiptNumber: row.receipt_number || row.reference,
+          name: row.payer_name,
+          email: row.payer_email,
+          phone: row.payer_phone,
+          classYear: row.payer_class_year || 'Class of 1995',
+          paymentType: row.payment_type,
+          selectedMonths: row.selected_months || [],
+          amount: Number(row.amount || 0),
+          gateway: row.gateway || 'Paystack',
+          channel: row.channel || 'Debit Card',
+          status: row.status || 'Successful',
+          date: row.paid_at ? new Date(row.paid_at).toISOString().replace('T', ' ').slice(0, 19) : (row.created_at || ''),
+          timestamp: row.paid_at ? new Date(row.paid_at).getTime() : Date.now(),
+          itemDescription: row.item_description || ''
+        };
+        // Add to local DataStore cache
+        DataStore.addPayment(payment);
+      }
+    } catch (e) {
+      console.warn('[Verify] Supabase fallback check error:', e);
+    }
+  }
 
   if (!payment) {
     resultBox.innerHTML = `

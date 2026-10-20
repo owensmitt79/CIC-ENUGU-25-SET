@@ -294,10 +294,15 @@ const DataStore = {
     if (!storedPayments || !Array.isArray(storedPayments)) {
       localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify([]));
     } else {
-      const demoRefs = ['HAA-2026-89104', 'HAA-2026-77312', 'HAA-2026-65481', 'HAA-2026-54129', 'HAA-2026-43901', 'HAA-2026-32098'];
-      const isPureDemo = storedPayments.length > 0 && storedPayments.every(p => demoRefs.includes(p.reference));
-      if (isPureDemo) {
-        localStorage.setItem(STORAGE_KEYS.PAYMENTS, JSON.stringify([]));
+      const demoRefs = [
+        'HAA-2026-89104', 'HAA-2026-77312', 'HAA-2026-65481', 'HAA-2026-54129', 'HAA-2026-43901', 'HAA-2026-32098',
+        'HAA-2026-97395', 'HAA-2026-92810', 'HAA-2026-84192', 'HAA-2026-78129', 'HAA-2026-71048', 'HAA-2026-67902',
+        'HAA-2026-61405', 'HAA-2026-58291', 'HAA-2026-52109', 'HAA-2026-48902', 'HAA-2026-41289', 'HAA-2026-38472',
+        'HAA-2026-31904'
+      ];
+      const cleanedPayments = storedPayments.filter(p => p && p.reference && !demoRefs.includes(p.reference));
+      if (cleanedPayments.length !== storedPayments.length) {
+        this.savePayments(cleanedPayments);
       }
     }
     // Purge any legacy unhashed credentials from browser storage
@@ -437,6 +442,40 @@ const DataStore = {
     const payments = this.getPayments();
     payments.unshift(payment);
     this.set(STORAGE_KEYS.PAYMENTS, payments);
+
+    // Synchronize directly with Supabase payments table for global audit ledger
+    if (typeof window !== 'undefined' && window.supabaseClient && typeof window.supabaseClient.from === 'function') {
+      try {
+        const payload = {
+          reference: payment.reference,
+          receipt_number: payment.receiptNumber || payment.reference,
+          payer_name: payment.name || payment.payer_name || 'Alumnus Member',
+          payer_email: payment.email || payment.payer_email || '',
+          payer_phone: payment.phone || payment.payer_phone || '',
+          payer_class_year: payment.classYear || payment.payer_class_year || 'Class of 1995',
+          payment_type: payment.paymentType || payment.payment_type || 'General Contribution',
+          selected_months: Array.isArray(payment.selectedMonths) ? payment.selectedMonths : [],
+          amount: Number(payment.amount || 0),
+          gateway: payment.gateway || 'Paystack',
+          channel: payment.channel || 'Debit Card',
+          status: payment.status || 'Successful',
+          item_description: payment.itemDescription || payment.item_description || '',
+          paid_at: payment.date ? new Date(payment.date.replace(' ', 'T')).toISOString() : new Date().toISOString()
+        };
+        window.supabaseClient.from('payments').insert([payload]).then(({ data, error }) => {
+          if (error) {
+            console.warn('[DataStore] Supabase payment insert note:', error.message);
+          } else {
+            console.log('[DataStore] Payment saved to Supabase payments table:', payload.reference);
+          }
+        }).catch(err => {
+          console.warn('[DataStore] Supabase payment sync error:', err.message);
+        });
+      } catch (sbErr) {
+        console.warn('[DataStore] Supabase payment sync dispatch error:', sbErr);
+      }
+    }
+
     if (typeof window !== 'undefined' && window.ApiClient && typeof window.ApiClient.Payments?.recordManual === 'function') {
       window.ApiClient.Payments.recordManual(payment).catch(err => {
         console.warn('Background backend payment sync warning:', err.message);
