@@ -6,6 +6,7 @@
     "supabase:login": "supabase login",
     "supabase:link": "supabase link --project-ref kyyoahufvlahubrkxgyo",
     "supabase:pull": "supabase gen types --linked --schema public > src/types/supabase.ts",
+    "supabase:status": "node scripts/supabase-status.js",
     "supabase:types": "supabase gen types --linked --schema public > src/types/supabase.ts"
   },
   "dependencies": {
