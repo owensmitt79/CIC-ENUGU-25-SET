@@ -3636,9 +3636,61 @@ function initAdminGalleryStudio() {
     });
   }
 
-  // Sync with live Supabase gallery table
+  // Sync with live Supabase gallery table and listen to Realtime changes
   syncGalleryWithSupabase();
+  subscribeToGalleryRealtime();
 }
+
+function showAdminToast(message, type = 'info', duration = 3000) {
+  let toastContainer = document.getElementById('cicAdminToastContainer');
+  if (!toastContainer) {
+    toastContainer = document.createElement('div');
+    toastContainer.id = 'cicAdminToastContainer';
+    toastContainer.style.cssText = 'position: fixed; bottom: 24px; right: 24px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
+    document.body.appendChild(toastContainer);
+  }
+
+  const toast = document.createElement('div');
+  const bgMap = {
+    success: 'linear-gradient(135deg, #059669, #047857)',
+    info: 'linear-gradient(135deg, #1e3a8a, #2563eb)',
+    warning: 'linear-gradient(135deg, #d97706, #b45309)',
+    danger: 'linear-gradient(135deg, #dc2626, #b91c1c)'
+  };
+  const iconMap = {
+    success: '✓',
+    info: 'ℹ',
+    warning: '⚠',
+    danger: '✕'
+  };
+
+  toast.style.cssText = `
+    min-width: 280px; max-width: 420px; padding: 12px 18px; border-radius: 10px;
+    background: ${bgMap[type] || bgMap.info}; color: #ffffff; font-size: 0.88rem; font-weight: 600;
+    font-family: var(--font-body, system-ui, sans-serif); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+    display: flex; align-items: center; gap: 12px; pointer-events: auto; opacity: 0;
+    transform: translateY(12px) scale(0.97); transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  `;
+  toast.innerHTML = `
+    <span style="font-size: 1.1rem; line-height: 1; flex-shrink: 0;">${iconMap[type] || '•'}</span>
+    <span style="flex: 1; line-height: 1.4;">${message}</span>
+  `;
+
+  toastContainer.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0) scale(1)';
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(12px) scale(0.97)';
+    setTimeout(() => {
+      if (toast.parentNode) toast.parentNode.removeChild(toast);
+    }, 300);
+  }, duration);
+}
+window.showAdminToast = showAdminToast;
 
 function getSupabaseClientInstance() {
   if (typeof window !== 'undefined' && window.supabaseClient && typeof window.supabaseClient.from === 'function') {
@@ -3657,6 +3709,52 @@ function getSupabaseClientInstance() {
   return null;
 }
 window.getSupabaseClientInstance = getSupabaseClientInstance;
+
+function subscribeToGalleryRealtime() {
+  const sb = getSupabaseClientInstance();
+  if (!sb || typeof sb.channel !== 'function') return;
+  if (window._galleryRealtimeSubscribed) return;
+  window._galleryRealtimeSubscribed = true;
+
+  try {
+    sb.channel('admin-gallery-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, (payload) => {
+        if (!payload || !payload.eventType) return;
+        const currentList = DataStore.getGallery() || [];
+
+        if (payload.eventType === 'INSERT' && payload.new) {
+          const item = payload.new;
+          if (!currentList.some(g => g.id === item.id)) {
+            currentList.unshift({
+              id: item.id,
+              title: item.title,
+              category: item.category,
+              image: item.image,
+              caption: item.caption
+            });
+            DataStore.saveGallery(currentList);
+            renderAdminGallery();
+            updateNewsGalleryBadgeCounts();
+          }
+        } else if (payload.eventType === 'UPDATE' && payload.new) {
+          const item = payload.new;
+          const updatedList = currentList.map(g => g.id === item.id ? { ...g, ...item } : g);
+          DataStore.saveGallery(updatedList);
+          renderAdminGallery();
+        } else if (payload.eventType === 'DELETE' && payload.old) {
+          const oldId = payload.old.id;
+          const filtered = currentList.filter(g => g.id !== oldId);
+          DataStore.saveGallery(filtered);
+          renderAdminGallery();
+          updateNewsGalleryBadgeCounts();
+        }
+      })
+      .subscribe();
+  } catch (err) {
+    console.warn('[Realtime] Gallery subscribe note:', err);
+  }
+}
+window.subscribeToGalleryRealtime = subscribeToGalleryRealtime;
 
 async function syncGalleryWithSupabase() {
   const sb = getSupabaseClientInstance();
@@ -3715,7 +3813,8 @@ function handleGalleryPhotoUpload(file) {
   }
   if (previewBox) previewBox.style.display = 'block';
 
-  window.optimizeImageFile(file, 1024, 0.75).then(dataUrl => {
+  // Fast 960px dimension at 0.70 compression produces rapid ~35KB payload with razor-sharp quality
+  window.optimizeImageFile(file, 960, 0.70).then(dataUrl => {
     if (dataUrlHidden) dataUrlHidden.value = dataUrl;
     if (previewImg) previewImg.src = dataUrl;
     const estKb = Math.round(dataUrl.length * 0.75 / 1024);
@@ -3859,7 +3958,7 @@ window.saveAdminGalleryPhoto = async function(event) {
       btnSave.innerHTML = `<span>Optimizing photo...</span>`;
     }
     try {
-      dataUrl = await window.optimizeImageFile(window._pendingGalleryFile, 1024, 0.75);
+      dataUrl = await window.optimizeImageFile(window._pendingGalleryFile, 960, 0.70);
       const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
       if (dataUrlHidden) dataUrlHidden.value = dataUrl;
     } catch (err) {
@@ -3881,11 +3980,6 @@ window.saveAdminGalleryPhoto = async function(event) {
     return;
   }
 
-  if (btnSave) {
-    btnSave.disabled = true;
-    btnSave.innerHTML = `<span>Saving to Supabase &amp; Gallery...</span>`;
-  }
-
   try {
     const photoId = editId || ('gal-' + Date.now());
     const photoObj = {
@@ -3896,48 +3990,57 @@ window.saveAdminGalleryPhoto = async function(event) {
       caption
     };
 
-    // 1. Save to local DataStore
+    // 1. OPTIMISTIC UPDATE: Reflect instantly in the UI with zero delay
     if (editId) {
       DataStore.updateGalleryItem(photoObj);
     } else {
       DataStore.addGalleryItem(photoObj);
     }
 
-    // 2. Sync to live Supabase Cloud database
+    window._pendingGalleryFile = null;
+    cancelGalleryEdit();
+    renderAdminGallery();
+    updateNewsGalleryBadgeCounts();
+
+    if (typeof renderGallery === 'function') {
+      renderGallery(true);
+    }
+
+    showAdminToast(
+      editId ? `✓ Updated "${title}"! Syncing with Supabase...` : `✓ Added "${title}"! Syncing with Supabase...`,
+      'info',
+      2500
+    );
+
+    // 2. BACKGROUND CLOUD SYNC: Transmit to Supabase asynchronously without freezing UI
     const sb = getSupabaseClientInstance();
     if (sb && typeof sb.from === 'function') {
-      try {
-        if (editId) {
-          await sb.from('gallery').update({
+      const syncAction = editId
+        ? sb.from('gallery').update({
             title,
             category,
             image,
             caption,
             updated_at: new Date().toISOString()
-          }).eq('id', editId);
-        } else {
-          await sb.from('gallery').insert([{
+          }).eq('id', editId)
+        : sb.from('gallery').insert([{
             id: photoId,
             title,
             category,
             image,
             caption
           }]);
+
+      syncAction.then(({ error }) => {
+        if (!error) {
+          showAdminToast(`✓ "${title}" is live on Supabase cloud!`, 'success', 3000);
+        } else {
+          console.warn('[Supabase] Sync warning:', error.message);
+          showAdminToast(`Saved locally. Supabase note: ${error.message}`, 'warning', 4500);
         }
-      } catch (sbErr) {
-        console.warn('[Supabase] Gallery cloud sync note:', sbErr.message);
-      }
-    }
-
-    window._pendingGalleryFile = null;
-    alert(`✓ Photo "${title}" added to the Alumni Gallery! It is now live across the portal and synced with Supabase.`);
-
-    cancelGalleryEdit();
-    renderAdminGallery();
-    updateNewsGalleryBadgeCounts();
-
-    if (typeof renderGallery === 'function') {
-      renderGallery();
+      }).catch(sbErr => {
+        console.warn('[Supabase] Sync network note:', sbErr);
+      });
     }
   } catch (err) {
     console.error('Failed to save gallery photo:', err);

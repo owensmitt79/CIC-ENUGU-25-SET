@@ -597,6 +597,57 @@ function renderGallery(skipRemoteSync = false) {
       window._gallerySyncing = false;
     });
   }
+
+  subscribeToPublicGalleryRealtime();
+}
+
+function subscribeToPublicGalleryRealtime() {
+  const sb = (typeof window !== 'undefined' && typeof window.getSupabaseClient === 'function')
+    ? window.getSupabaseClient()
+    : ((typeof window !== 'undefined' && window.supabaseClient && typeof window.supabaseClient.from === 'function')
+      ? window.supabaseClient
+      : ((typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function')
+        ? window.supabase.createClient('https://kyyoahufvlahubrkxgyo.supabase.co', 'sb_publishable_qAVO4TSs5DGJJnNMI_cn1A_TZ35Qb_J')
+        : null));
+  if (!sb || typeof sb.channel !== 'function') return;
+  if (window._publicGalleryRealtimeSubscribed) return;
+  window._publicGalleryRealtimeSubscribed = true;
+
+  try {
+    sb.channel('public-gallery-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'gallery' }, (payload) => {
+        if (!payload || !payload.eventType) return;
+        const currentList = (typeof DataStore !== 'undefined' && DataStore.getGallery) ? DataStore.getGallery() : [];
+
+        if (payload.eventType === 'INSERT' && payload.new) {
+          const item = payload.new;
+          if (!currentList.some(g => g.id === item.id)) {
+            currentList.unshift({
+              id: item.id,
+              title: item.title,
+              category: item.category,
+              image: item.image,
+              caption: item.caption
+            });
+            DataStore.saveGallery(currentList);
+            renderGallery(true);
+          }
+        } else if (payload.eventType === 'UPDATE' && payload.new) {
+          const item = payload.new;
+          const updated = currentList.map(g => g.id === item.id ? { ...g, ...item } : g);
+          DataStore.saveGallery(updated);
+          renderGallery(true);
+        } else if (payload.eventType === 'DELETE' && payload.old) {
+          const oldId = payload.old.id;
+          const filtered = currentList.filter(g => g.id !== oldId);
+          DataStore.saveGallery(filtered);
+          renderGallery(true);
+        }
+      })
+      .subscribe();
+  } catch (err) {
+    console.warn('[Public Realtime] Gallery note:', err);
+  }
 }
 
 async function syncPublicGalleryFromSupabase() {
@@ -633,6 +684,7 @@ async function syncPublicGalleryFromSupabase() {
 
 window.renderGallery = renderGallery;
 window.syncPublicGalleryFromSupabase = syncPublicGalleryFromSupabase;
+window.subscribeToPublicGalleryRealtime = subscribeToPublicGalleryRealtime;
 
 window.setGalleryFilter = function() {
   renderGallery();
