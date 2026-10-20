@@ -5,8 +5,8 @@
   "scripts": {
     "supabase:login": "supabase login",
     "supabase:link": "supabase link --project-ref kyyoahufvlahubrkxgyo",
-    "supabase:pull": "supabase db pull",
-    "supabase:status": "supabase status"
+    "supabase:dump": "supabase db dump --linked -f supabase/schema.sql",
+    "supabase:types": "supabase gen types typescript --linked > src/types.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0"
