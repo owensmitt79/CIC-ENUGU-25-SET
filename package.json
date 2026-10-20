@@ -2,7 +2,16 @@
   "name": "cic-enugu-1995-portal",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "supabase:login": "supabase login",
+    "supabase:link": "supabase link --project-ref kyyoahufvlahubrkxgyo",
+    "supabase:pull": "supabase db pull",
+    "supabase:status": "supabase status"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.118.0"
+  },
+  "devDependencies": {
+    "supabase": "^2.121.0"
   }
 }
