@@ -562,7 +562,7 @@ window.viewNewsArticle = function(id) {
   `);
 };
 
-function renderGallery() {
+function renderGallery(skipRemoteSync = false) {
   const container = document.getElementById('galleryGrid');
   if (!container) return;
 
@@ -590,7 +590,49 @@ function renderGallery() {
   if (filterWrap) {
     filterWrap.innerHTML = '';
   }
+
+  if (!skipRemoteSync && !window._gallerySyncing) {
+    window._gallerySyncing = true;
+    syncPublicGalleryFromSupabase().finally(() => {
+      window._gallerySyncing = false;
+    });
+  }
 }
+
+async function syncPublicGalleryFromSupabase() {
+  const sb = (typeof window !== 'undefined' && typeof window.getSupabaseClient === 'function')
+    ? window.getSupabaseClient()
+    : ((typeof window !== 'undefined' && window.supabaseClient && typeof window.supabaseClient.from === 'function')
+      ? window.supabaseClient
+      : ((typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function')
+        ? window.supabase.createClient('https://kyyoahufvlahubrkxgyo.supabase.co', 'sb_publishable_qAVO4TSs5DGJJnNMI_cn1A_TZ35Qb_J')
+        : null));
+  if (!sb || typeof sb.from !== 'function') return;
+
+  try {
+    const { data, error } = await sb.from('gallery').select('*').order('created_at', { ascending: false });
+    if (!error && Array.isArray(data) && data.length > 0 && typeof DataStore !== 'undefined') {
+      const localList = DataStore.getGallery() || [];
+      const localMap = new Map(localList.map(item => [item.id, item]));
+      data.forEach(item => {
+        localMap.set(item.id, {
+          id: item.id,
+          title: item.title,
+          category: item.category,
+          image: item.image,
+          caption: item.caption
+        });
+      });
+      DataStore.saveGallery(Array.from(localMap.values()));
+      renderGallery(true);
+    }
+  } catch (err) {
+    console.warn('[Gallery] Supabase sync note:', err);
+  }
+}
+
+window.renderGallery = renderGallery;
+window.syncPublicGalleryFromSupabase = syncPublicGalleryFromSupabase;
 
 window.setGalleryFilter = function() {
   renderGallery();

@@ -44,6 +44,36 @@ export type Database = {
         }
         Relationships: []
       }
+      gallery: {
+        Row: {
+          caption: string | null
+          category: string | null
+          created_at: string | null
+          id: string
+          image: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          caption?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          image: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          caption?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          image?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       leadership: {
         Row: {
           bio: string | null

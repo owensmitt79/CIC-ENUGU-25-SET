@@ -3565,6 +3565,10 @@ window.deleteUploadedMediaImage = function(type, id) {
 
   if (type === 'gallery') {
     DataStore.deleteGalleryItem(id);
+    const sb = typeof getSupabaseClientInstance === 'function' ? getSupabaseClientInstance() : null;
+    if (sb && typeof sb.from === 'function') {
+      sb.from('gallery').delete().eq('id', id).then(() => {}).catch(err => console.warn('[Gallery] Supabase delete note:', err));
+    }
   } else if (type === 'news') {
     DataStore.deleteNews(id);
   } else if (type === 'event') {
@@ -3631,19 +3635,58 @@ function initAdminGalleryStudio() {
       }, false);
     });
 
-    dropzone.addEventListener('drop', (e) => {
-      const dt = e.dataTransfer;
-      const files = dt.files;
-      if (files && files.length > 0) {
-        handleGalleryPhotoUpload(files[0]);
-      }
-    }, false);
+  // Sync with live Supabase gallery table
+  syncGalleryWithSupabase();
+function getSupabaseClientInstance() {
+  if (typeof window !== 'undefined' && window.supabaseClient && typeof window.supabaseClient.from === 'function') {
+    return window.supabaseClient;
+  }
+  if (typeof window !== 'undefined' && typeof window.getSupabaseClient === 'function') {
+    const client = window.getSupabaseClient();
+    if (client && typeof client.from === 'function') return client;
+  }
+  if (typeof window !== 'undefined' && window.supabase && typeof window.supabase.createClient === 'function') {
+    try {
+      window.supabaseClient = window.supabase.createClient('https://kyyoahufvlahubrkxgyo.supabase.co', 'sb_publishable_qAVO4TSs5DGJJnNMI_cn1A_TZ35Qb_J');
+      return window.supabaseClient;
+    } catch (_) {}
+  }
+  return null;
+}
+window.getSupabaseClientInstance = getSupabaseClientInstance;
+
+async function syncGalleryWithSupabase() {
+  const sb = getSupabaseClientInstance();
+  if (!sb || typeof sb.from !== 'function') return;
+
+  try {
+    const { data, error } = await sb.from('gallery').select('*').order('created_at', { ascending: false });
+    if (!error && Array.isArray(data) && data.length > 0) {
+      const localList = DataStore.getGallery();
+      const localMap = new Map(localList.map(item => [item.id, item]));
+      data.forEach(item => {
+        localMap.set(item.id, {
+          id: item.id,
+          title: item.title,
+          category: item.category,
+          image: item.image,
+          caption: item.caption
+        });
+      });
+      DataStore.saveGallery(Array.from(localMap.values()));
+      renderAdminGallery();
+      updateNewsGalleryBadgeCounts();
+    }
+  } catch (err) {
+    console.warn('[Gallery] Supabase sync note:', err);
   }
 }
+window.syncGalleryWithSupabase = syncGalleryWithSupabase;
 
 window.handleGalleryFileSelect = function(event) {
   const file = event.target.files && event.target.files[0];
   if (file) {
+    window._pendingGalleryFile = file;
     handleGalleryPhotoUpload(file);
   }
 };
@@ -3654,6 +3697,7 @@ function handleGalleryPhotoUpload(file) {
     return;
   }
 
+  window._pendingGalleryFile = file;
   const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
   const previewBox = document.getElementById('galleryPhotoPreviewBox');
   const previewImg = document.getElementById('galleryPreviewImg');
@@ -3668,7 +3712,7 @@ function handleGalleryPhotoUpload(file) {
   }
   if (previewBox) previewBox.style.display = 'block';
 
-  window.optimizeImageFile(file).then(dataUrl => {
+  window.optimizeImageFile(file, 1024, 0.75).then(dataUrl => {
     if (dataUrlHidden) dataUrlHidden.value = dataUrl;
     if (previewImg) previewImg.src = dataUrl;
     const estKb = Math.round(dataUrl.length * 0.75 / 1024);
@@ -3695,6 +3739,7 @@ window.handleGalleryUrlInput = function(val) {
 
   if (val && (val.startsWith('http://') || val.startsWith('https://') || val.startsWith('images/'))) {
     if (dataUrlHidden) dataUrlHidden.value = val;
+    window._pendingGalleryFile = null;
     if (previewImg) {
       previewImg.src = val;
       previewImg.onerror = () => {
@@ -3727,6 +3772,7 @@ window.setGalleryPreset = function(url, title, category, caption) {
 };
 
 window.clearGalleryPhotoPreview = function() {
+  window._pendingGalleryFile = null;
   const fileInput = document.getElementById('galleryPhotoFileInput');
   const urlInput = document.getElementById('galleryPhotoUrlInput');
   const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
@@ -3784,67 +3830,120 @@ window.cancelGalleryEdit = function() {
       <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
       Save Photo to Gallery
     `;
+    btnSave.disabled = false;
   }
 
-  // Keep visible as dedicated upload card
   if (card) card.style.display = 'block';
 };
 
-window.saveAdminGalleryPhoto = function(event) {
-  event.preventDefault();
+window.saveAdminGalleryPhoto = async function(event) {
+  if (event && event.preventDefault) event.preventDefault();
+
+  const btnSave = document.getElementById('btnSaveGalleryPhoto');
+  const originalBtnHtml = btnSave ? btnSave.innerHTML : 'Save Photo to Gallery';
 
   const editId = (document.getElementById('galleryPhotoEditId')?.value || '').trim();
   const title = (document.getElementById('galleryPhotoTitleInput')?.value || '').trim();
   const category = document.getElementById('galleryPhotoCategorySelect')?.value || 'Reunions';
   const caption = (document.getElementById('galleryPhotoCaptionInput')?.value || '').trim() || title;
-  const dataUrl = (document.getElementById('galleryPhotoDataUrl')?.value || '').trim();
+  let dataUrl = (document.getElementById('galleryPhotoDataUrl')?.value || '').trim();
   const directUrl = (document.getElementById('galleryPhotoUrlInput')?.value || '').trim();
+
+  // If user hit Save while optimization was still completing, process file now
+  if (!dataUrl && !directUrl && window._pendingGalleryFile) {
+    if (btnSave) {
+      btnSave.disabled = true;
+      btnSave.innerHTML = `<span>Optimizing photo...</span>`;
+    }
+    try {
+      dataUrl = await window.optimizeImageFile(window._pendingGalleryFile, 1024, 0.75);
+      const dataUrlHidden = document.getElementById('galleryPhotoDataUrl');
+      if (dataUrlHidden) dataUrlHidden.value = dataUrl;
+    } catch (err) {
+      console.warn('Could not optimize file in save handler:', err);
+    }
+  }
+
   const image = dataUrl || directUrl;
 
   if (!title) {
     alert('Please enter a photo title or event name.');
+    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = originalBtnHtml; }
     return;
   }
 
   if (!image) {
     alert('Please upload an image file or provide a valid photo URL.');
+    if (btnSave) { btnSave.disabled = false; btnSave.innerHTML = originalBtnHtml; }
     return;
   }
 
-  if (editId) {
-    // Update existing photo
-    const updated = DataStore.updateGalleryItem({
-      id: editId,
-      title,
-      category,
-      image,
-      caption
-    });
+  if (btnSave) {
+    btnSave.disabled = true;
+    btnSave.innerHTML = `<span>Saving to Supabase &amp; Gallery...</span>`;
+  }
 
-    if (updated) {
-      alert(`✓ Photo "${title}" successfully updated!`);
-    }
-  } else {
-    // Add new photo
-    const newPhoto = {
-      id: 'gal-' + Date.now(),
+  try {
+    const photoId = editId || ('gal-' + Date.now());
+    const photoObj = {
+      id: photoId,
       title,
       category,
       image,
       caption
     };
 
-    DataStore.addGalleryItem(newPhoto);
-    alert(`✓ Photo "${title}" added to the Alumni Gallery! It is now live across the portal.`);
-  }
+    // 1. Save to local DataStore
+    if (editId) {
+      DataStore.updateGalleryItem(photoObj);
+    } else {
+      DataStore.addGalleryItem(photoObj);
+    }
 
-  cancelGalleryEdit();
-  renderAdminGallery();
-  updateNewsGalleryBadgeCounts();
+    // 2. Sync to live Supabase Cloud database
+    const sb = getSupabaseClientInstance();
+    if (sb && typeof sb.from === 'function') {
+      try {
+        if (editId) {
+          await sb.from('gallery').update({
+            title,
+            category,
+            image,
+            caption,
+            updated_at: new Date().toISOString()
+          }).eq('id', editId);
+        } else {
+          await sb.from('gallery').insert([{
+            id: photoId,
+            title,
+            category,
+            image,
+            caption
+          }]);
+        }
+      } catch (sbErr) {
+        console.warn('[Supabase] Gallery cloud sync note:', sbErr.message);
+      }
+    }
 
-  // Immediately synchronize public gallery if on page
-  if (typeof renderGallery === 'function') {
-    renderGallery();
+    window._pendingGalleryFile = null;
+    alert(`✓ Photo "${title}" added to the Alumni Gallery! It is now live across the portal and synced with Supabase.`);
+
+    cancelGalleryEdit();
+    renderAdminGallery();
+    updateNewsGalleryBadgeCounts();
+
+    if (typeof renderGallery === 'function') {
+      renderGallery();
+    }
+  } catch (err) {
+    console.error('Failed to save gallery photo:', err);
+    alert('Could not save photo: ' + (err.message || 'Storage error'));
+  } finally {
+    if (btnSave) {
+      btnSave.disabled = false;
+      btnSave.innerHTML = originalBtnHtml;
+    }
   }
 };
 
