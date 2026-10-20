@@ -575,15 +575,20 @@ function renderGallery(skipRemoteSync = false) {
       </div>
     `;
   } else {
-    container.innerHTML = galleryItems.map(item => `
-      <div class="gallery-card" onclick="openLightboxById('${item.id}')" style="cursor: pointer;">
-        <img src="${item.image || 'images/campus.jpg'}" alt="${escapeHtml(item.title)}" class="gallery-img" loading="lazy" onerror="this.src='images/campus.jpg'">
-        <div class="gallery-overlay">
-          <h4>${escapeHtml(item.title)}</h4>
-          <p>${escapeHtml(item.caption || '')}</p>
+    container.innerHTML = galleryItems.map(item => {
+      const imgSrc = (typeof window.resolveGalleryImageUrl === 'function')
+        ? window.resolveGalleryImageUrl(item.image)
+        : (item.image || 'images/campus.jpg');
+      return `
+        <div class="gallery-card" onclick="openLightboxById('${item.id}')" style="cursor: pointer;">
+          <img src="${imgSrc}" alt="${escapeHtml(item.title)}" class="gallery-img" loading="lazy" onerror="this.src='images/campus.jpg'">
+          <div class="gallery-overlay">
+            <h4>${escapeHtml(item.title)}</h4>
+            <p>${escapeHtml(item.caption || '')}</p>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   }
 
   const filterWrap = document.getElementById('galleryFilters');
@@ -695,7 +700,10 @@ window.openLightboxById = function(id) {
     ? DataStore.findGalleryItemById(id)
     : (typeof DataStore !== 'undefined' ? (DataStore.getGallery() || []).find(g => g.id === id) : null);
   if (!item) return;
-  openLightbox(item.image, item.title, item.caption);
+  const imgSrc = (typeof window.resolveGalleryImageUrl === 'function')
+    ? window.resolveGalleryImageUrl(item.image)
+    : (item.image || 'images/campus.jpg');
+  openLightbox(imgSrc, item.title, item.caption);
 };
 
 window.openLightbox = function(src, title, caption) {
@@ -703,7 +711,10 @@ window.openLightbox = function(src, title, caption) {
   const imgEl = document.getElementById('lightboxImg');
   const captionEl = document.getElementById('lightboxCaption');
   if (modal && imgEl && captionEl) {
-    imgEl.src = src || 'images/campus.jpg';
+    const finalSrc = (typeof window.resolveGalleryImageUrl === 'function')
+      ? window.resolveGalleryImageUrl(src)
+      : (src || 'images/campus.jpg');
+    imgEl.src = finalSrc;
     imgEl.onerror = () => { imgEl.src = 'images/campus.jpg'; };
     captionEl.innerHTML = `<strong>${escapeHtml(title || '')}</strong> &mdash; ${escapeHtml(caption || '')}`;
     modal.classList.add('active');

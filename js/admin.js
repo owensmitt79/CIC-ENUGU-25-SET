@@ -3487,7 +3487,7 @@ window.renderAdminMediaLibrary = function() {
   container.innerHTML = list.map(item => `
     <div style="background: var(--white); border: 1.5px solid var(--slate-200); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; transition: transform 0.2s ease, box-shadow 0.2s ease;">
       <div style="position: relative; height: 185px; background: #0b1120; cursor: pointer; overflow: hidden;" onclick="previewMediaItem('${item.id}', '${item.type}')">
-        <img src="${item.image}" alt="${escapeHtml(item.title)}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'" onerror="this.src='images/campus.jpg'">
+        <img src="${window.resolveGalleryImageUrl ? window.resolveGalleryImageUrl(item.image) : item.image}" alt="${escapeHtml(item.title)}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.25s ease;" onmouseover="this.style.transform='scale(1.04)'" onmouseout="this.style.transform='scale(1)'" onerror="this.src='images/campus.jpg'">
         <div style="position: absolute; top: 10px; left: 10px;">
           <span style="background: ${item.sourceBadgeBg}; color: ${item.sourceBadgeColor}; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 9999px; border: 1px solid rgba(0,0,0,0.06); backdrop-filter: blur(4px);">
             ${escapeHtml(item.sourceName)}
@@ -3526,7 +3526,7 @@ window.previewMediaItem = function(id, type) {
   if (typeof openGenericModal === 'function') {
     openGenericModal(`
       <div>
-        <img src="${media.image}" alt="${escapeHtml(media.title)}" style="width: 100%; max-height: 480px; object-fit: contain; background: #0b1120; border-radius: var(--radius-lg) var(--radius-lg) 0 0;" onerror="this.src='images/campus.jpg'">
+        <img src="${window.resolveGalleryImageUrl ? window.resolveGalleryImageUrl(media.image) : media.image}" alt="${escapeHtml(media.title)}" style="width: 100%; max-height: 480px; object-fit: contain; background: #0b1120; border-radius: var(--radius-lg) var(--radius-lg) 0 0;" onerror="this.src='images/campus.jpg'">
         <div style="padding: 1.5rem;">
           <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center;">
             <span style="background: ${media.sourceBadgeBg}; color: ${media.sourceBadgeColor}; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 999px;">
@@ -3568,6 +3568,17 @@ window.deleteUploadedMediaImage = function(type, id) {
     const sb = typeof getSupabaseClientInstance === 'function' ? getSupabaseClientInstance() : null;
     if (sb && typeof sb.from === 'function') {
       sb.from('gallery').delete().eq('id', id).then(() => {}).catch(err => console.warn('[Gallery] Supabase delete note:', err));
+      if (sb.storage && media && media.image) {
+        let storagePath = '';
+        if (media.image.includes('gallery-media/')) {
+          storagePath = media.image.split('gallery-media/')[1];
+        } else if (media.image.startsWith('photos/')) {
+          storagePath = media.image;
+        }
+        if (storagePath) {
+          sb.storage.from('gallery-media').remove([storagePath]).catch(() => {});
+        }
+      }
     }
   } else if (type === 'news') {
     DataStore.deleteNews(id);
@@ -4012,35 +4023,70 @@ window.saveAdminGalleryPhoto = async function(event) {
       2500
     );
 
-    // 2. BACKGROUND CLOUD SYNC: Transmit to Supabase asynchronously without freezing UI
+    // 2. BACKGROUND STORAGE & DATABASE SYNC: Transmit to Supabase asynchronously without freezing UI
     const sb = getSupabaseClientInstance();
-    if (sb && typeof sb.from === 'function') {
-      const syncAction = editId
-        ? sb.from('gallery').update({
-            title,
-            category,
-            image,
-            caption,
-            updated_at: new Date().toISOString()
-          }).eq('id', editId)
-        : sb.from('gallery').insert([{
-            id: photoId,
-            title,
-            category,
-            image,
-            caption
-          }]);
+    if (sb) {
+      (async () => {
+        try {
+          let storagePath = '';
+          let publicImageUrl = image;
 
-      syncAction.then(({ error }) => {
-        if (!error) {
-          showAdminToast(`✓ "${title}" is live on Supabase cloud!`, 'success', 3000);
-        } else {
-          console.warn('[Supabase] Sync warning:', error.message);
-          showAdminToast(`Saved locally. Supabase note: ${error.message}`, 'warning', 4500);
+          // If image is a Base64 Data URL, upload binary Blob to Supabase Storage 'gallery-media' bucket
+          if (dataUrl && dataUrl.startsWith('data:') && sb.storage) {
+            const blob = (typeof window.dataUrlToBlob === 'function') ? window.dataUrlToBlob(dataUrl) : null;
+            if (blob) {
+              storagePath = `photos/${photoId}.jpg`;
+              const { error: uploadErr } = await sb.storage
+                .from('gallery-media')
+                .upload(storagePath, blob, {
+                  contentType: 'image/jpeg',
+                  upsert: true
+                });
+
+              if (!uploadErr) {
+                const { data: pubData } = sb.storage.from('gallery-media').getPublicUrl(storagePath);
+                publicImageUrl = pubData ? pubData.publicUrl : storagePath;
+                // Update local storage item to use the lightweight CDN URL instead of heavy base64
+                photoObj.image = publicImageUrl;
+                DataStore.updateGalleryItem(photoObj);
+                renderAdminGallery();
+              } else {
+                console.warn('[Storage] Upload note:', uploadErr.message);
+              }
+            }
+          }
+
+          // Save Storage path / CDN URL in Supabase database table
+          if (typeof sb.from === 'function') {
+            const imageToStore = storagePath || publicImageUrl;
+            const syncAction = editId
+              ? sb.from('gallery').update({
+                  title,
+                  category,
+                  image: imageToStore,
+                  caption,
+                  updated_at: new Date().toISOString()
+                }).eq('id', editId)
+              : sb.from('gallery').insert([{
+                  id: photoId,
+                  title,
+                  category,
+                  image: imageToStore,
+                  caption
+                }]);
+
+            const { error: dbErr } = await syncAction;
+            if (!dbErr) {
+              showAdminToast(`✓ "${title}" uploaded to gallery-media & synced with Supabase!`, 'success', 3500);
+            } else {
+              console.warn('[Database] Sync warning:', dbErr.message);
+              showAdminToast(`Saved locally. Supabase note: ${dbErr.message}`, 'warning', 4500);
+            }
+          }
+        } catch (cloudErr) {
+          console.warn('[Supabase Cloud Sync Error]:', cloudErr);
         }
-      }).catch(sbErr => {
-        console.warn('[Supabase] Sync network note:', sbErr);
-      });
+      })();
     }
   } catch (err) {
     console.error('Failed to save gallery photo:', err);
@@ -4070,6 +4116,10 @@ window.editGalleryPhotoInAdmin = function(photoId) {
   const headerTitle = document.getElementById('galleryFormHeaderTitle');
   const btnSave = document.getElementById('btnSaveGalleryPhoto');
 
+  const finalSrc = (typeof window.resolveGalleryImageUrl === 'function')
+    ? window.resolveGalleryImageUrl(item.image)
+    : (item.image || '');
+
   if (editId) editId.value = item.id;
   if (titleInput) titleInput.value = item.title || '';
   if (categorySelect) categorySelect.value = item.category || 'Reunions';
@@ -4078,6 +4128,8 @@ window.editGalleryPhotoInAdmin = function(photoId) {
 
   if (item.image && (item.image.startsWith('http') || item.image.startsWith('images/'))) {
     if (urlInput) urlInput.value = item.image;
+  } else if (item.image && !item.image.startsWith('data:')) {
+    if (urlInput) urlInput.value = finalSrc;
   } else {
     if (urlInput) urlInput.value = '';
   }
@@ -4088,7 +4140,7 @@ window.editGalleryPhotoInAdmin = function(photoId) {
   const fileNameEl = document.getElementById('galleryPreviewFileName');
   const statusBadge = document.getElementById('galleryPreviewStatusBadge');
 
-  if (previewImg) previewImg.src = item.image || '';
+  if (previewImg) previewImg.src = finalSrc;
   if (fileNameEl) fileNameEl.textContent = item.title || 'Current Photo';
   if (statusBadge) statusBadge.textContent = 'Existing Photo Loaded';
   if (previewBox) previewBox.style.display = 'block';
